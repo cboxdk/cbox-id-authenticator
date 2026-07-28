@@ -14,8 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // The native screens. Loaded through `then` because `Route::native()` is a macro
         // the NativePHP provider registers, and the named route files are resolved
         // before providers boot.
+        // No middleware group. The reference app registers native routes bare, and the
+        // `web` group's session and CSRF handling has nothing to do on a screen that is
+        // rendered to SwiftUI rather than served over HTTP.
         then: function (): void {
-            Route::middleware('web')->group(base_path('routes/mobile.php'));
+            Route::group([], base_path('routes/mobile.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
