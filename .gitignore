@@ -1,0 +1,34 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.codex
+/.cursor/
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/fonts-manifest.dev.json
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+_ide_helper.php
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+# NativePHP build output, signing material and per-platform Firebase config.
+# The Firebase files identify the project to the OS push services; the SERVER's
+# service-account key is a different thing entirely and must never come near this repo.
+/nativephp
+/google-services.json
+/GoogleService-Info.plist
