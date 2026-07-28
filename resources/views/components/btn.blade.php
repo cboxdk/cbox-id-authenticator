@@ -33,10 +33,10 @@
 
 @php
     $palette = match ($variant) {
-        'secondary' => ['bg' => 'bg-theme-surface-variant', 'fg' => 'text-theme-on-surface-variant'],
-        'destructive' => ['bg' => 'bg-theme-error-container', 'fg' => 'text-theme-on-error-container'],
-        'ghost' => ['bg' => 'bg-transparent', 'fg' => 'text-theme-primary'],
-        default => ['bg' => 'bg-theme-primary', 'fg' => 'text-theme-on-primary'],
+        'secondary' => ['bg' => 'bg-zinc-100', 'fg' => 'text-zinc-600'],
+        'destructive' => ['bg' => 'bg-red-100', 'fg' => 'text-red-800'],
+        'ghost' => ['bg' => 'bg-transparent', 'fg' => 'text-blue-600'],
+        default => ['bg' => 'bg-blue-600', 'fg' => 'text-white'],
     };
 
     $padding = match ($size) {
