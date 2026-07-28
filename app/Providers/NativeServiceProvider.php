@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Native\Mobile\Providers\BiometricsServiceProvider;
+use Native\Mobile\Providers\PushNotificationsServiceProvider;
+use Native\Mobile\Providers\ScannerServiceProvider;
+use Native\Mobile\Providers\SecureStorageServiceProvider;
 
 class NativeServiceProvider extends ServiceProvider
 {
@@ -29,17 +33,16 @@ class NativeServiceProvider extends ServiceProvider
      * This is a security measure to prevent transitive dependencies from
      * automatically registering plugins without your explicit consent.
      *
-     * @return array<int, class-string<\Illuminate\Support\ServiceProvider>>
+     * @return array<int, class-string<ServiceProvider>>
      */
     public function plugins(): array
     {
         return [
-            \Native\Mobile\Providers\PushNotificationsServiceProvider::class,
-            \Native\Mobile\Providers\BiometricsServiceProvider::class,
-            \Native\Mobile\Providers\SecureStorageServiceProvider::class,
-        
-        
-        
+            PushNotificationsServiceProvider::class,
+            BiometricsServiceProvider::class,
+            SecureStorageServiceProvider::class,
+            ScannerServiceProvider::class,
+
         ];
     }
 }

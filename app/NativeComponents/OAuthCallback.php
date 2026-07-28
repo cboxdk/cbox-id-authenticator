@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\NativeComponents;
 
+use App\Concerns\NavigatesScreens;
 use App\Services\DeviceEnrolment;
 use App\Services\OAuthClient;
 use Illuminate\View\View;
@@ -20,6 +21,8 @@ use Throwable;
  */
 class OAuthCallback extends NativeComponent
 {
+    use NavigatesScreens;
+
     public ?string $error = null;
 
     public function mount(): void

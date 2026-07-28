@@ -16,7 +16,7 @@
                     @endif
                 </native:text>
 
-                <native:button label="Re-sync notifications" variant="secondary" size="sm" :loading="$working" @press="resync" />
+                <x-btn label="Re-sync notifications" variant="secondary" size="sm" :loading="$working" press="resync" />
 
                 @if ($notice !== null)
                     <native:text class="text-xs text-theme-on-surface-variant">{{ $notice }}</native:text>
@@ -26,13 +26,13 @@
             <native:divider class="border-theme-outline" />
 
             <native:column class="w-full gap-2">
-                <native:button label="Sign out and remove this device" variant="destructive" size="lg" :disabled="$working" @press="signOut" />
+                <x-btn label="Sign out and remove this device" variant="destructive" size="lg" :disabled="$working" press="signOut" />
                 <native:text class="text-xs text-theme-on-surface-variant">
                     This phone will stop receiving approval requests.
                 </native:text>
             </native:column>
 
-            <native:button label="Back" variant="ghost" @navigate.back />
+            <x-btn label="Back" variant="ghost" press="goBack" />
         </native:column>
     </native:scroll-view>
 </native:column>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\NativeComponents;
 
+use App\Concerns\NavigatesScreens;
 use App\Services\CboxApi;
 use App\Services\TokenStore;
 use Illuminate\View\View;
@@ -23,6 +24,8 @@ use Throwable;
  */
 class Approvals extends NativeComponent
 {
+    use NavigatesScreens;
+
     /** @var list<array<string, mixed>> */
     public array $approvals = [];
 

@@ -32,14 +32,14 @@
                         </native:text>
                     @endif
 
-                    <native:button label="Done" variant="secondary" @navigate.replace="/approvals" />
+                    <x-btn label="Done" variant="secondary" press="goApprovals" />
                 </native:column>
 
             @elseif ($missing || $approval === null)
                 <native:column class="w-full items-center gap-3 py-12">
                     <native:icon name="questionmark.circle" :size="40" class="text-theme-on-surface-variant" />
                     <native:text class="text-base text-theme-on-background">This request is no longer available.</native:text>
-                    <native:button label="Back" variant="secondary" @navigate.back />
+                    <x-btn label="Back" variant="secondary" press="goBack" />
                 </native:column>
 
             @else
@@ -87,7 +87,7 @@
                 </native:text>
 
                 <native:column class="w-full gap-2 pt-2">
-                    <native:button
+                    <x-btn
                         label="Approve"
                         variant="primary"
                         size="lg"
@@ -95,11 +95,11 @@
                         :disabled="$this->secondsLeft <= 0"
                         @press="approve"
                     />
-                    <native:button label="Deny" variant="secondary" size="lg" :disabled="$working" @press="deny" />
+                    <x-btn label="Deny" variant="secondary" size="lg" :disabled="$working" press="deny" />
 
                     {{-- Deliberately distinct from Deny: a user who did not start this
                          is reporting an attack, not declining a request. --}}
-                    <native:button label="This wasn't me" variant="destructive" size="md" :disabled="$working" @press="wasNotMe" />
+                    <x-btn label="This wasn't me" variant="destructive" size="md" :disabled="$working" press="wasNotMe" />
                 </native:column>
             @endif
 

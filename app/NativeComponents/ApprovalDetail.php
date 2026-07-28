@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\NativeComponents;
 
+use App\Concerns\NavigatesScreens;
 use App\Services\CboxApi;
 use Illuminate\View\View;
 use Native\Mobile\Attributes\Computed;
@@ -31,6 +32,8 @@ use Throwable;
  */
 class ApprovalDetail extends NativeComponent
 {
+    use NavigatesScreens;
+
     /** @var array<string, mixed>|null */
     public ?array $approval = null;
 

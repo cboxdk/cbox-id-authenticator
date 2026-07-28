@@ -7,16 +7,13 @@
         </native:text>
     </native:column>
 
-    {{-- `native:text-input`, not one of the outlined/filled/bare variants the docs index
-         describes: 4.0.0-rc.1 registers only `text_input`. The docs are written against
-         a later state of the engine than this release candidate ships. --}}
-    <native:text-input
-        native:model.blur="host"
-        label="Your Cbox ID address"
-        placeholder="acme.cboxid.com"
-        keyboard="url"
-        :disabled="$working"
-    />
+    <native:column class="w-full gap-2 p-4 rounded-2xl bg-theme-surface">
+        <native:text class="text-sm font-semibold text-theme-on-surface">Connect this phone</native:text>
+        <native:text class="text-sm text-theme-on-surface-variant">
+            Open Cbox ID on your computer, go to Sign-in → Trusted devices, and scan the
+            code shown there.
+        </native:text>
+    </native:column>
 
     @if ($error !== null)
         <native:row class="w-full items-center gap-2">
@@ -25,7 +22,7 @@
         </native:row>
     @endif
 
-    <native:button label="Continue" variant="primary" size="lg" :loading="$working" @press="connect" />
+    <x-btn label="Scan the code" variant="primary" size="lg" :loading="$working" press="scan" />
 
     <native:text text-align="center" class="text-xs text-theme-on-surface-variant">
         You'll sign in with your normal Cbox ID account in your browser.

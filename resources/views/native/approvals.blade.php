@@ -48,6 +48,6 @@
 
     <native:row class="w-full p-4 items-center">
         <native:spacer />
-        <native:button label="Settings" variant="ghost" size="sm" @navigate="/settings" />
+        <x-btn label="Settings" variant="ghost" size="sm" press="goSettings" />
     </native:row>
 </native:column>

@@ -94,9 +94,6 @@ final class DpopKey
         return self::base64Url(hash('sha256', json_encode($this->publicJwk(), JSON_THROW_ON_ERROR), true));
     }
 
-    /**
-     * @return \OpenSSLAsymmetricKey
-     */
     public function resource(): \OpenSSLAsymmetricKey
     {
         $key = openssl_pkey_get_private($this->pem());

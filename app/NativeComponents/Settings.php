@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\NativeComponents;
 
+use App\Concerns\NavigatesScreens;
 use App\Services\DeviceEnrolment;
 use App\Services\DpopKey;
 use App\Services\OAuthClient;
@@ -16,6 +17,8 @@ use Throwable;
 
 class Settings extends NativeComponent
 {
+    use NavigatesScreens;
+
     public ?string $permission = null;
 
     public bool $working = false;

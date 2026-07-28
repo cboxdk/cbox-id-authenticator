@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e4079c299d5fa9a0e4c6f555c1df22d1",
+    "content-hash": "e580134b59c6697c25dd83b99112f46c",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -2691,6 +2691,61 @@
                 "issues": "https://github.com/NativePHP/mobile-firebase/issues"
             },
             "time": "2026-04-04T00:38:56+00:00"
+        },
+        {
+            "name": "nativephp/mobile-scanner",
+            "version": "1.0.3",
+            "dist": {
+                "type": "zip",
+                "url": "https://plugins.nativephp.com/dist/nativephp/mobile-scanner/nativephp-mobile-scanner-c04316ba52090d8c8c0e4df813b8130b9339711c-zip-752925.zip",
+                "reference": "c04316ba52090d8c8c0e4df813b8130b9339711c",
+                "shasum": "d29aa4b7a9cebbc3afdd42dac8554b2a9c8fadf3"
+            },
+            "require": {
+                "nativephp/mobile": "^3.0 || ^4.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^10.0",
+                "pestphp/pest": "^2.7|^3.0|^4.0"
+            },
+            "type": "nativephp-plugin",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Native\\Mobile\\Providers\\ScannerServiceProvider"
+                    ]
+                },
+                "nativephp": {
+                    "manifest": "nativephp.json"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Native\\Mobile\\Providers\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "NativePHP",
+                    "email": "support@nativephp.com"
+                }
+            ],
+            "description": "QR code and barcode scanner plugin for NativePHP Mobile - supports multiple barcode formats with continuous scanning",
+            "time": "2026-07-15T18:46:27+00:00"
         },
         {
             "name": "nativephp/mobile-secure-storage",
