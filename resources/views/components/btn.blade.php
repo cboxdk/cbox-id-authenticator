@@ -11,7 +11,7 @@
     A button, built from `native:pressable` + `native:text`.
 
     NativePHP 4.0.0-rc.1 ships an `Edge\Elements\Button` class but never registers it, so
-    `<native:button>` throws "Unknown native element type: button" at render — verified
+    `<button>` throws "Unknown native element type: button" at render — verified
     against the package's own test harness, not inferred. The same is true of text-input,
     toggle and activity-indicator. The docs index bundled with the package describes all
     of them because it is written against a later state of the engine than this release
@@ -56,13 +56,13 @@
     $dim = $inert ? ' opacity-50' : '';
 @endphp
 
-<native:pressable
+<pressable
     class="w-full items-center justify-center rounded-2xl {{ $padding }} {{ $palette['bg'] }}{{ $dim }}"
     :press-scale="0.97"
     :press-opacity="0.85"
     @press="{{ $handler }}"
 >
-    <native:text class="{{ $textSize }} font-semibold {{ $palette['fg'] }}" text-align="center">
+    <text class="{{ $textSize }} font-semibold {{ $palette['fg'] }}" text-align="center">
         {{ $loading ? 'Working…' : ($label !== '' ? $label : $slot) }}
-    </native:text>
-</native:pressable>
+    </text>
+</pressable>
