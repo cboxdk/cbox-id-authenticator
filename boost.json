@@ -5,14 +5,24 @@
         "opencode",
         "zed"
     ],
-    "cloud": false,
+    "cloud": true,
     "guidelines": true,
     "mcp": true,
     "nightwatch": false,
+    "packages": [
+        "nativephp/mobile",
+        "nativephp/mobile-biometrics",
+        "nativephp/mobile-firebase",
+        "nativephp/mobile-scanner",
+        "nativephp/mobile-secure-storage"
+    ],
     "sail": false,
     "skills": [
         "laravel-best-practices",
         "livewire-development",
-        "pest-testing"
+        "pest-testing",
+        "nativephp-mobile",
+        "nativephp-webview-to-native",
+        "deploying-laravel-cloud"
     ]
 }

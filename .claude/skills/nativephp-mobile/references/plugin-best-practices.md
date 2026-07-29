@@ -36,12 +36,18 @@ Plugins can leverage:
 ```
 my-plugin/
 ├── composer.json                  # type must be "nativephp-plugin"
+
 ├── nativephp.json                 # central manifest
+
 ├── src/                           # PHP classes, facades, events, service provider
+
 ├── resources/
 │   ├── android/src/               # Kotlin bridge functions
+
 │   ├── ios/Sources/               # Swift bridge functions
+
 │   └── js/                        # JavaScript library stubs
+
 ```
 
 Scaffold a plugin with: `php artisan native:plugin:create`

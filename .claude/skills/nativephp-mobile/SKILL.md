@@ -53,10 +53,15 @@ Never auto-run these commands. Always tell the user to run them manually, and al
 
 ```bash
 php artisan native:run ios          # or android; compile and launch
+
 php artisan native:run ios --watch  # build, deploy, hot reload in one
+
 php artisan native:watch            # hot reload only
+
 php artisan native:jump             # device dev loop via the Jump app (QR code)
+
 ./native run                        # shortcut wrapper installed by native:install
+
 ```
 
 The Vite dev server is **opt-in** in v4: add `--vite` to `native:run`/`native:watch` only when the app uses
@@ -72,7 +77,9 @@ existing app. Set env vars **before** `php artisan native:install`:
 NATIVEPHP_APP_ID=com.yourcompany.yourapp
 NATIVEPHP_APP_VERSION="DEBUG"
 NATIVEPHP_APP_VERSION_CODE="1"
+
 # Optional for iOS:
+
 NATIVEPHP_DEVELOPMENT_TEAM=XXXXXXXXXX
 ```
 
@@ -171,8 +178,11 @@ nothing):
 ```bash
 composer require vendor/plugin-name
 php artisan vendor:publish --tag=nativephp-plugins-provider   # once, before first registration
+
 php artisan native:plugin:register vendor/plugin-name          # adds it to NativeServiceProvider
+
 php artisan native:plugin:list                                 # verify it shows as registered
+
 ```
 
 Then tell the user to rebuild with `native:run` (don't run it yourself). If `native:run` warns "The following
