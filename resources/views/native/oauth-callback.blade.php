@@ -4,6 +4,6 @@
     @else
         <icon name="exclamationmark.triangle" :size="40" class="text-red-600" />
         <text text-align="center" class="text-base text-zinc-900">{{ $error }}</text>
-        <x-btn label="Try again" variant="primary" press="goConnect" />
+        <button label="Try again" variant="primary" @press="goConnect"></button>
     @endif
 </column>

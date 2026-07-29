@@ -48,6 +48,6 @@
 
     <row class="w-full p-4 items-center">
         <spacer />
-        <x-btn label="Settings" variant="ghost" size="sm" press="goSettings" />
+        <button label="Settings" variant="ghost" size="sm" @press="goSettings"></button>
     </row>
 </column>

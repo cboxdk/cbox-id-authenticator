@@ -22,7 +22,7 @@
         </row>
     @endif
 
-    <x-btn label="Scan the code" variant="primary" size="lg" :loading="$working" press="scan" />
+    <button label="Scan the code" variant="primary" size="lg" :loading="$working" @press="scan"></button>
 
     <text text-align="center" class="text-xs text-zinc-600">
         You'll sign in with your normal Cbox ID account in your browser.

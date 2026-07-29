@@ -32,14 +32,14 @@
                         </text>
                     @endif
 
-                    <x-btn label="Done" variant="secondary" press="goApprovals" />
+                    <button label="Done" variant="secondary" @press="goApprovals"></button>
                 </column>
 
             @elseif ($missing || $approval === null)
                 <column class="w-full items-center gap-3 py-12">
                     <icon name="questionmark.circle" :size="40" class="text-zinc-600" />
                     <text class="text-base text-zinc-900">This request is no longer available.</text>
-                    <x-btn label="Back" variant="secondary" press="goBack" />
+                    <button label="Back" variant="secondary" @press="goBack"></button>
                 </column>
 
             @else
@@ -95,11 +95,11 @@
                         :disabled="$this->secondsLeft <= 0"
                         @press="approve"
                     />
-                    <x-btn label="Deny" variant="secondary" size="lg" :disabled="$working" press="deny" />
+                    <button label="Deny" variant="secondary" size="lg" :disabled="$working" @press="deny"></button>
 
                     {{-- Deliberately distinct from Deny: a user who did not start this
                          is reporting an attack, not declining a request. --}}
-                    <x-btn label="This wasn't me" variant="destructive" size="md" :disabled="$working" press="wasNotMe" />
+                    <button label="This wasn't me" variant="destructive" size="md" :disabled="$working" @press="wasNotMe"></button>
                 </column>
             @endif
 

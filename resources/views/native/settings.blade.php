@@ -16,7 +16,7 @@
                     @endif
                 </text>
 
-                <x-btn label="Re-sync notifications" variant="secondary" size="sm" :loading="$working" press="resync" />
+                <button label="Re-sync notifications" variant="secondary" size="sm" :loading="$working" @press="resync"></button>
 
                 @if ($notice !== null)
                     <text class="text-xs text-zinc-600">{{ $notice }}</text>
@@ -26,13 +26,13 @@
             <divider class="border-zinc-200" />
 
             <column class="w-full gap-2">
-                <x-btn label="Sign out and remove this device" variant="destructive" size="lg" :disabled="$working" press="signOut" />
+                <button label="Sign out and remove this device" variant="destructive" size="lg" :disabled="$working" @press="signOut"></button>
                 <text class="text-xs text-zinc-600">
                     This phone will stop receiving approval requests.
                 </text>
             </column>
 
-            <x-btn label="Back" variant="ghost" press="goBack" />
+            <button label="Back" variant="ghost" @press="goBack"></button>
         </column>
     </scroll-view>
 </column>
