@@ -47,7 +47,7 @@ class OAuthCallback extends NativeComponent
         }
 
         try {
-            $scheme = (string) config('nativephp.deeplink_scheme', 'dk.cbox.id.authenticator');
+            $scheme = (string) config('nativephp.deeplink_scheme', 'com.cboxid.authenticator');
 
             app(OAuthClient::class)->exchange($code, $state, $scheme.':/oauth/callback');
 

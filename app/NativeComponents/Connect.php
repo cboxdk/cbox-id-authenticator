@@ -141,7 +141,7 @@ class Connect extends NativeComponent
      */
     private function redirectUri(): string
     {
-        $scheme = (string) config('nativephp.deeplink_scheme', 'dk.cbox.id.authenticator');
+        $scheme = (string) config('nativephp.deeplink_scheme', 'com.cboxid.authenticator');
 
         return $scheme.':/oauth/callback';
     }
