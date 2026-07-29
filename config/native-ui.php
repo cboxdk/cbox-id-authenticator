@@ -41,7 +41,7 @@ return [
 
         'light' => [
             // Primary brand color — used for filled buttons, active states, key accents.
-            'primary' => '#0F766E',
+            'primary' => '#0850AB',
             'on-primary' => '#FFFFFF',
 
             // Secondary / muted action color.
@@ -74,7 +74,7 @@ return [
         'dark' => [
             // Leave empty or partial to auto-derive from `light` (luminance inversion).
             // Specify any token here to override the derived value.
-            'primary' => '#14B8A6',
+            'primary' => '#418DFA',
             'on-primary' => '#FFFFFF',
 
             'secondary' => '#94A3B8',
