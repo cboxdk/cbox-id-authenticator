@@ -99,6 +99,11 @@
     "prefer-stable": true,
     "repositories": [
         {
+            "name": "mobile",
+            "type": "vcs",
+            "url": "https://github.com/nativephp/mobile-air"
+        },
+        {
             "name": "ui",
             "type": "vcs",
             "url": "https://github.com/nativephp/native-ui"
