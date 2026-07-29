@@ -42,6 +42,8 @@ class NativeServiceProvider extends ServiceProvider
             BiometricsServiceProvider::class,
             SecureStorageServiceProvider::class,
             ScannerServiceProvider::class,
+            \Native\Mobile\UI\NativeUIServiceProvider::class,
+        
 
         ];
     }

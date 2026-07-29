@@ -11,11 +11,12 @@
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^4.3",
-        "nativephp/mobile": "^4.0@rc",
+        "nativephp/mobile": "dev-main as 4.0.x-dev",
         "nativephp/mobile-biometrics": "^1.0",
         "nativephp/mobile-firebase": "^1.1",
         "nativephp/mobile-scanner": "^1.0",
-        "nativephp/mobile-secure-storage": "^1.0"
+        "nativephp/mobile-secure-storage": "^1.0",
+        "nativephp/mobile-ui": "^0.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -93,6 +94,10 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "repositories": [{
+        "name": "ui",
+        "type": "vcs",
+        "url": "https://github.com/nativephp/native-ui"
+    },{
         "name": "nativephp-plugins",
         "type": "composer",
         "url": "https://plugins.nativephp.com"
