@@ -41,7 +41,7 @@ final class OAuthClient
      */
     public function discover(string $host): array
     {
-        $base = 'https://'.preg_replace('#^https?://#', '', rtrim($host, '/'));
+        $base = self::baseUrlFor($host);
 
         $response = Http::acceptJson()->timeout(15)->get($base.'/.well-known/cbox-authenticator');
 
@@ -63,6 +63,31 @@ final class OAuthClient
         SecureStorage::set(self::CLIENT_ID, $body['client_id']);
 
         return $body;
+    }
+
+    /**
+     * HTTPS everywhere, except a loopback host during development.
+     *
+     * Forcing https unconditionally means the app can never be pointed at a local
+     * `php artisan serve`, so the first end-to-end test of the sign-in flow would have
+     * to wait for a deployed environment. The exception is deliberately narrow —
+     * literal localhost or a loopback address, nothing else — and mirrors what the
+     * platform's own redirect-URI validator already permits for the same reason.
+     *
+     * Anything with a real hostname is https, so a tenant cannot be talked onto
+     * plaintext by a QR code claiming `http://`.
+     */
+    private static function baseUrlFor(string $host): string
+    {
+        $bare = preg_replace('#^https?://#', '', rtrim($host, '/')) ?? $host;
+        $name = explode(':', $bare)[0];
+
+        $loopback = $name === 'localhost'
+            || $name === '127.0.0.1'
+            || $name === '::1'
+            || str_ends_with($name, '.localhost');
+
+        return ($loopback ? 'http://' : 'https://').$bare;
     }
 
     /**

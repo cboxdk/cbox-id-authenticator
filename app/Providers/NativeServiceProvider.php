@@ -7,6 +7,7 @@ use Native\Mobile\Providers\BiometricsServiceProvider;
 use Native\Mobile\Providers\PushNotificationsServiceProvider;
 use Native\Mobile\Providers\ScannerServiceProvider;
 use Native\Mobile\Providers\SecureStorageServiceProvider;
+use Native\Mobile\UI\NativeUIServiceProvider;
 
 class NativeServiceProvider extends ServiceProvider
 {
@@ -42,8 +43,7 @@ class NativeServiceProvider extends ServiceProvider
             BiometricsServiceProvider::class,
             SecureStorageServiceProvider::class,
             ScannerServiceProvider::class,
-            \Native\Mobile\UI\NativeUIServiceProvider::class,
-        
+            NativeUIServiceProvider::class,
 
         ];
     }

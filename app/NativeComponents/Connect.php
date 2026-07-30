@@ -127,8 +127,19 @@ class Connect extends NativeComponent
             }
         }
 
-        // A hostname, and nothing that could smuggle a path, port or credentials.
-        return preg_match('/^[a-z0-9.-]+\.[a-z]{2,}$/i', $raw) === 1 ? strtolower($raw) : null;
+        $raw = strtolower($raw);
+
+        // A loopback host, optionally with a port, so the app can be pointed at a local
+        // `php artisan serve`. Narrow on purpose: only these names, and a port is the
+        // only extra thing allowed. Without it the first end-to-end sign-in test would
+        // be stuck behind a deployment.
+        if (preg_match('/^(localhost|127\.0\.0\.1|\[::1\])(:\d{1,5})?$/', $raw) === 1) {
+            return $raw;
+        }
+
+        // Otherwise a real hostname, and nothing that could smuggle a path, port or
+        // credentials past the check.
+        return preg_match('/^[a-z0-9.-]+\.[a-z]{2,}$/', $raw) === 1 ? $raw : null;
     }
 
     /**
