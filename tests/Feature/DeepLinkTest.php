@@ -2,8 +2,12 @@
 
 declare(strict_types=1);
 
+use App\NativeComponents\Approvals;
+use App\NativeComponents\Connect;
 use App\NativeComponents\OAuthCallback;
+use App\NativeComponents\Settings;
 use App\Support\DeepLinkQuery;
+use Illuminate\Support\Facades\Http;
 use Native\Mobile\Edge\NativeRouter;
 
 /**
@@ -61,4 +65,34 @@ it('names what was missing when a callback arrives without its code', function (
 
     Native\Mobile\Testing\Native::test(OAuthCallback::class)
         ->assertSet('error', 'That sign-in link was incomplete (no code).');
+});
+
+it('reaches the connect screen from an enrolment link carrying a query', function (): void {
+    // `…://connect?host=…&t=…` is the console's tap-to-enrol link, so a query here is
+    // the norm rather than an edge. Without /connect{tail} it resolves to nothing and
+    // the app simply opens on whatever screen it was already showing.
+    expect(NativeRouter::resolve('/connect')['class'] ?? null)
+        ->toBe(Connect::class)
+        ->and(NativeRouter::resolve('/connect?host=cboxid.com&t=abc')['class'] ?? null)
+        ->toBe(Connect::class);
+});
+
+it('does not let the connect pattern swallow other screens', function (): void {
+    // `#^/connect(?P<tail>[^/]+)$#` — no separator, so it matches /connect plus
+    // something and nothing else.
+    expect(NativeRouter::resolve('/approvals')['class'] ?? null)
+        ->toBe(Approvals::class)
+        ->and(NativeRouter::resolve('/settings')['class'] ?? null)
+        ->toBe(Settings::class);
+});
+
+it('starts enrolment from the link rather than waiting for a scan', function (): void {
+    fakeSecureStorage();
+    Http::fake();
+
+    // Reached the way the OS delivers it: the query lives on the URI, not in data.
+    Native\Mobile\Testing\Native::visit('/connect?host=id.acme.dk&t=abc')
+        // Refused for the host, which proves the link was READ — an unparsed link does
+        // nothing at all and leaves the screen blank, which is the reported symptom.
+        ->assertSee('connects to cboxid.com accounts only');
 });

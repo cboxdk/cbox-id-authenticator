@@ -11,6 +11,7 @@ use App\Services\EnrolmentCode;
 use App\Services\EnrolmentToken;
 use App\Services\HostDiscovery;
 use App\Services\SupportedHost;
+use App\Support\DeepLinkQuery;
 use App\Support\RedirectUri;
 use Illuminate\View\View;
 use Native\Mobile\Attributes\On;
@@ -59,13 +60,20 @@ class Connect extends NativeComponent
     {
         $this->canGoBack = ! app(AccountStore::class)->isEmpty();
 
-        // An enrolment deep link may carry the code directly, so an emailed link works
-        // on a handset whose camera is unavailable.
-        $host = (string) $this->data('host', '');
+        // An enrolment link carries the code directly — the console renders one beside
+        // the QR so a handset whose camera is unavailable, or a user who would rather
+        // tap than scan, still gets here.
+        //
+        // Read off the URI, not from navigation data. The router puts a deep link's
+        // query nowhere: it does not parse it into data, and `#^/connect$#` cannot even
+        // match a URI carrying one — see App\Support\DeepLinkQuery and the /connect{tail}
+        // route. data() is consulted first so an in-app navigation still works.
+        $query = DeepLinkQuery::parse($this->nativeRouter?->currentUri());
+
+        $host = (string) ($this->data('host') ?? $query['host'] ?? '');
+        $token = (string) ($this->data('t') ?? $query['t'] ?? '');
 
         if ($host !== '') {
-            $token = (string) $this->data('t', '');
-
             $this->begin(new EnrolmentCode($host, $token !== '' ? $token : null));
         }
     }

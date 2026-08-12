@@ -35,6 +35,18 @@ Route::native('/', Launch::class);
 // deep link — never as an implicit redirect, so it still renders with accounts present.
 Route::native('/connect', Connect::class);
 
+/*
+ * The same screen with a query, for the same reason /oauth/{tail} exists below: the
+ * router matches a URI verbatim and `#^/connect$#` cannot survive a `?`.
+ *
+ * The enrolment link from the console is `…://connect?host=…&t=…`, which is the whole
+ * point of a link rather than a scan — so this is not an edge case either. `{tail}`
+ * widens to `[^/]+` and there is no separator, giving `#^/connect(?P<tail>[^/]+)$#`:
+ * it matches `/connect?host=…` and nothing else. A bare /connect still takes the exact
+ * route above, and /approvals is untouched.
+ */
+Route::native('/connect{tail}', Connect::class);
+
 // The OAuth redirect target. Registered on the client as both this scheme and an
 // HTTPS App Link; multi-account settles the choice on the scheme, since an App Link is
 // bound to a single host.
