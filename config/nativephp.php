@@ -109,10 +109,23 @@ return [
     |
     */
 
+    /*
+     * Written for App Store review, not for us.
+     *
+     * The plugins ship generic defaults — "This app uses Face ID for secure
+     * authentication", "This app requires camera access to scan QR codes and barcodes" —
+     * and guideline 5.1.1 asks for the SPECIFIC use, in terms the person tapping Allow
+     * can weigh. Boilerplate purpose strings are among the most common rejections, and
+     * Face ID's is the one reviewers read hardest.
+     *
+     * Each says what the app actually does, and each is checkable against the code:
+     * Scanner is invoked only from the connect screen, and Biometrics only before an
+     * approval — never before a denial, so someone shutting down a prompt they did not
+     * expect is never asked to authenticate first.
+     */
     'permissions' => [
-        // 'NSCameraUsageDescription' => 'Used to take a profile photo.',
-        // 'NSMicrophoneUsageDescription' => 'Used to record audio with your videos.',
-        // 'NSPhotoLibraryUsageDescription' => 'Used to select photos for your post.',
+        'NSCameraUsageDescription' => 'Cbox ID uses the camera only to scan the enrolment code shown in your Cbox ID console. Nothing is recorded, stored or uploaded.',
+        'NSFaceIDUsageDescription' => 'Cbox ID asks for Face ID before you approve a sign-in or agent request, so that someone holding your unlocked phone cannot approve one in your name. Denying a request never asks.',
     ],
 
     /*
