@@ -1,0 +1,24 @@
+#
+# The OpenSSL configuration ext-openssl needs in order to GENERATE a key.
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# openssl_pkey_new() will not create a key without a configuration to read, and the
+# NativePHP iOS runtime ships none: the php.ini it writes at launch sets curl.cainfo and
+# openssl.cafile and nothing else, and no openssl.cnf exists anywhere in the app bundle.
+# On a desktop the system copy at /etc/ssl or /opt/homebrew/etc is found automatically,
+# which is exactly why this is invisible in development and fatal on a handset — the app
+# reported "Could not generate a DPoP key on this device" and the device was fine.
+#
+# Deliberately minimal. Nothing here selects an algorithm or a curve; those are passed by
+# DpopKey, which asks for prime256v1 because the server requires ES256. This file exists
+# to satisfy the loader, not to configure anything.
+#
+# Referenced explicitly by path rather than through OPENSSL_CONF, so development and
+# device resolve the same file and a working desktop cannot hide a broken build again.
+#
+
+[ req ]
+distinguished_name = req_distinguished_name
+
+[ req_distinguished_name ]

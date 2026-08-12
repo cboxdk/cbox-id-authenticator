@@ -126,15 +126,40 @@ final class DpopKey
         $this->pem = null;
     }
 
+    /**
+     * The OpenSSL configuration to generate under.
+     *
+     * ext-openssl will not create a key without a configuration to read, and the iOS
+     * runtime ships none — its php.ini sets only the CA bundle. A desktop finds the
+     * system copy and this is invisible; a handset does not, and key generation fails
+     * with nothing to go on. Passing the path explicitly makes both resolve the same
+     * file, so a working development machine cannot hide a broken build.
+     */
+    private static function opensslConfig(): string
+    {
+        return resource_path('openssl.cnf');
+    }
+
     private function generate(): string
     {
-        $key = openssl_pkey_new([
+        $config = ['config' => self::opensslConfig()];
+
+        $key = openssl_pkey_new($config + [
             'private_key_type' => OPENSSL_KEYTYPE_EC,
             'curve_name' => 'prime256v1',
         ]);
 
-        if ($key === false || ! openssl_pkey_export($key, $pem)) {
-            throw new RuntimeException('Could not generate a DPoP key on this device.');
+        // openssl_pkey_export() needs the configuration too — it is not inherited from
+        // the key, and omitting it fails at the second step instead of the first.
+        if ($key === false || ! openssl_pkey_export($key, $pem, null, $config)) {
+            // Say what OpenSSL said. "Could not generate a key" sent us looking at the
+            // keychain, at entitlements and at the Secure Enclave, when the answer was a
+            // missing config file the library had already named.
+            throw new RuntimeException(
+                'Could not generate a DPoP key on this device: '
+                .(openssl_error_string() ?: 'openssl gave no reason')
+                .' (config: '.self::opensslConfig().')'
+            );
         }
 
         if (! SecureStorage::set($this->prefix.self::STORAGE_KEY, $pem)) {
