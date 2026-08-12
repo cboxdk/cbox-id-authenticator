@@ -40,6 +40,28 @@ Route::native('/connect', Connect::class);
 // bound to a single host.
 Route::native('/oauth/callback', OAuthCallback::class);
 
+/*
+ * The same screen, again, and it is not a duplicate.
+ *
+ * NativeRouter::resolve() matches a URI verbatim: exact key first, then `#^pattern$#`
+ * with `{param}` widened to `[^/]+`. Nothing splits off a query string. So the callback
+ * this app actually receives —
+ *
+ *     /oauth/callback?code=…&state=…&iss=…
+ *
+ * — matches neither form, resolves to null, and the router exits to the web view instead
+ * of reaching the screen. The OAuth callback is the one URI in this app guaranteed to
+ * carry a query, so that is not an edge case; it is the flow.
+ *
+ * `{tail}` matches `callback?code=…` in one greedy segment, which gets the screen
+ * mounted. OAuthCallback then reads the query off the router's own URI — see
+ * App\Support\DeepLinkQuery. Registered second so a bare /oauth/callback still takes the
+ * exact route above.
+ *
+ * Remove this the day the router learns about query strings, and not before.
+ */
+Route::native('/oauth/{tail}', OAuthCallback::class);
+
 Route::native('/approvals', Approvals::class);
 
 // The account is in the path because an approval id is unique only within its own host.

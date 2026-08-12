@@ -7,6 +7,7 @@ namespace App\NativeComponents;
 use App\Accounts\AccountContext;
 use App\Accounts\AccountServices;
 use App\Concerns\NavigatesScreens;
+use App\Support\DeepLinkQuery;
 use Illuminate\View\View;
 use Native\Mobile\Attributes\Computed;
 use Native\Mobile\Attributes\Poll;
@@ -67,6 +68,19 @@ class ApprovalDetail extends NativeComponent
     private function services(): ?AccountServices
     {
         return app(AccountContext::class)->forId((string) $this->param('account'));
+    }
+
+    /**
+     * The approval id, with any query string the router left attached.
+     *
+     * `{id}` is widened to `[^/]+`, which does not stop at a `?`. A notification deep
+     * link carrying `?iss=…` therefore arrives as `01J…?iss=https://…`, and asking the
+     * server for that id matches nothing — the screen would report a live request as
+     * gone. See App\Support\DeepLinkQuery.
+     */
+    private function approvalId(): string
+    {
+        return DeepLinkQuery::cleanParam((string) $this->param('id'));
     }
 
     /**
@@ -142,7 +156,7 @@ class ApprovalDetail extends NativeComponent
 
         $this->working = true;
 
-        $id = (string) $this->param('id');
+        $id = $this->approvalId();
 
         try {
             $settled = $approve
@@ -175,7 +189,7 @@ class ApprovalDetail extends NativeComponent
         $this->accountLabel = $services->account->label;
 
         try {
-            $this->approval = $services->api->approval((string) $this->param('id'));
+            $this->approval = $services->api->approval($this->approvalId());
             $this->missing = $this->approval === null;
         } catch (Throwable) {
             $this->missing = true;

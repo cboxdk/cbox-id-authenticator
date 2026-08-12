@@ -8,6 +8,7 @@ use App\Accounts\Account;
 use App\Accounts\AccountContext;
 use App\Accounts\PendingSignIns;
 use App\Concerns\NavigatesScreens;
+use App\Support\DeepLinkQuery;
 use App\Support\RedirectUri;
 use Illuminate\View\View;
 use Native\Mobile\Edge\NativeComponent;
@@ -33,21 +34,48 @@ class OAuthCallback extends NativeComponent
 
     public ?string $error = null;
 
+    /**
+     * The callback's query parameters.
+     *
+     * Read from the URI rather than from navigation data, because the router never puts
+     * a deep link's query there — see {@see DeepLinkQuery}. `data()` is still consulted
+     * first so an in-app navigation, and any future router that does populate it, keep
+     * working.
+     *
+     * @return array<string, string>
+     */
+    private function query(): array
+    {
+        $fromUri = DeepLinkQuery::parse($this->nativeRouter?->currentUri());
+
+        return array_filter([
+            'code' => (string) $this->data('code', ''),
+            'state' => (string) $this->data('state', ''),
+            'error' => (string) $this->data('error', ''),
+        ]) + $fromUri;
+    }
+
     public function mount(): void
     {
-        $code = (string) $this->data('code', '');
-        $state = (string) $this->data('state', '');
+        $query = $this->query();
+
+        $code = $query['code'] ?? '';
+        $state = $query['state'] ?? '';
 
         // The authorization server reports its own failures here too — a denied consent,
         // an invalid request — and those arrive with no code at all.
-        if ((string) $this->data('error', '') !== '') {
+        if (($query['error'] ?? '') !== '') {
             $this->error = 'Sign-in was not completed.';
 
             return;
         }
 
         if ($code === '' || $state === '') {
-            $this->error = 'That sign-in link was incomplete.';
+            // Name what was missing. "Incomplete" sent us reading the platform's redirect
+            // builder, the browser plugin and the OAuth response in turn, when the answer
+            // was that the router had dropped the query string before this screen ran.
+            $this->error = 'That sign-in link was incomplete (no '
+                .($code === '' ? 'code' : 'state').').';
 
             return;
         }
