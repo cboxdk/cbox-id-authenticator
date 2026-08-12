@@ -1,4 +1,4 @@
-<column class="w-full h-full items-center justify-center gap-4 p-6 bg-theme-background">
+<column class="w-full h-full safe-area items-center justify-center gap-4 p-6 bg-theme-background">
     @if ($error === null)
         <text class="text-base text-theme-on-surface-variant">Finishing sign-in…</text>
     @else

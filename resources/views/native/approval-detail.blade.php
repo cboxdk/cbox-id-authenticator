@@ -1,4 +1,4 @@
-<column class="w-full h-full bg-theme-background">
+<column class="w-full h-full safe-area bg-theme-background">
     <scroll-view class="flex-1">
         <column class="w-full p-4 gap-4">
 
@@ -93,14 +93,14 @@
                 </text>
 
                 <column class="w-full gap-2 pt-2">
-                    <x-btn
+                    <button
                         label="Approve"
                         variant="primary"
                         size="lg"
                         :loading="$working"
                         :disabled="$this->secondsLeft <= 0"
                         @press="approve"
-                    />
+                    ></button>
                     <button label="Deny" variant="secondary" size="lg" :disabled="$working" @press="deny"></button>
 
                     {{-- Deliberately distinct from Deny: a user who did not start this

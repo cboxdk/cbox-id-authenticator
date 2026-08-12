@@ -1,4 +1,4 @@
-<column class="w-full h-full bg-theme-background">
+<column class="w-full h-full safe-area bg-theme-background">
     <scroll-view class="flex-1">
         <column class="w-full p-4 gap-4">
             <text class="text-2xl font-bold text-theme-on-background">Settings</text>

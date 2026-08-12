@@ -1,4 +1,4 @@
-<column class="w-full h-full bg-theme-background">
+<column class="w-full h-full safe-area bg-theme-background">
     <refreshable @refresh="load" class="flex-1">
         <column class="w-full p-4 gap-3">
             <text class="text-2xl font-bold text-theme-on-background">Pending requests</text>
