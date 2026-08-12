@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\NativeComponents;
 
 use App\Accounts\AccountContext;
+use App\Accounts\AccountStore;
 use App\Concerns\NavigatesScreens;
 use App\Services\EnrolmentCode;
 use App\Services\EnrolmentToken;
@@ -42,8 +43,21 @@ class Connect extends NativeComponent
 
     public bool $working = false;
 
+    /**
+     * Whether there is anywhere to go back to.
+     *
+     * False on first run — Launch reaches this screen with replace(), so there is no
+     * entry beneath it and a Back button would be a dead control. True whenever an
+     * account already exists, because then the only way here is a deliberate push from
+     * the approvals list or Settings, and without a way out the screen is a trap: the
+     * scanner is the sole thing on it, and cancelling a scan leaves you standing here.
+     */
+    public bool $canGoBack = false;
+
     public function mount(): void
     {
+        $this->canGoBack = ! app(AccountStore::class)->isEmpty();
+
         // An enrolment deep link may carry the code directly, so an emailed link works
         // on a handset whose camera is unavailable.
         $host = (string) $this->data('host', '');

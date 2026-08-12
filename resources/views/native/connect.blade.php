@@ -27,4 +27,12 @@
     <text text-align="center" class="text-xs text-theme-on-surface-variant">
         You'll sign in with your normal Cbox ID account in your browser.
     </text>
+
+    {{-- Only when there is somewhere to go. Adding an account is a deliberate push from
+         the approvals list or Settings, and the scanner is the sole control here — so
+         changing your mind, or cancelling the scan, otherwise leaves you stranded on a
+         screen with no way out. Absent on first run, where nothing sits beneath. --}}
+    @if ($canGoBack)
+        <button label="Back" variant="ghost" @press="goBack"></button>
+    @endif
 </column>

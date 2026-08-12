@@ -110,3 +110,20 @@ it('sends a cold start to the scanner when nothing is connected', function (): v
 
     expect(app(AccountStore::class)->isEmpty())->toBeTrue();
 });
+
+it('offers a way back only when there is somewhere to go', function (): void {
+    // Adding an account is a deliberate push, and the scanner is the sole control on
+    // this screen — so changing your mind, or cancelling the scan, otherwise strands you
+    // here with no route to the account list.
+    fakeSecureStorage();
+
+    Native::test(Connect::class)
+        ->assertSet('canGoBack', false)
+        ->assertDontSee('Back');
+
+    app(AccountStore::class)->put(new Account('01A', 'https://cbox.cboxid.com', 'cbox.cboxid.com'));
+
+    Native::test(Connect::class)
+        ->assertSet('canGoBack', true)
+        ->assertSee('Back');
+});

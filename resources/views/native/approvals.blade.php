@@ -1,4 +1,8 @@
-<column class="w-full h-full safe-area bg-theme-background">
+{{-- safe-area-TOP, not both. The bottom-bar below is hoisted to the native chrome root
+     and pinned with .safeAreaInset(.bottom), so it owns the home-indicator edge itself —
+     the same split NativeComponent::buildChromeColumn() makes when a tab bar is present.
+     Claiming both edges here would inset the content twice. --}}
+<column class="w-full h-full safe-area-top bg-theme-background">
     <refreshable @refresh="load" class="flex-1">
         <column class="w-full p-4 gap-3">
             <text class="text-2xl font-bold text-theme-on-background">Pending requests</text>
@@ -53,9 +57,15 @@
         </column>
     </refreshable>
 
-    <row class="w-full p-4 items-center">
-        <button label="Add account" variant="ghost" size="sm" @press="goAddAccount"></button>
-        <spacer />
-        <button label="Settings" variant="ghost" size="sm" @press="goSettings"></button>
-    </row>
+    {{-- A real bottom bar rather than a row at the end of the column. The native
+         renderer pins it above the home indicator and keeps it there while the list
+         scrolls, which a plain row cannot do — it simply sat at the bottom of the
+         content with the inset padding stacked underneath it. --}}
+    <native:bottom-bar>
+        <row class="w-full px-4 py-2 items-center">
+            <button label="Add account" variant="ghost" size="sm" @press="goAddAccount"></button>
+            <spacer />
+            <button label="Settings" variant="ghost" size="sm" @press="goSettings"></button>
+        </row>
+    </native:bottom-bar>
 </column>

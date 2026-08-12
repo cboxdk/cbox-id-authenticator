@@ -19,19 +19,41 @@ use Native\Mobile\Testing\Native;
  * the EDGE parser has to recognise, and a typo would leave the class in the Blade file
  * and nothing in the layout the native side reads.
  */
-it('applies both safe-area insets on every screen', function (string $component, array $params): void {
+it('applies the right safe-area insets on every screen', function (string $component, array $params, int $expected): void {
     fakeSecureStorage();
 
     Native::test($component, $params);
 
-    expect(Native::fakeBridge()->lastPublish()['layout']['safe_area'] ?? null)
-        // 1 is both edges; 2 is top only and 3 bottom only. A screen that owns its whole
-        // surface needs both.
-        ->toBe(1);
+    // 1 is both edges, 2 is top only, 3 bottom only.
+    expect(Native::fakeBridge()->lastPublish()['layout']['safe_area'] ?? null)->toBe($expected);
 })->with([
-    'connect' => [Connect::class, []],
-    'approvals' => [Approvals::class, []],
-    'settings' => [Settings::class, []],
-    'oauth callback' => [OAuthCallback::class, []],
-    'approval detail' => [ApprovalDetail::class, ['account' => '01A', 'id' => '01B']],
+    'connect' => [Connect::class, [], 1],
+    // Its bottom-bar is pinned with .safeAreaInset(.bottom) and owns that edge itself,
+    // so the root must claim only the top or the content is inset twice.
+    'approvals' => [Approvals::class, [], 2],
+    'settings' => [Settings::class, [], 1],
+    'oauth callback' => [OAuthCallback::class, [], 1],
+    'approval detail' => [ApprovalDetail::class, ['account' => '01A', 'id' => '01B'], 1],
 ]);
+
+it('keeps the native: prefix on the bottom bar, which is silently dropped without it', function (): void {
+    // `<bottom-bar>` produces NOTHING — no element, no error. The precompiler leaves the
+    // tag unrecognised and promotes its child, so the row lands back in the column
+    // exactly as before and the fix looks applied while doing nothing at all.
+    fakeSecureStorage();
+
+    Native::test(Approvals::class);
+
+    $types = [];
+    $walk = function (array $node) use (&$walk, &$types): void {
+        $types[] = $node['type'] ?? '';
+        foreach ($node['children'] ?? [] as $child) {
+            if (is_array($child)) {
+                $walk($child);
+            }
+        }
+    };
+    $walk(Native::fakeBridge()->lastPublish());
+
+    expect($types)->toContain('bottom_bar');
+});
