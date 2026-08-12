@@ -40,13 +40,32 @@ final class DeviceEnrolment
      * The permission prompt is asked once for the handset, not once per account, so a
      * second account added later inherits the answer rather than nagging.
      */
-    public function enrol(?string $enrolmentToken = null): void
+    /**
+     * @return bool whether a device record now exists; false means this handset has no
+     *              push token, which is NOT a failed sign-in
+     *
+     * @throws EnrolmentFailed when the host refused the registration
+     */
+    public function enrol(?string $enrolmentToken = null): bool
     {
         if (PushNotifications::checkPermission() === 'not_determined') {
             PushNotifications::enroll()->enroll();
         }
 
-        $this->post(PushNotifications::getToken(), $enrolmentToken);
+        $pushToken = PushNotifications::getToken();
+
+        // No token, nothing to register — and that must not fail the sign-in. Someone
+        // who tapped "Don't Allow" still has a working account: the approvals list is
+        // fetched with the OAuth token and refreshes on its own. Losing the account over
+        // a lost banner is far the worse outcome, and treating the two as one failure is
+        // exactly what this method used to do.
+        if (! is_string($pushToken) || $pushToken === '') {
+            return false;
+        }
+
+        $this->post($pushToken, $enrolmentToken);
+
+        return true;
     }
 
     /**
@@ -58,6 +77,10 @@ final class DeviceEnrolment
      */
     public function register(?string $pushToken): bool
     {
+        if (! is_string($pushToken) || $pushToken === '') {
+            return false;
+        }
+
         try {
             $this->post($pushToken);
 
@@ -68,24 +91,12 @@ final class DeviceEnrolment
     }
 
     /**
-     * No push token means no device record.
-     *
-     * `POST /api/v1/devices` validates `push_token` as `required`, so there is nothing
-     * to send. Approvals still work — the list is fetched with the OAuth token and the
-     * screen polls on its own — but the handset will not appear in the console's device
-     * list and cannot be pushed to. That is worth saying out loud rather than returning
-     * a quiet false, which is what used to happen.
-     *
-     * @throws EnrolmentFailed
+     * @throws EnrolmentFailed when the host refused the registration — a spent or
+     *                         expired enrolment code, a claimed install id, an
+     *                         unreachable host
      */
-    private function post(?string $pushToken, ?string $enrolmentToken = null): void
+    private function post(string $pushToken, ?string $enrolmentToken = null): void
     {
-        if (! is_string($pushToken) || $pushToken === '') {
-            throw new EnrolmentFailed(
-                'This phone has no notification token, so it cannot be registered for approval prompts.'
-            );
-        }
-
         try {
             $response = $this->api->enrolDevice(
                 $this->installId->get(),

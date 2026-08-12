@@ -35,6 +35,19 @@
                     <text class="text-base font-semibold text-theme-on-background">{{ $account['label'] }}</text>
                     <text class="text-xs text-theme-on-surface-variant">{{ $account['issuer'] }}</text>
 
+                    {{-- Per account, because the answer is per host. A self-hosted
+                         installation with no push transport cannot reach this phone at
+                         all, and telling someone "you'll be alerted" for an account that
+                         will never alert them is how a missed approval happens. --}}
+                    @if (! $account['notifies'])
+                        <row class="w-full items-center gap-2">
+                            <icon name="bell.slash" :size="14" class="text-theme-on-surface-variant" />
+                            <text class="text-xs text-theme-on-surface-variant">
+                                No alerts from this host — open the app to check for requests.
+                            </text>
+                        </row>
+                    @endif
+
                     <button
                         label="Sign out and remove this device"
                         variant="destructive"

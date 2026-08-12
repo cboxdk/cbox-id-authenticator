@@ -117,3 +117,23 @@ it('drops a row the server sent without an id', function (): void {
 
     expect(Native::test(Approvals::class)->get('approvals'))->toBe([]);
 });
+
+it('completes sign-in on a handset that will never receive a push', function (): void {
+    // Someone who tapped "Don't Allow", or an account on a self-hosted host with no push
+    // transport. Neither is a broken account — the list is fetched with the OAuth token
+    // and refreshes on its own — and discarding the sign-in over a lost banner is far
+    // the worse outcome. enrol() used to throw here, which did exactly that.
+    fakeSecureStorage();
+
+    $account = new Account('01A', 'https://cbox.cboxid.com', 'alice');
+    app(AccountStore::class)->put($account);
+
+    $services = app(AccountContext::class)->for($account);
+
+    // No push token: the bridge answers null, as it does when permission was refused.
+    expect($services->enrolment->enrol('a-code'))->toBeFalse()
+        ->and($services->enrolment->deviceId())->toBeNull();
+
+    // And the account is untouched and usable.
+    expect(app(AccountStore::class)->all())->toHaveCount(1);
+});

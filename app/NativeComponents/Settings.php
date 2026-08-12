@@ -114,13 +114,22 @@ class Settings extends NativeComponent
 
     private function loadAccounts(): void
     {
+        $context = app(AccountContext::class);
+
         $this->accounts = array_map(
             fn ($account): array => [
                 'id' => $account->id,
                 'label' => $account->label,
                 'issuer' => $account->issuer,
+                // Whether this host ever registered the handset. A device id exists only
+                // after a successful POST /devices, so its absence is the honest answer
+                // to "will I be alerted for this account" — and the answer is no,
+                // whether because notifications were declined or because the host has no
+                // push transport at all. Saying "On" for every account when the switch
+                // is per host is how someone waits for a prompt that is never coming.
+                'notifies' => $context->for($account)->enrolment->deviceId() !== null,
             ],
-            app(AccountContext::class)->store()->all(),
+            $context->store()->all(),
         );
     }
 

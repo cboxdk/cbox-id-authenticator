@@ -94,11 +94,15 @@ class OAuthCallback extends NativeComponent
         try {
             $services->oauth->exchange($code, $pending->verifier, RedirectUri::current());
 
-            // Enrol BEFORE the account joins the index. An account that is listed but
-            // was never registered looks identical, from the user's side, to one that
-            // simply never gets prompts — and they would have no way to tell why. If the
-            // enrolment code was refused, this is where they find out, while the screen
-            // can still say so.
+            // Enrol BEFORE the account joins the index, so a REFUSED enrolment code is
+            // reported here rather than leaving an account that silently never receives
+            // prompts. It throws only for that — a refusal by the host.
+            //
+            // A handset with no push token returns false instead, and the sign-in
+            // carries on. That covers someone who tapped "Don't Allow", and it covers a
+            // self-hosted installation that cannot push at all. Neither is a broken
+            // account: the approvals list is fetched with the OAuth token and refreshes
+            // on its own. Settings says plainly which accounts can reach this phone.
             $services->enrolment->enrol($pending->enrolmentToken);
 
             $context->store()->put(new Account(
