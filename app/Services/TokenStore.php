@@ -7,41 +7,35 @@ namespace App\Services;
 use Native\Mobile\Facades\SecureStorage;
 
 /**
- * The access and refresh tokens, in secure storage.
+ * The access and refresh tokens for ONE account, in secure storage.
  *
  * Access tokens are short-lived by design for this client — a lifted DPoP key gives an
  * attacker a window, and the shorter it is the better. The refresh token is bound to
  * the same key, so rotation must reuse it: presenting a different `jkt` gets the whole
  * chain refused.
+ *
+ * Every key is namespaced by the account that owns it. The keys were fixed constants
+ * once, which meant connecting a second tenant silently overwrote the first's refresh
+ * token — no error, no warning, just a signed-out account.
  */
 final class TokenStore
 {
-    private const ACCESS = 'cboxid.token.access';
+    private const ACCESS = 'token.access';
 
-    private const REFRESH = 'cboxid.token.refresh';
+    private const REFRESH = 'token.refresh';
 
-    private const EXPIRES = 'cboxid.token.expires';
+    private const EXPIRES = 'token.expires';
 
-    private const ISSUER = 'cboxid.issuer';
+    public function __construct(private readonly string $prefix) {}
 
     public function accessToken(): ?string
     {
-        return self::read(self::ACCESS);
+        return $this->read(self::ACCESS);
     }
 
     public function refreshToken(): ?string
     {
-        return self::read(self::REFRESH);
-    }
-
-    public function issuer(): ?string
-    {
-        return self::read(self::ISSUER);
-    }
-
-    public function rememberIssuer(string $issuer): void
-    {
-        SecureStorage::set(self::ISSUER, $issuer);
+        return $this->read(self::REFRESH);
     }
 
     /**
@@ -51,7 +45,7 @@ final class TokenStore
      */
     public function needsRefresh(): bool
     {
-        $expires = self::read(self::EXPIRES);
+        $expires = $this->read(self::EXPIRES);
 
         if ($expires === null) {
             return $this->accessToken() === null;
@@ -67,26 +61,26 @@ final class TokenStore
 
     public function put(string $accessToken, ?string $refreshToken, int $expiresIn): void
     {
-        SecureStorage::set(self::ACCESS, $accessToken);
-        SecureStorage::set(self::EXPIRES, (string) (time() + $expiresIn));
+        SecureStorage::set($this->prefix.self::ACCESS, $accessToken);
+        SecureStorage::set($this->prefix.self::EXPIRES, (string) (time() + $expiresIn));
 
         // A rotation that returns no new refresh token leaves the existing one in
         // place; clearing it here would sign the user out on every refresh.
         if ($refreshToken !== null && $refreshToken !== '') {
-            SecureStorage::set(self::REFRESH, $refreshToken);
+            SecureStorage::set($this->prefix.self::REFRESH, $refreshToken);
         }
     }
 
     public function forget(): void
     {
-        foreach ([self::ACCESS, self::REFRESH, self::EXPIRES, self::ISSUER] as $key) {
-            SecureStorage::delete($key);
+        foreach ([self::ACCESS, self::REFRESH, self::EXPIRES] as $key) {
+            SecureStorage::delete($this->prefix.$key);
         }
     }
 
-    private static function read(string $key): ?string
+    private function read(string $key): ?string
     {
-        $value = SecureStorage::get($key);
+        $value = SecureStorage::get($this->prefix.$key);
 
         return is_string($value) && $value !== '' ? $value : null;
     }

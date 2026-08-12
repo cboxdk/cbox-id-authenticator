@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\NativeComponents;
 
+use App\Accounts\AccountContext;
+use App\Accounts\AccountServices;
 use App\Concerns\NavigatesScreens;
-use App\Services\CboxApi;
 use Illuminate\View\View;
 use Native\Mobile\Attributes\Computed;
 use Native\Mobile\Attributes\Poll;
@@ -29,6 +30,11 @@ use Throwable;
  * approve-the-prompt fatigue, so it is rendered above the fold, before the buttons, and
  * fetched over TLS rather than pushed — a lock screen is readable by anyone holding the
  * handset.
+ *
+ * The account is in the ROUTE, not inferred. An approval id is unique only within its
+ * own host, so asking "which approval is 01J…" without saying whose is a question with
+ * more than one answer — and answering it against the wrong account would send a
+ * DPoP-bound token to a tenant it was never minted for.
  */
 class ApprovalDetail extends NativeComponent
 {
@@ -43,9 +49,24 @@ class ApprovalDetail extends NativeComponent
 
     public ?string $outcome = null;
 
+    /** Which account this request belongs to, for the header. */
+    public ?string $accountLabel = null;
+
     public function mount(): void
     {
         $this->load();
+    }
+
+    /**
+     * The account named in the route, or null if it is no longer connected.
+     *
+     * Signing out on another screen, or a deep link that outlived the account it points
+     * at, both land here — and both must read as "this request is gone" rather than
+     * throwing.
+     */
+    private function services(): ?AccountServices
+    {
+        return app(AccountContext::class)->forId((string) $this->param('account'));
     }
 
     /**
@@ -111,14 +132,22 @@ class ApprovalDetail extends NativeComponent
             return;
         }
 
+        $services = $this->services();
+
+        if ($services === null) {
+            $this->missing = true;
+
+            return;
+        }
+
         $this->working = true;
 
         $id = (string) $this->param('id');
 
         try {
             $settled = $approve
-                ? app(CboxApi::class)->approve($id)
-                : app(CboxApi::class)->deny($id);
+                ? $services->api->approve($id)
+                : $services->api->deny($id);
 
             // The server collapses expired, already-answered and not-yours into one
             // response on purpose, so a stolen handset cannot probe which ids are real.
@@ -135,8 +164,18 @@ class ApprovalDetail extends NativeComponent
 
     public function load(): void
     {
+        $services = $this->services();
+
+        if ($services === null) {
+            $this->missing = true;
+
+            return;
+        }
+
+        $this->accountLabel = $services->account->label;
+
         try {
-            $this->approval = app(CboxApi::class)->approval((string) $this->param('id'));
+            $this->approval = $services->api->approval((string) $this->param('id'));
             $this->missing = $this->approval === null;
         } catch (Throwable) {
             $this->missing = true;

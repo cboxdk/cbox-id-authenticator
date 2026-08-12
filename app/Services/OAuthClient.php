@@ -4,103 +4,82 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Accounts\Account;
+use App\Accounts\PendingSignIns;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Native\Mobile\Facades\SecureStorage;
 use RuntimeException;
 
 /**
- * Authorization Code + PKCE (S256), as a public client, DPoP-bound.
+ * Authorization Code + PKCE (S256), as a public client, DPoP-bound — for ONE account.
  *
  * The app holds no client secret — it cannot, since the bundle ships as readable PHP —
  * and does not need one. Possession of the `client_id` grants nothing: PKCE binds the
  * code to a verifier this install generated, and DPoP binds the resulting tokens to a
  * key that never leaves the handset.
  *
- * The `client_id` itself is DISCOVERED rather than compiled in, because the platform's
- * `oauth_clients.client_id` carries a global unique index — each environment mints its
- * own, so no single value could serve every tenant from one App Store binary.
+ * The `client_id` is DISCOVERED per host by {@see HostDiscovery} and stored under this
+ * account's namespace. It was once kept under a single fixed key, which is why
+ * connecting a second tenant broke the first: the same slot held both.
+ *
+ * WHAT THIS CLASS NO LONGER DOES
+ * ------------------------------
+ * It does not hold the PKCE verifier or the `state`. Those belong to one attempt, not
+ * to an account, and keeping them here in fixed slots meant two overlapping sign-ins
+ * clobbered each other. They live in {@see PendingSignIns}, keyed by
+ * `state`, and are passed in.
  */
 final class OAuthClient
 {
-    private const VERIFIER = 'cboxid.pkce.verifier';
-
-    private const STATE = 'cboxid.pkce.state';
-
-    private const CLIENT_ID = 'cboxid.client_id';
+    private const CLIENT_ID = 'client_id';
 
     public function __construct(
+        private readonly Account $account,
         private readonly TokenStore $tokens,
         private readonly DpopProof $proof,
     ) {}
 
-    /**
-     * Ask a host what its authenticator client looks like.
-     *
-     * @return array<string, mixed>
-     */
-    public function discover(string $host): array
+    public function rememberClientId(string $clientId): void
     {
-        $base = self::baseUrlFor($host);
+        SecureStorage::set($this->account->keyPrefix().self::CLIENT_ID, $clientId);
+    }
 
-        $response = Http::acceptJson()->timeout(15)->get($base.'/.well-known/cbox-authenticator');
+    public function clientId(): string
+    {
+        $id = SecureStorage::get($this->account->keyPrefix().self::CLIENT_ID);
 
-        // Correct the clock from the very first call, before any proof is minted —
-        // otherwise a drifting handset fails its token exchange with nothing to learn from.
-        $this->proof->syncTo($response->header('Date'));
-
-        if (! $response->successful()) {
-            throw new RuntimeException('That host does not offer the Cbox ID authenticator.');
+        if (! is_string($id) || $id === '') {
+            throw new RuntimeException('This account is not connected to a Cbox ID host.');
         }
 
-        $body = $response->json();
-
-        if (! is_array($body) || ! is_string($body['issuer'] ?? null) || ! is_string($body['client_id'] ?? null)) {
-            throw new RuntimeException('That host returned an unusable authenticator document.');
-        }
-
-        $this->tokens->rememberIssuer($body['issuer']);
-        SecureStorage::set(self::CLIENT_ID, $body['client_id']);
-
-        return $body;
+        return $id;
     }
 
     /**
-     * HTTPS everywhere, except a loopback host during development.
+     * A fresh PKCE verifier and `state` for one sign-in attempt.
      *
-     * Forcing https unconditionally means the app can never be pointed at a local
-     * `php artisan serve`, so the first end-to-end test of the sign-in flow would have
-     * to wait for a deployed environment. The exception is deliberately narrow —
-     * literal localhost or a loopback address, nothing else — and mirrors what the
-     * platform's own redirect-URI validator already permits for the same reason.
+     * Returned rather than stored, so the caller decides where an in-flight attempt
+     * lives and two attempts cannot share a slot.
      *
-     * Anything with a real hostname is https, so a tenant cannot be talked onto
-     * plaintext by a QR code claiming `http://`.
+     * @return array{state: string, verifier: string}
      */
-    private static function baseUrlFor(string $host): string
+    public static function newAttempt(): array
     {
-        $bare = preg_replace('#^https?://#', '', rtrim($host, '/')) ?? $host;
-        $name = explode(':', $bare)[0];
-
-        $loopback = $name === 'localhost'
-            || $name === '127.0.0.1'
-            || $name === '::1'
-            || str_ends_with($name, '.localhost');
-
-        return ($loopback ? 'http://' : 'https://').$bare;
+        return [
+            'state' => DpopKey::base64Url(random_bytes(16)),
+            'verifier' => DpopKey::base64Url(random_bytes(32)),
+        ];
     }
 
     /**
-     * The URL to hand to the system browser, and the state to verify on return.
+     * The URL to hand to the system browser.
+     *
+     * Pure — it reads the account's client id and issuer and computes a string. Nothing
+     * is written, so an abandoned attempt leaves no trace to clean up.
      */
-    public function authorizeUrl(string $redirectUri): string
+    public function authorizeUrl(string $redirectUri, string $state, string $verifier): string
     {
-        $verifier = DpopKey::base64Url(random_bytes(32));
-        $state = DpopKey::base64Url(random_bytes(16));
-
-        SecureStorage::set(self::VERIFIER, $verifier);
-        SecureStorage::set(self::STATE, $state);
-
         $query = http_build_query([
             'response_type' => 'code',
             'client_id' => $this->clientId(),
@@ -123,21 +102,12 @@ final class OAuthClient
      *
      * `$redirectUri` must be BYTE-IDENTICAL to the one sent to /authorize — the server
      * compares them exactly, and a trailing slash is enough to fail the exchange.
+     *
+     * The `state` is checked by the caller, which resolves the attempt by it: an unknown
+     * `state` finds no pending record and never reaches this method.
      */
-    public function exchange(string $code, string $state, string $redirectUri): void
+    public function exchange(string $code, string $verifier, string $redirectUri): void
     {
-        $expected = SecureStorage::get(self::STATE);
-
-        if (! is_string($expected) || ! hash_equals($expected, $state)) {
-            throw new RuntimeException('The sign-in response did not match this request.');
-        }
-
-        $verifier = SecureStorage::get(self::VERIFIER);
-
-        if (! is_string($verifier) || $verifier === '') {
-            throw new RuntimeException('This sign-in attempt has expired. Try again.');
-        }
-
         $this->token([
             'grant_type' => 'authorization_code',
             'code' => $code,
@@ -146,9 +116,6 @@ final class OAuthClient
             'client_id' => $this->clientId(),
             'resource' => $this->issuer(),
         ]);
-
-        SecureStorage::delete(self::VERIFIER);
-        SecureStorage::delete(self::STATE);
     }
 
     /**
@@ -177,7 +144,7 @@ final class OAuthClient
         $refresh = $this->tokens->refreshToken();
 
         if ($refresh === null) {
-            throw new RuntimeException('This device is signed out.');
+            throw new RuntimeException('This account is signed out.');
         }
 
         return $this->token([
@@ -199,13 +166,16 @@ final class OAuthClient
             return;
         }
 
-        $url = $this->issuer().'/oauth/revoke';
-
-        Http::asForm()->timeout(10)->post($url, [
+        Http::asForm()->timeout(10)->post($this->issuer().'/oauth/revoke', [
             'token' => $refresh,
             'token_type_hint' => 'refresh_token',
             'client_id' => $this->clientId(),
         ]);
+    }
+
+    public function forget(): void
+    {
+        SecureStorage::delete($this->account->keyPrefix().self::CLIENT_ID);
     }
 
     /**
@@ -244,25 +214,8 @@ final class OAuthClient
         return $body['access_token'];
     }
 
-    public function clientId(): string
-    {
-        $id = SecureStorage::get(self::CLIENT_ID);
-
-        if (! is_string($id) || $id === '') {
-            throw new RuntimeException('This device has not been connected to a Cbox ID host.');
-        }
-
-        return $id;
-    }
-
     private function issuer(): string
     {
-        $issuer = $this->tokens->issuer();
-
-        if ($issuer === null) {
-            throw new RuntimeException('This device has not been connected to a Cbox ID host.');
-        }
-
-        return rtrim($issuer, '/');
+        return rtrim($this->account->issuer, '/');
     }
 }

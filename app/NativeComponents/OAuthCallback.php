@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\NativeComponents;
 
+use App\Accounts\Account;
+use App\Accounts\AccountContext;
+use App\Accounts\PendingSignIns;
 use App\Concerns\NavigatesScreens;
-use App\Services\DeviceEnrolment;
-use App\Services\OAuthClient;
+use App\Support\RedirectUri;
 use Illuminate\View\View;
 use Native\Mobile\Edge\NativeComponent;
 use Throwable;
@@ -14,10 +16,16 @@ use Throwable;
 /**
  * Where the browser hands control back after sign-in.
  *
- * Reached by deep link, so the query string arrives as route data. The `state` check
- * happens inside {@see OAuthClient::exchange()} and is not optional: without it, any
- * app or page able to open this scheme could feed the app an authorization code of its
- * choosing.
+ * Reached by deep link, so the query string arrives as route data.
+ *
+ * THE STATE CHECK IS THE LOOKUP
+ * -----------------------------
+ * The `state` is not compared against a stored value — it is the KEY the attempt is
+ * stored under, and {@see PendingSignIns::take()} removes it as it reads.
+ * An unknown `state` therefore finds nothing and goes no further, and a callback
+ * delivered twice — which the OS's deep-link handling can do — finds nothing the second
+ * time. That is a stronger property than the single-slot comparison it replaces, where
+ * a second sign-in overwrote the first attempt's verifier.
  */
 class OAuthCallback extends NativeComponent
 {
@@ -32,9 +40,7 @@ class OAuthCallback extends NativeComponent
 
         // The authorization server reports its own failures here too — a denied consent,
         // an invalid request — and those arrive with no code at all.
-        $serverError = (string) $this->data('error', '');
-
-        if ($serverError !== '') {
+        if ((string) $this->data('error', '') !== '') {
             $this->error = 'Sign-in was not completed.';
 
             return;
@@ -46,18 +52,40 @@ class OAuthCallback extends NativeComponent
             return;
         }
 
+        $context = app(AccountContext::class);
+        $pending = $context->pending()->take($state);
+
+        if ($pending === null) {
+            $this->error = 'This sign-in attempt has expired. Scan the code again.';
+
+            return;
+        }
+
+        $services = $context->reserved($pending);
+
         try {
-            $scheme = (string) config('nativephp.deeplink_scheme', 'com.cboxid.authenticator');
+            $services->oauth->exchange($code, $pending->verifier, RedirectUri::current());
 
-            app(OAuthClient::class)->exchange($code, $state, $scheme.':/oauth/callback');
+            // Enrol BEFORE the account joins the index. An account that is listed but
+            // was never registered looks identical, from the user's side, to one that
+            // simply never gets prompts — and they would have no way to tell why. If the
+            // enrolment code was refused, this is where they find out, while the screen
+            // can still say so.
+            $services->enrolment->enrol($pending->enrolmentToken);
 
-            // Enrol immediately. A signed-in app that never registered its push token is
-            // indistinguishable, from the user's side, from one that simply never gets
-            // prompts — and they would have no way to tell why.
-            app(DeviceEnrolment::class)->enrol();
+            $context->store()->put(new Account(
+                $pending->accountId,
+                $pending->issuer,
+                Account::labelFor($pending->issuer),
+            ));
 
             $this->replace('/approvals');
         } catch (Throwable $e) {
+            // Nothing was added to the index, so the reserved namespace is unreachable
+            // through it. Wipe it rather than leave a DPoP key and a half-set of tokens
+            // behind on every failed attempt.
+            $services->forget();
+
             $this->error = $e->getMessage();
         }
     }

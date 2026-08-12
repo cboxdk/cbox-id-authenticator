@@ -1,4 +1,4 @@
-<column class="w-full h-full p-6 gap-5 justify-center bg-theme-background">
+<column class="w-full h-full p-6 gap-5 justify-center items-center bg-theme-background">
     <column class="w-full items-center gap-2">
         <icon name="lock.shield" :size="52" class="text-theme-primary" />
         <text class="text-2xl font-bold text-theme-on-background">Cbox ID</text>

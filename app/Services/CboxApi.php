@@ -4,21 +4,26 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Accounts\Account;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
 /**
- * The device and approvals API on the user's Cbox ID host.
+ * The device and approvals API on ONE account's Cbox ID host.
  *
  * Every call is DPoP-bound, and every response feeds the clock offset back so a
  * drifting handset self-corrects rather than dying on the server's 60-second `iat`
  * window.
+ *
+ * The base URL comes from the account rather than from a stored "current issuer".
+ * With several accounts connected there is no such thing as the current issuer, and a
+ * single slot holding one would have sent one tenant's DPoP-bound token to another.
  */
 final class CboxApi
 {
     public function __construct(
-        private readonly TokenStore $tokens,
+        private readonly Account $account,
         private readonly DpopProof $proof,
         private readonly OAuthClient $oauth,
     ) {}
@@ -30,17 +35,33 @@ final class CboxApi
      * there is no separate one to get wrong, and no ordering hazard between rotating
      * and re-reading the device id.
      *
+     * `$enrolmentToken` is the short-lived code the QR carried. The server requires it
+     * on a first enrolment and binds it to the signed-in subject, which is what stops a
+     * code scanned from someone else's screen from attaching this handset to their
+     * account. A push-token rotation has no code to present and sends none.
+     *
      * @return array<string, mixed>
      */
-    public function enrolDevice(string $installId, string $pushToken, string $name, string $platform): array
-    {
-        return $this->json('POST', '/devices', [
+    public function enrolDevice(
+        string $installId,
+        string $pushToken,
+        string $name,
+        string $platform,
+        ?string $enrolmentToken = null,
+    ): array {
+        $body = [
             'install_id' => $installId,
             'platform' => $platform,
             'push_token' => $pushToken,
             'name' => $name,
             'app_version' => (string) config('nativephp.version', 'dev'),
-        ]);
+        ];
+
+        if ($enrolmentToken !== null && $enrolmentToken !== '') {
+            $body['enrolment_token'] = $enrolmentToken;
+        }
+
+        return $this->json('POST', '/devices', $body);
     }
 
     /**
@@ -154,12 +175,6 @@ final class CboxApi
 
     private function base(): string
     {
-        $issuer = $this->tokens->issuer();
-
-        if ($issuer === null) {
-            throw new RuntimeException('This device is not connected to a Cbox ID host.');
-        }
-
-        return rtrim($issuer, '/').'/api/v1';
+        return rtrim($this->account->issuer, '/').'/api/v1';
     }
 }

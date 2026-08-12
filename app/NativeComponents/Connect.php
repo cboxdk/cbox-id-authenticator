@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\NativeComponents;
 
+use App\Accounts\AccountContext;
 use App\Concerns\NavigatesScreens;
-use App\Services\OAuthClient;
-use App\Services\TokenStore;
+use App\Services\EnrolmentCode;
+use App\Services\EnrolmentToken;
+use App\Services\HostDiscovery;
+use App\Support\RedirectUri;
 use Illuminate\View\View;
 use Native\Mobile\Attributes\On;
 use Native\Mobile\Edge\NativeComponent;
@@ -27,8 +30,9 @@ use Throwable;
  * stranger's server for an authenticator client. The console renders the code; the
  * handset reads it.
  *
- * A deep link carrying `?host=` does the same job, so an emailed enrolment link works
- * without a camera at all.
+ * This screen ADDS an account. It never assumes it is the first — reaching it with two
+ * accounts already connected is ordinary, and the sign-in that follows reserves its own
+ * namespace rather than writing over anything.
  */
 class Connect extends NativeComponent
 {
@@ -40,17 +44,14 @@ class Connect extends NativeComponent
 
     public function mount(): void
     {
-        if (app(TokenStore::class)->isSignedIn()) {
-            $this->replace('/approvals');
-
-            return;
-        }
-
-        // An enrolment deep link may carry the host directly.
+        // An enrolment deep link may carry the code directly, so an emailed link works
+        // on a handset whose camera is unavailable.
         $host = (string) $this->data('host', '');
 
         if ($host !== '') {
-            $this->begin($host);
+            $token = (string) $this->data('t', '');
+
+            $this->begin(new EnrolmentCode($host, $token !== '' ? $token : null));
         }
     }
 
@@ -62,16 +63,20 @@ class Connect extends NativeComponent
     #[On(CodeScanned::class)]
     public function scanned(string $data): void
     {
-        $this->begin($data);
-    }
+        $code = EnrolmentCode::parse($data);
 
-    private function begin(string $raw): void
-    {
-        $host = $this->hostFrom($raw);
-
-        if ($host === null) {
+        if ($code === null) {
             $this->error = "That code isn't a Cbox ID address.";
 
+            return;
+        }
+
+        $this->begin($code);
+    }
+
+    private function begin(EnrolmentCode $code): void
+    {
+        if ($this->working) {
             return;
         }
 
@@ -79,82 +84,42 @@ class Connect extends NativeComponent
         $this->error = null;
 
         try {
-            app(OAuthClient::class)->discover($host);
+            $host = app(HostDiscovery::class)->fetch($code->host);
+
+            // A courtesy glance, not a check — see EnrolmentToken. Catching an obviously
+            // stale code here saves the user a full sign-in that the server would refuse
+            // at the end; the server remains the only thing that actually verifies it.
+            if ($code->token !== null) {
+                app(EnrolmentToken::class)->precheck($code->token);
+            }
+
+            $pending = app(AccountContext::class)
+                ->beginSignIn($host->issuer, $host->clientId, $code->token);
 
             // The SYSTEM browser, not an in-app web view. The user has to be able to see
             // a real address bar and a real padlock while typing their password — an
             // app-controlled view can draw whatever it likes, which is precisely the
             // phishing surface a sign-in must not have.
-            Browser::auth(app(OAuthClient::class)->authorizeUrl($this->redirectUri()));
+            //
+            // The return value is not decoration. `Browser::auth()` reports failure by
+            // returning false — including when the native bridge is absent entirely,
+            // because the build shipped without the browser plugin. Ignoring it once cost
+            // an afternoon: the scanner closed, the screen sat there, and nothing said why.
+            $opened = Browser::auth(
+                app(AccountContext::class)
+                    ->reserved($pending)
+                    ->oauth
+                    ->authorizeUrl(RedirectUri::current(), $pending->state, $pending->verifier)
+            );
+
+            if (! $opened) {
+                $this->error = "This device can't open a browser for sign-in.";
+            }
         } catch (Throwable $e) {
             $this->error = $e->getMessage();
         } finally {
             $this->working = false;
         }
-    }
-
-    /**
-     * Accept a bare hostname, an https URL, or the app's own enrolment scheme.
-     *
-     * Anything else is refused rather than coerced: a QR code is attacker-supplied
-     * input, and "make it work somehow" is how an app ends up asking a hostile server
-     * for its authenticator client.
-     */
-    private function hostFrom(string $raw): ?string
-    {
-        $raw = trim($raw);
-
-        if ($raw === '') {
-            return null;
-        }
-
-        if (str_contains($raw, '://')) {
-            $parts = parse_url($raw);
-
-            if (! is_array($parts)) {
-                return null;
-            }
-
-            $scheme = $parts['scheme'] ?? '';
-
-            // Our own scheme carries the host as a query parameter.
-            if ($scheme !== 'https') {
-                $query = [];
-                parse_str($parts['query'] ?? '', $query);
-                $raw = is_string($query['host'] ?? null) ? $query['host'] : '';
-            } else {
-                $raw = $parts['host'] ?? '';
-            }
-        }
-
-        $raw = strtolower($raw);
-
-        // A loopback host, optionally with a port, so the app can be pointed at a local
-        // `php artisan serve`. Narrow on purpose: only these names, and a port is the
-        // only extra thing allowed. Without it the first end-to-end sign-in test would
-        // be stuck behind a deployment.
-        if (preg_match('/^(localhost|127\.0\.0\.1|\[::1\])(:\d{1,5})?$/', $raw) === 1) {
-            return $raw;
-        }
-
-        // Otherwise a real hostname, and nothing that could smuggle a path, port or
-        // credentials past the check.
-        return preg_match('/^[a-z0-9.-]+\.[a-z]{2,}$/', $raw) === 1 ? $raw : null;
-    }
-
-    /**
-     * Must be byte-identical to the value sent to the token endpoint later.
-     *
-     * Which of the two registered URIs a build uses depends on Spike A: whether
-     * NativePHP accepts a dotted private-use scheme. The HTTPS App Link is the preferred
-     * form (RFC 8252 §7.2 — a private-use scheme can be squatted by another app on the
-     * same handset), but it ties a build to one host.
-     */
-    private function redirectUri(): string
-    {
-        $scheme = (string) config('nativephp.deeplink_scheme', 'com.cboxid.authenticator');
-
-        return $scheme.':/oauth/callback';
     }
 
     public function render(): View

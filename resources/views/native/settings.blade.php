@@ -25,12 +25,31 @@
 
             <divider class="border-theme-outline" />
 
-            <column class="w-full gap-2">
-                <button label="Sign out and remove this device" variant="destructive" size="lg" :disabled="$working" @press="signOut"></button>
-                <text class="text-xs text-theme-on-surface-variant">
-                    This phone will stop receiving approval requests.
-                </text>
-            </column>
+            <text class="text-sm font-semibold text-theme-on-background">Accounts</text>
+
+            {{-- One card per account, each with its own sign-out. A single global
+                 "sign out" would remove every tenant at once, which is never what
+                 someone leaving one job and keeping another intends. --}}
+            @foreach ($accounts as $account)
+                <column class="w-full gap-2 p-4 rounded-2xl bg-theme-surface">
+                    <text class="text-base font-semibold text-theme-on-background">{{ $account['label'] }}</text>
+                    <text class="text-xs text-theme-on-surface-variant">{{ $account['issuer'] }}</text>
+
+                    <button
+                        label="Sign out and remove this device"
+                        variant="destructive"
+                        size="sm"
+                        :disabled="$working"
+                        @press="signOut('{{ $account['id'] }}')"
+                    ></button>
+                </column>
+            @endforeach
+
+            <text class="text-xs text-theme-on-surface-variant">
+                Signing out of an account stops approval requests from that host only.
+            </text>
+
+            <button label="Add another account" variant="secondary" @press="goAddAccount"></button>
 
             <button label="Back" variant="ghost" @press="goBack"></button>
         </column>

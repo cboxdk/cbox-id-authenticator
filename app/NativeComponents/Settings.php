@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace App\NativeComponents;
 
+use App\Accounts\AccountContext;
 use App\Concerns\NavigatesScreens;
-use App\Services\DeviceEnrolment;
-use App\Services\DpopKey;
-use App\Services\OAuthClient;
-use App\Services\TokenStore;
-use App\Support\InstallId;
 use Illuminate\View\View;
 use Native\Mobile\Edge\NativeComponent;
 use Native\Mobile\Facades\PushNotifications;
@@ -25,52 +21,107 @@ class Settings extends NativeComponent
 
     public ?string $notice = null;
 
+    /** @var list<array{id: string, label: string, issuer: string}> */
+    public array $accounts = [];
+
     public function mount(): void
     {
         $this->permission = PushNotifications::checkPermission();
+        $this->loadAccounts();
+    }
+
+    public function goAddAccount(): void
+    {
+        $this->navigate('/connect');
     }
 
     /**
-     * Re-register with a freshly read token. The recovery path when notifications were
-     * refused and later enabled in system settings — nothing else would prompt the app
-     * to notice, since no rotation event fires for a permission change.
+     * Re-register EVERY account with a freshly read token.
+     *
+     * The recovery path when notifications were refused and later enabled in system
+     * settings — nothing else would prompt the app to notice, since no rotation event
+     * fires for a permission change. It has to cover every account: the token is the
+     * handset's, but the device row is per host, and re-syncing only one would leave the
+     * others pushing to a token the OS no longer honours.
      */
     public function resync(): void
     {
         $this->working = true;
 
-        $ok = app(DeviceEnrolment::class)->enrol();
+        $token = PushNotifications::getToken();
+        $failed = [];
+
+        foreach (app(AccountContext::class)->all() as $services) {
+            if (! $services->enrolment->register($token)) {
+                $failed[] = $services->account->label;
+            }
+        }
 
         $this->permission = PushNotifications::checkPermission();
-        $this->notice = $ok ? 'Notifications re-synced.' : 'Could not re-sync. Check your connection.';
+        $this->notice = $failed === []
+            ? 'Notifications re-synced.'
+            : 'Could not re-sync: '.implode(', ', $failed);
         $this->working = false;
     }
 
     /**
-     * Sign out, in an order that matters.
+     * Sign out of one account, leaving the others untouched.
      *
      * Deregister first so no further pushes are sent, then revoke the refresh token,
      * then wipe local state. The reverse order leaves an unreachable device row behind
      * if the app is killed part-way — the server would keep pushing to a handset that
      * has already forgotten how to answer.
      */
-    public function signOut(): void
+    public function signOut(string $accountId): void
     {
-        $this->working = true;
-
-        try {
-            app(OAuthClient::class)->revoke();
-        } catch (Throwable) {
-            // Best effort. Wiping the key below makes the token unusable anyway, since
-            // every request must carry a proof signed by it.
+        if ($this->working) {
+            return;
         }
 
-        app(TokenStore::class)->forget();
-        app(DpopKey::class)->forget();
-        InstallId::forget();
+        $this->working = true;
 
+        $context = app(AccountContext::class);
+        $account = $context->store()->find($accountId);
+
+        if ($account === null) {
+            $this->working = false;
+
+            return;
+        }
+
+        try {
+            $services = $context->for($account);
+            $device = $services->enrolment->deviceId();
+
+            if ($device !== null) {
+                $services->api->deregisterDevice($device);
+            }
+        } catch (Throwable) {
+            // Best effort, and the revoke inside remove() is too. Wiping the DPoP key
+            // makes every surviving token unusable regardless, since each request must
+            // carry a proof signed by it.
+        }
+
+        $context->remove($account);
+
+        $this->loadAccounts();
         $this->working = false;
-        $this->replace('/');
+
+        if ($this->accounts === []) {
+            $this->replace('/connect');
+        }
+    }
+
+    private function loadAccounts(): void
+    {
+        $this->accounts = array_map(
+            fn ($account): array => [
+                'id' => $account->id,
+                'label' => $account->label,
+                'issuer' => $account->issuer,
+            ],
+            app(AccountContext::class)->store()->all(),
+        );
     }
 
     public function render(): View

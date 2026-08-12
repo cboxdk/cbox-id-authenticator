@@ -3,19 +3,21 @@
         <column class="w-full p-4 gap-3">
             <text class="text-2xl font-bold text-theme-on-background">Pending requests</text>
 
-            @if ($failed)
+            {{-- Named, not counted. "One account is unreachable" leaves the user
+                 guessing which of their tenants is not being watched. --}}
+            @foreach ($degraded as $label)
                 <row class="w-full items-center gap-2 p-3 rounded-xl bg-theme-surface-variant">
                     <icon name="wifi.slash" :size="18" class="text-theme-on-surface-variant" />
                     <text class="text-sm text-theme-on-surface-variant">
-                        Can't reach your Cbox ID host. Pull to retry.
+                        Can't reach {{ $label }}. Pull to retry.
                     </text>
                 </row>
-            @endif
+            @endforeach
 
             @forelse ($approvals as $approval)
                 <pressable
                     class="w-full p-4 gap-1 rounded-2xl bg-theme-surface"
-                    @press="open('{{ $approval['id'] }}')"
+                    @press="open('{{ $approval['row_key'] }}')"
                 >
                     <row class="w-full items-center gap-2">
                         <icon name="shield" :size="20" class="text-theme-primary" />
@@ -23,6 +25,11 @@
                             {{ $approval['client_name'] ?? 'An application' }}
                         </text>
                     </row>
+
+                    {{-- Which account this is for. With one account it is noise; with two
+                         it is the difference between approving your own sign-in and
+                         approving someone else's. --}}
+                    <text class="text-xs text-theme-primary">{{ $approval['account_label'] }}</text>
 
                     {{-- The binding message is previewed, but the DECISION is only taken
                          on the detail screen, where the user has had to read it. --}}
@@ -47,6 +54,7 @@
     </refreshable>
 
     <row class="w-full p-4 items-center">
+        <button label="Add account" variant="ghost" size="sm" @press="goAddAccount"></button>
         <spacer />
         <button label="Settings" variant="ghost" size="sm" @press="goSettings"></button>
     </row>

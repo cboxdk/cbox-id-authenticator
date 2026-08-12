@@ -15,25 +15,17 @@ use Illuminate\Support\Str;
  * within 60 seconds, and — at a resource endpoint — an `ath` equal to the SHA-256 of
  * the access token being presented.
  *
- * THE CLOCK PROBLEM, AND WHY THE OFFSET EXISTS
- * --------------------------------------------
- * That 60-second `iat` window has no recovery path on this platform: laravel-id
- * implements no `DPoP-Nonce` challenge, which is the mechanism RFC 9449 §8 provides
- * precisely so a server can hand a drifting client a fresh reference point. Without it,
- * a handset whose clock is off by more than a minute gets a hard `invalid_dpop_proof`
- * on every single call and the app is simply, inexplicably dead.
- *
- * So the client corrects itself: every response carries a `Date` header, and
- * {@see syncTo()} records the difference between it and local time. Proofs are stamped
- * with the corrected time. This is a mitigation, not a fix — the real fix is
- * server-side nonce support, and it is worth adding.
+ * The key is the ACCOUNT's, the clock is the DEVICE's. That split is why the two are
+ * separate collaborators: proofs for two different accounts must be signed by two
+ * different keys, but both benefit from the same drift correction. See
+ * {@see ServerClock} for why the 60-second window needs correcting at all.
  */
 final class DpopProof
 {
-    /** Seconds to add to local time to match the server. */
-    private int $offset = 0;
-
-    public function __construct(private readonly DpopKey $key) {}
+    public function __construct(
+        private readonly DpopKey $key,
+        private readonly ServerClock $clock,
+    ) {}
 
     /**
      * Learn the server's clock from a response `Date` header.
@@ -43,22 +35,7 @@ final class DpopProof
      */
     public function syncTo(?string $serverDate): void
     {
-        if ($serverDate === null || $serverDate === '') {
-            return;
-        }
-
-        $parsed = strtotime($serverDate);
-
-        if ($parsed === false) {
-            return;
-        }
-
-        $this->offset = $parsed - time();
-    }
-
-    public function offset(): int
-    {
-        return $this->offset;
+        $this->clock->syncTo($serverDate);
     }
 
     /**
@@ -77,7 +54,7 @@ final class DpopProof
             // Origin and path only — the server normalises away query and fragment, and
             // sending them would simply fail to match.
             'htu' => self::normaliseUrl($url),
-            'iat' => time() + $this->offset,
+            'iat' => $this->clock->now(),
         ];
 
         if ($accessToken !== null && $accessToken !== '') {

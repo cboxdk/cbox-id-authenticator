@@ -52,6 +52,12 @@
                     </text>
                 </row>
 
+                {{-- Whose account is being approved. With several connected, "approve
+                     this request?" is only half a question without it. --}}
+                @if ($accountLabel !== null)
+                    <text class="text-sm text-theme-primary">{{ $accountLabel }}</text>
+                @endif
+
                 {{-- Above the fold, before the buttons, and visually loudest thing on the
                      screen. This is the anti-phishing primitive: the user compares it
                      against what the requesting app showed them. It is never pushed. --}}

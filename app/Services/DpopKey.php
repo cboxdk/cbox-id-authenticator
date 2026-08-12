@@ -35,12 +35,22 @@ use RuntimeException;
  * The key never leaves the device, and `WhenUnlockedThisDeviceOnly` means it is not in
  * iCloud backups and does not restore onto a replacement handset. A restored phone
  * re-enrols from scratch, which is correct — do not try to work around it.
+ *
+ * ONE KEY PER ACCOUNT, NOT ONE PER DEVICE
+ * ---------------------------------------
+ * Namespaced by account rather than shared. Two reasons, and both matter. A shared key
+ * would give every tenant the same `jkt`, so two hosts could compare notes and identify
+ * the same handset — a cross-tenant correlator this app has no business creating. And a
+ * key compromised through one tenant's flow would be the key binding every other
+ * account's tokens.
  */
 final class DpopKey
 {
-    private const STORAGE_KEY = 'cboxid.dpop.privkey';
+    private const STORAGE_KEY = 'dpop.privkey';
 
     private ?string $pem = null;
+
+    public function __construct(private readonly string $prefix) {}
 
     /**
      * The private key PEM, generating and persisting one on first use.
@@ -51,7 +61,7 @@ final class DpopKey
             return $this->pem;
         }
 
-        $stored = SecureStorage::get(self::STORAGE_KEY);
+        $stored = SecureStorage::get($this->prefix.self::STORAGE_KEY);
 
         if (is_string($stored) && $stored !== '') {
             return $this->pem = $stored;
@@ -112,7 +122,7 @@ final class DpopKey
      */
     public function forget(): void
     {
-        SecureStorage::delete(self::STORAGE_KEY);
+        SecureStorage::delete($this->prefix.self::STORAGE_KEY);
         $this->pem = null;
     }
 
@@ -127,7 +137,7 @@ final class DpopKey
             throw new RuntimeException('Could not generate a DPoP key on this device.');
         }
 
-        if (! SecureStorage::set(self::STORAGE_KEY, $pem)) {
+        if (! SecureStorage::set($this->prefix.self::STORAGE_KEY, $pem)) {
             // Refusing here is deliberate. Carrying on with an in-memory-only key would
             // produce an enrolment that silently stops working on the next app launch,
             // and the user would have no way to tell why their prompts stopped.

@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Services\DeviceEnrolment;
-use App\Services\TokenStore;
+use App\Accounts\AccountContext;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
 use Native\Mobile\Events\PushNotification\TokenGenerated;
@@ -25,13 +24,18 @@ class PushTokenServiceProvider extends ServiceProvider
     public function boot(Dispatcher $events): void
     {
         $events->listen(TokenGenerated::class, function (TokenGenerated $event): void {
-            // Nothing to register against until the user has signed in; the callback
-            // screen enrols explicitly once they have.
-            if (! $this->app->make(TokenStore::class)->isSignedIn()) {
-                return;
+            // Every account, not just one. The token belongs to the handset, but the
+            // device row belongs to a host — re-registering with only one of them would
+            // leave every other account pushing to a token the OS no longer honours,
+            // and the user would simply stop getting prompts from those tenants with
+            // nothing on screen to explain it.
+            foreach ($this->app->make(AccountContext::class)->all() as $services) {
+                // Nothing to register against until this account has signed in; the
+                // callback screen enrols explicitly once it has.
+                if ($services->isSignedIn()) {
+                    $services->enrolment->register($event->token);
+                }
             }
-
-            $this->app->make(DeviceEnrolment::class)->register($event->token);
         });
     }
 }
