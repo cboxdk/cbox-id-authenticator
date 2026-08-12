@@ -10,6 +10,7 @@ use App\Concerns\NavigatesScreens;
 use App\Services\EnrolmentCode;
 use App\Services\EnrolmentToken;
 use App\Services\HostDiscovery;
+use App\Services\SupportedHost;
 use App\Support\RedirectUri;
 use Illuminate\View\View;
 use Native\Mobile\Attributes\On;
@@ -91,6 +92,15 @@ class Connect extends NativeComponent
     private function begin(EnrolmentCode $code): void
     {
         if ($this->working) {
+            return;
+        }
+
+        // Refused BEFORE discovery, so an unsupported host is never contacted at all.
+        // Asking it for its authenticator document first would tell that server a Cbox ID
+        // app had scanned it, and would report the wrong reason when it answered.
+        if (! SupportedHost::allows($code->host)) {
+            $this->error = SupportedHost::refusal();
+
             return;
         }
 
