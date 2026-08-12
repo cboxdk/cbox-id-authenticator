@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!--
+    The app icon, kept as SVG so it can be redrawn rather than re-traced.
+    public/icon.png is generated from this by `php artisan cboxid:brand`.
+
+    Fully opaque and square-cornered on purpose: the App Store rejects an icon with an
+    alpha channel, and iOS applies its own corner mask — baking one in leaves a visible
+    seam against the system's.
+
+    The mark is the shield-and-lock the connect screen already shows as `lock.shield`,
+    so the icon on the home screen and the icon in the app are recognisably the same
+    thing. Colour is the brand primary from config/native-ui.php.
+  -->
+  <rect width="512" height="512" fill="#0850AB"/>
+
+  <!-- Shield, generous margin so it survives the corner mask at 60pt. -->
+  <path d="M256 96 L400 148 V270 C400 344 334 396 256 424 C178 396 112 344 112 270 V148 Z"
+        fill="#FFFFFF"/>
+
+  <!-- Lock shackle. -->
+  <path d="M222 250 V226 C222 207 237 192 256 192 C275 192 290 207 290 226 V250"
+        fill="none" stroke="#0850AB" stroke-width="22" stroke-linecap="round"/>
+
+  <!-- Lock body. -->
+  <rect x="206" y="248" width="100" height="86" rx="14" fill="#0850AB"/>
+</svg>
