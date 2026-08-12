@@ -16,6 +16,7 @@
         "livewire/livewire": "^4.3",
         "nativephp/mobile": "dev-main as 4.0.x-dev",
         "nativephp/mobile-biometrics": "^1.0",
+        "nativephp/mobile-browser": "^1.0",
         "nativephp/mobile-firebase": "^1.1",
         "nativephp/mobile-scanner": "^1.0",
         "nativephp/mobile-secure-storage": "^1.0",
