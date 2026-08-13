@@ -28,18 +28,22 @@ it('applies the right safe-area insets on every screen', function (string $compo
     expect(Native::fakeBridge()->lastPublish()['layout']['safe_area'] ?? null)->toBe($expected);
 })->with([
     'connect' => [Connect::class, [], 1],
-    // Its bottom-bar is pinned with .safeAreaInset(.bottom) and owns that edge itself,
-    // so the root must claim only the top or the content is inset twice.
-    'approvals' => [Approvals::class, [], 2],
+    'approvals' => [Approvals::class, [], 1],
     'settings' => [Settings::class, [], 1],
     'oauth callback' => [OAuthCallback::class, [], 1],
     'approval detail' => [ApprovalDetail::class, ['account' => '01A', 'id' => '01B'], 1],
 ]);
 
-it('keeps the native: prefix on the bottom bar, which is silently dropped without it', function (): void {
-    // `<bottom-bar>` produces NOTHING — no element, no error. The precompiler leaves the
-    // tag unrecognised and promotes its child, so the row lands back in the column
-    // exactly as before and the fix looks applied while doing nothing at all.
+it('keeps the navigation controls out of native chrome these screens do not have', function (): void {
+    // `<native:bottom-bar>` renders only under chrome: both branches calling
+    // NativeComponent::resolveBottomBar() are gated on a tab bar or a nav bar, and no
+    // screen here uses a NativeLayout. Wrapped in one, the node is hoisted out of the
+    // tree and attached to nothing — the bar disappears and takes every navigation
+    // control with it.
+    //
+    // The previous version of this spec asserted the node was PRESENT in the published
+    // tree. It passed while the device showed no bottom row at all, which is the whole
+    // lesson: presence in the tree says nothing about being rendered.
     fakeSecureStorage();
 
     Native::test(Approvals::class);
@@ -55,5 +59,14 @@ it('keeps the native: prefix on the bottom bar, which is silently dropped withou
     };
     $walk(Native::fakeBridge()->lastPublish());
 
-    expect($types)->toContain('bottom_bar');
+    expect($types)->not->toContain('bottom_bar');
+});
+
+it('offers a way to Settings and to adding an account', function (): void {
+    // The controls themselves, which is what actually went missing.
+    fakeSecureStorage();
+
+    Native::test(Approvals::class)
+        ->assertSee('Add account')
+        ->assertSee('Settings');
 });
