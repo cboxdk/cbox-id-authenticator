@@ -88,11 +88,6 @@ class Approvals extends NativeComponent
         }
     }
 
-    public function goAddAccount(): void
-    {
-        $this->navigate('/connect');
-    }
-
     public function load(): void
     {
         $rows = [];

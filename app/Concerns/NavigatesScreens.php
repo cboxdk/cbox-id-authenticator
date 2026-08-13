@@ -14,27 +14,22 @@ namespace App\Concerns;
  */
 trait NavigatesScreens
 {
-    /**
-     * The handler a disabled or loading button points at. The press attribute cannot be
-     * wrapped in a Blade directive (the precompiler parses directives inside an
-     * element's attribute list as attributes), so an inert button is pointed here
-     * instead of having its handler removed.
-     */
-    public function noop(): void {}
-
     public function goApprovals(): void
     {
         $this->replace('/approvals');
     }
 
+    /**
+     * Back to the start, not to `/connect`.
+     *
+     * `/` is the router: it sends a handset with no accounts to the scanner and one with
+     * accounts to the approvals list. Pointing straight at `/connect` would strand
+     * someone who already has an account on a screen offering to add another when what
+     * failed was signing in.
+     */
     public function goConnect(): void
     {
         $this->replace('/');
-    }
-
-    public function goSettings(): void
-    {
-        $this->navigate('/settings');
     }
 
     public function goBack(): void

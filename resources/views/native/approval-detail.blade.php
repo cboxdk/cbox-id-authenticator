@@ -1,4 +1,4 @@
-<column class="w-full h-full safe-area bg-theme-background">
+<column class="w-full h-full bg-theme-background">
     <scroll-view class="flex-1">
         <column class="w-full p-4 gap-4">
 

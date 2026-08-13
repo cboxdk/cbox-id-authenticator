@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Layouts\AppLayout;
 use App\NativeComponents\ApprovalDetail;
 use App\NativeComponents\Approvals;
 use App\NativeComponents\Connect;
@@ -74,9 +75,20 @@ Route::native('/oauth/callback', OAuthCallback::class);
  */
 Route::native('/oauth/{tail}', OAuthCallback::class);
 
-Route::native('/approvals', Approvals::class);
+/*
+ * The signed-in screens, under shared chrome.
+ *
+ * AppLayout gives them the tab bar and the nav bar. It also takes over the safe areas —
+ * the framework frees whichever edges the bars do not own — so none of these three
+ * carries a `safe-area` class of its own. Adding one back insets the content twice.
+ *
+ * Launch, Connect and OAuthCallback stay outside on purpose; see AppLayout.
+ */
+Route::nativeGroup(AppLayout::class, function (): void {
+    Route::native('/approvals', Approvals::class);
 
-// The account is in the path because an approval id is unique only within its own host.
-Route::native('/approvals/{account}/{id}', ApprovalDetail::class);
+    // The account is in the path because an approval id is unique only within its own host.
+    Route::native('/approvals/{account}/{id}', ApprovalDetail::class);
 
-Route::native('/settings', Settings::class);
+    Route::native('/settings', Settings::class);
+});

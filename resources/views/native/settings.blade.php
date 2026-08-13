@@ -1,8 +1,7 @@
-<column class="w-full h-full safe-area bg-theme-background">
+<column class="w-full h-full bg-theme-background">
     <scroll-view class="flex-1">
+        {{-- No heading: the nav bar carries "Settings". --}}
         <column class="w-full p-4 gap-4">
-            <text class="text-2xl font-bold text-theme-on-background">Settings</text>
-
             <column class="w-full gap-2 p-4 rounded-2xl bg-theme-surface">
                 <text class="text-sm font-semibold text-theme-on-background">Notifications</text>
                 <text class="text-sm text-theme-on-surface-variant">
@@ -62,9 +61,10 @@
                 Signing out of an account stops approval requests from that host only.
             </text>
 
+            {{-- The only route to the scanner now that the approvals list has no controls
+                 of its own. No Back button: this is a tab root, so there is nothing
+                 beneath it to go back to — the other tab is one tap away. --}}
             <button label="Add another account" variant="secondary" @press="goAddAccount"></button>
-
-            <button label="Back" variant="ghost" @press="goBack"></button>
         </column>
     </scroll-view>
 </column>
