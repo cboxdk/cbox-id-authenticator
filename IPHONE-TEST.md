@@ -2,18 +2,24 @@
 
 Koden ligger på `sd/ios-release`. Backendændringerne fra `sd/authenticator-ios-api` er merged og udrullet via PR108.
 De eksisterende ændringer i de oprindelige `cbox-id`- og `laravel-id`-checkouts er bevaret.
-Mål for den aktuelle telefontest: 1.0.0 (15) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret og versionskontrolleret. Åbn appen på telefonen. Indeholder TOTP, krypteret backup, native glasnavigation og ni redesignede skærme med tydeligere handlinger, formularer, kodekort og mørk tilstand.
+Mål for den aktuelle telefontest: 1.0.0 (17) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret og versionskontrolleret. Åbn appen på telefonen. Indeholder TOTP, krypteret backup, native glasnavigation og ni redesignede skærme med tydeligere handlinger, formularer, kodekort og mørk tilstand.
 Serverrettelserne følges i https://github.com/cboxdk/cbox-id/pull/108.
 Separate TOTP-tilmeldinger fra PR109 er også udrullet: serverrevision
 `6788b6473f32f246382e7c6339b849d60f7d32d5`, verificeret 2026-11-05 kl. 21:50 UTC
 med web 2/2, worker 1/1, laravel-id v1.28.0 og sunde readiness-tjek.
 Firebaseprojekt findes endnu ikke; første test er udtrykkeligt uden push.
 
-Build 15 er installeret og verificeret via devicectl. Automatisk åbning fejlede,
-fordi telefonen var låst; appen skal åbnes på telefonen. Buildet retter hvid firkant i splash og læser Cbox ID’s TOTP-QR med mellemrum korrekt. Det har alle ti ID-sprog,
+Build 17 er installeret og verificeret via devicectl; den pakkede rettelse og PHP
+8.4.27 er kontrolleret. Face ID kunne afslutte, mens iOS stadig meldte appen inaktiv,
+og dermed fejlagtigt udløse beskeden om udløbet autentifikation. Appen afventer nu
+forgrunden før afsendelse og afviser fortsat ved faktisk låsning, navigation eller
+udløb. Godkendelse på den fysiske telefon afventer en ny testanmodning.
+Buildet bevarer rettelsen af hvid firkant i splash og læser Cbox ID’s TOTP-QR med mellemrum korrekt. Det har alle ti ID-sprog,
 lokaliseret kamera/applås, korte hjælperubrikker, sprogindstilling og opdateret splash.
 
-233 PHP-tests / 9762 assertions, Larastan, 11 Swift-livscyklusscenarier,
+238 PHP-tests / 9794 assertions og Larastan består på PHP 8.4.27, inklusive fem
+regressionsscenarier for Face ID før forgrund, låsning, navigation og udløb.
+De tidligere 11 Swift-livscyklusscenarier,
 input-echo-tests og native kilde-/pakningskontrol består. Simulatorforløb gennem
 forside → tilslutning → Indstillinger → hjælp → Koder består på alle ti sprog.
 Tyske formularer med accessibility-large består, inklusive indtastning, Færdig,

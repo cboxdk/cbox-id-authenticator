@@ -42,6 +42,8 @@ class ApprovalDetail extends NativeComponent
 
     private ?int $attemptGeneration = null;
 
+    private bool $biometricSucceeded = false;
+
     public function mount(): void
     {
         $this->load();
@@ -75,7 +77,11 @@ class ApprovalDetail extends NativeComponent
         if ($this->approval !== null && $this->outcome === null && $this->secondsLeft() <= 0) {
             $this->cancelAuthentication();
             $this->outcome = 'expired';
+
+            return;
         }
+
+        $this->finishAuthentication();
     }
 
     #[Poll(5000)]
@@ -130,18 +136,37 @@ class ApprovalDetail extends NativeComponent
             return;
         }
 
-        $request = $this->attemptRequest;
-        $generation = $this->attemptGeneration;
-        $this->cancelAuthentication(); // Consume before any network call; an event cannot approve twice.
-
-        if ($generation === null || $generation !== app(DeviceSecurity::class)->generation()) {
-            $this->error = 'Authentication expired when the app was locked. Try again.';
+        if (! $success) {
+            $this->cancelAuthentication();
+            $this->error = 'Authentication cancelled. No approval was sent.';
 
             return;
         }
 
-        if (! $success) {
-            $this->error = 'Authentication cancelled. No approval was sent.';
+        $this->biometricSucceeded = true;
+        $this->finishAuthentication();
+    }
+
+    private function finishAuthentication(): void
+    {
+        if (! $this->biometricSucceeded || $this->biometricAttempt === null) {
+            return;
+        }
+
+        // LAContext may finish before iOS becomes active again. Keep the result
+        // until the native gate permits access; a real background transition still
+        // changes the generation and invalidates this attempt on return.
+        $currentGeneration = app(DeviceSecurity::class)->generation();
+        if ($currentGeneration === null) {
+            return;
+        }
+
+        $request = $this->attemptRequest;
+        $generation = $this->attemptGeneration;
+        $this->cancelAuthentication(); // Consume before any network call; an event cannot approve twice.
+
+        if ($generation === null || $generation !== $currentGeneration) {
+            $this->error = 'Authentication expired when the app was locked. Try again.';
 
             return;
         }
@@ -158,6 +183,7 @@ class ApprovalDetail extends NativeComponent
         $this->biometricAttempt = null;
         $this->attemptRequest = null;
         $this->attemptGeneration = null;
+        $this->biometricSucceeded = false;
     }
 
     public function deny(): void

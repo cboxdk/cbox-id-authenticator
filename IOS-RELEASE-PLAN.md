@@ -20,6 +20,17 @@ Verifikation efter implementeringen: **230 app-tests / 9746 assertions på PHP 8
 
 Build 11 er installeret over USB og har en samlet designrunde på ni native skærme: fælles kort, ikoner, farver, typografi og vedvarende feltlabels. Kontooversigten kan åbnes direkte fra forsiden; TOTP viser nedtælling og lokal kopieringsfeedback. UI-forløb består i lys/mørk og med stor tilgængelighedstekst. Eksempelkonti og anmodninger er visuelt kontrolleret separat med simulator-fixtures, som ikke indgår i buildet.
 
+## Face ID-godkendelser — build 17
+
+Installeret på Sylvesters iPhone og versionskontrolleret med devicectl. En
+regressionstest reproducerede fejlen: Face ID svarede, før iOS meldte appen aktiv,
+og en gyldig godkendelse blev derfor afvist som udløbet autentifikation. Resultatet
+afventer nu en aktiv, oplåst app med uændret låsegeneration. Navigation, rigtig
+baggrund/låsning og anmodningens udløb ugyldiggør stadig forsøget; et svar kan kun
+sendes én gang. 238 tests / 9794 assertions, Larastan og pakningskontrol består på
+PHP 8.4.27. Den installerede pakke indeholder rettelsen. Fysisk Face ID-accept
+afventer brugerens svar på en ny CIBA-testanmodning.
+
 ## Rettelser — build 15
 
 Installeret via USB og verificeret med devicectl. Splash-generatoren rasteriserer nu

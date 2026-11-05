@@ -37,6 +37,53 @@ it('requires a matching successful event and consumes it once', function (): voi
     expect(Http::recorded(fn ($request) => $request->method() === 'POST'))->toHaveCount(1);
 });
 
+it('waits for the app to become active when Face ID completes before foreground activation', function (): void {
+    $screen = Native::test(ApprovalDetail::class, ['account' => '01ACC', 'id' => '01REQUEST'])->call('approve');
+    $id = $screen->get('biometricAttempt');
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', ['unlocked' => false, 'foreground' => false, 'generation' => 0]);
+
+    $screen->emitNative(Completed::class, ['success' => true, 'id' => $id])
+        ->call('tick')->assertSet('error', null)->assertSet('biometricAttempt', $id);
+    Http::assertNotSent(fn ($request) => $request->method() === 'POST');
+
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', ['unlocked' => true, 'foreground' => true, 'generation' => 0]);
+    $screen->call('tick')->assertSet('outcome', 'approved')->assertSet('biometricAttempt', null);
+    $screen->emitNative(Completed::class, ['success' => true, 'id' => $id])->call('tick');
+    expect(Http::recorded(fn ($request) => $request->method() === 'POST'))->toHaveCount(1);
+});
+
+it('rejects a queued Face ID result if the app really backgrounded before returning', function (): void {
+    $screen = Native::test(ApprovalDetail::class, ['account' => '01ACC', 'id' => '01REQUEST'])->call('approve');
+    $id = $screen->get('biometricAttempt');
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', ['unlocked' => false, 'foreground' => false, 'generation' => 0]);
+    $screen->emitNative(Completed::class, ['success' => true, 'id' => $id]);
+
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', ['unlocked' => false, 'foreground' => true, 'generation' => 1]);
+    $screen->call('tick');
+    Http::assertNotSent(fn ($request) => $request->method() === 'POST');
+
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', ['unlocked' => true, 'foreground' => true, 'generation' => 1]);
+    $screen->call('tick')->assertSet('biometricAttempt', null)
+        ->assertSet('error', 'Authentication expired when the app was locked. Try again.');
+    Http::assertNotSent(fn ($request) => $request->method() === 'POST');
+});
+
+it('discards successful authentication queued before leaving or a real request expiry', function (string $action): void {
+    $screen = Native::test(ApprovalDetail::class, ['account' => '01ACC', 'id' => '01REQUEST'])->call('approve');
+    $id = $screen->get('biometricAttempt');
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', ['unlocked' => false, 'foreground' => false, 'generation' => 0]);
+    $screen->emitNative(Completed::class, ['success' => true, 'id' => $id]);
+
+    if ($action === 'expiry') {
+        $screen->set('approval', ['expires_at' => gmdate('c', time() - 1)]);
+    } else {
+        $screen->call($action);
+    }
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', ['unlocked' => true, 'foreground' => true, 'generation' => 0]);
+    $screen->call('tick')->assertSet('biometricAttempt', null);
+    Http::assertNotSent(fn ($request) => $request->method() === 'POST');
+})->with(['unmount', 'onResume', 'expiry']);
+
 it('ignores cancelled authentication and late events after leaving or denying', function (string $action): void {
     $screen = Native::test(ApprovalDetail::class, ['account' => '01ACC', 'id' => '01REQUEST'])->call('approve');
     $id = $screen->get('biometricAttempt');
