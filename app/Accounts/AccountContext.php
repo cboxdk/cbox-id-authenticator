@@ -126,6 +126,16 @@ final class AccountContext
         ));
     }
 
+    public function cancelSignIn(string $state): void
+    {
+        $this->pending->cancel($state, function (PendingSignIn $pending): void {
+            if ($this->store->find($pending->accountId) === null) {
+                $this->reserved($pending)->forget();
+                unset($this->cache[$pending->accountId]);
+            }
+        });
+    }
+
     /**
      * Sign out of one account: revoke server-side, wipe locally, drop from the index.
      *

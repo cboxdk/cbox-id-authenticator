@@ -40,6 +40,10 @@ jobs:
               static let shared = LaravelBridge()
               var send: ((String, [String: Any]) -> Void)?
           }
+          final class DeepLinkRouter {
+              static let shared = DeepLinkRouter()
+              func handle(url: URL) {}
+          }
           final class FirebaseManager {
               static let shared = FirebaseManager()
               var isConfigured = false
@@ -47,3 +51,7 @@ jobs:
           SWIFT
           xcrun swiftc -typecheck -D CBOX_AUTHENTICATOR_SOURCE_CHECK -target arm64-apple-ios18.2-simulator -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" /tmp/BridgeFunction.swift plugins/authenticator-security/resources/ios/*.swift
           plutil -lint plugins/authenticator-security/resources/ios/PrivacyInfo.xcprivacy
+      - name: Test authentication lifecycle transitions
+        run: |
+          xcrun swiftc plugins/authenticator-security/resources/ios/AuthenticationLifecycle.swift tests/Unit/AuthenticationLifecycleTests.swift -o /tmp/cbox-authentication-tests
+          /tmp/cbox-authentication-tests

@@ -2,7 +2,7 @@
 
 Koden ligger på `sd/ios-release`. Backendændringerne fra `sd/authenticator-ios-api` er merged og udrullet via PR108.
 De eksisterende ændringer i de oprindelige `cbox-id`- og `laravel-id`-checkouts er bevaret.
-Mål for den aktuelle telefontest: 1.0.0 (8) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Indeholder TOTP, krypteret backup og native glasnavigation.
+Mål for den aktuelle telefontest: 1.0.0 (9) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret og verificeret. Indeholder TOTP, krypteret backup, native glasnavigation og rettet login/låseforløb.
 Serverrettelserne følges i https://github.com/cboxdk/cbox-id/pull/108.
 Firebaseprojekt findes endnu ikke; første test er udtrykkeligt uden push.
 
@@ -77,8 +77,13 @@ Gem screenshots uden rigtige personoplysninger eller QR-/tilslutningskoder.
 
 | Forløb | Forventet resultat |
 | --- | --- |
-| Frisk installation | Tre faner: Koder, Anmodninger, Indstillinger. Koder kan bruges uden Cbox-login. |
-| Frisk installation → QR → systemlogin | Verificeret konto vises; ingen webview-skærme. |
+| Frisk installation | Starter på Cbox ID med tydelig tilslutning. Faner: Cbox ID, Koder, Indstillinger. Koder kan bruges uden Cbox-login. |
+| Kun gemte TOTP-koder, ingen Cbox-konto | Starter på Koder. Med Cbox-konti starter appen på Cbox ID. |
+| QR → Google-login/password manager | Kameraet lukkes først. Ingen gentagne Face ID-prompts eller skift mellem applås og login. |
+| Annullér systemlogin, scan igen | Tilslutningsskærmen bliver klar igen; eksisterende konti og koder bevares. |
+| Baggrund under browserlogin → retur | Login kan afsluttes. Eventuel applås åbnes med ét bevidst tryk på Lås op efter browseren. |
+| Annullér Face ID ved appstart | Låseskærmen bliver stående uden automatisk nyt prompt; Lås op kan forsøge igen. |
+| Frisk installation → QR → systemlogin | Kontoen er tilsluttet-bekræftelse og Cbox ID-fanen vises; ingen webview-skærme. |
 | Kun telefonen | Indtast host → Betroede enheder → tilslutningslink → samme loginforløb. |
 | Afvis kamera eller annullér scanner | Linkvejen er stadig tilgængelig. |
 | Afvis notifikationer / forsinket push-token | Kontoen tilmeldes; anmodninger vises ved polling. |

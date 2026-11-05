@@ -35,6 +35,33 @@ final class PrepareIosSecurity extends Command
             $tabs = str_replace($original, "$tabsMarker\n        if !forceHide {\n            content.toolbar(.visible, for: .tabBar)", $tabs);
             File::put($tabsPath, $tabs);
         }
+        $scanners = glob($root.'/NativePHP/Bridge/Plugins/*/ScannerViewController.swift') ?: [];
+        if (count($scanners) !== 1) {
+            throw new RuntimeException('Expected one generated scanner. Review the plugin layout before building.');
+        }
+        $scanner = File::get($scanners[0]);
+        $scannerMarker = '// Cbox: finish camera dismissal before opening authentication.';
+        if (! str_contains($scanner, $scannerMarker)) {
+            $start = strpos($scanner, '        // Dispatch event to Laravel');
+            $end = strpos($scanner, '    private func parseFormats(', $start ?: 0);
+            if ($start === false || $end === false || substr_count(substr($scanner, $start, $end - $start), 'dispatchScannedEvent(data: data, format: formatName)') !== 1) {
+                throw new RuntimeException('Review scanner completion before building: the upstream implementation changed.');
+            }
+            $completion = <<<'SWIFT'
+        // Cbox: finish camera dismissal before opening authentication.
+        if continuous {
+            dispatchScannedEvent(data: data, format: formatName)
+        } else {
+            dismiss(animated: true) {
+                self.dispatchScannedEvent(data: data, format: formatName)
+            }
+        }
+    }
+
+
+SWIFT;
+            File::put($scanners[0], substr($scanner, 0, $start).$completion.substr($scanner, $end));
+        }
         $podfile = $root.'/Podfile';
         if (is_file($podfile)) {
             $pods = File::get($podfile);

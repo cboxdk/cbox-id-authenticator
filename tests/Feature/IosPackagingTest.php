@@ -18,6 +18,9 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
     $security = $root.'/NativePHP/Bridge/Plugins/AuthenticatorSecurity/AuthenticatorSecurityFunctions.swift';
     File::ensureDirectoryExists(dirname($security));
     File::copy(base_path('plugins/authenticator-security/resources/ios/AuthenticatorSecurityFunctions.swift'), $security);
+    $scanner = $root.'/NativePHP/Bridge/Plugins/Scanner/ScannerViewController.swift';
+    File::ensureDirectoryExists(dirname($scanner));
+    File::copy(base_path('vendor/nativephp/mobile-scanner/resources/ios/ScannerViewController.swift'), $scanner);
     File::copy(base_path('vendor/nativephp/mobile/resources/xcode/NativePHP/Bridge/BridgeRouter.swift'), $root.'/NativePHP/Bridge/BridgeRouter.swift');
     File::ensureDirectoryExists($root.'/NativePHP/NativeRender');
     File::copy(base_path('vendor/nativephp/mobile/resources/xcode/NativePHP/NativeRender/NativeRootTabsRenderer.swift'), $root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift');
@@ -28,9 +31,12 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
             ->toContain('content.toolbar(.visible, for: .tabBar)')
             ->not->toContain('if isRoot && !forceHide {');
         $first = File::get($path);
+        $firstScanner = File::get($scanner);
+        expect($firstScanner)->toContain("dismiss(animated: true) {\n                self.dispatchScannedEvent");
         expect($first)->toContain('App\\\\Events\\\\PushReceived')->not->toContain('print(')->not->toContain('let event = userInfo["event"]');
         $this->artisan('authenticator:prepare-ios', ['--platform' => 'ios', '--build-path' => $root])->assertSuccessful();
         expect(File::get($path))->toBe($first);
+        expect(File::get($scanner))->toBe($firstScanner);
         expect(substr_count(File::get($root.'/Podfile'), 'post_install do'))->toBe(1);
         expect(File::get($root.'/Podfile'))->toContain("Gem::Version.new('18.2')");
         expect(File::get($root.'/NativePHP/Bridge/BridgeRouter.swift'))->not->toContain('print(')->toContain('cboxDiscardLog(');

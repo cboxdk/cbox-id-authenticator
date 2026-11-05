@@ -29,9 +29,7 @@ func cboxNotificationURL(_ value: String) -> URL? {
 // prompt, so an event queued before backgrounding can never approve on return.
 final class CboxSecurityGate {
     static let shared = CboxSecurityGate()
-    private var enabled = UserDefaults.standard.bool(forKey: "cbox.security.enabled")
-    private var locked = true
-    private var generation = 0
+    private var lifecycle = CboxAuthenticationLifecycle(enabled: UserDefaults.standard.bool(forKey: "cbox.security.enabled"))
     private var context: LAContext?
     private var window: UIWindow?
     private var observers: [NSObjectProtocol] = []
@@ -40,45 +38,61 @@ final class CboxSecurityGate {
     func start() {
         let center = NotificationCenter.default
         observers.append(center.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: .main) { _ in
-            if self.enabled { self.cover() }
+            self.lifecycle.resignActive()
+            self.updatePresentation()
         })
         observers.append(center.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { _ in
-            self.generation += 1
-            self.locked = true
-            self.context?.invalidate()
+            self.lifecycle.enterBackground()
+            let old = self.context
             self.context = nil
-            if self.enabled { self.cover() }
+            old?.invalidate()
+            self.updatePresentation()
         })
-        observers.append(center.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in self.resume() })
+        observers.append(center.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
+            self.lifecycle.becomeActive()
+            self.updatePresentation()
+        })
         observers.append(center.addObserver(forName: UIWindow.didBecomeVisibleNotification, object: nil, queue: .main) { event in
-            if let shown = event.object as? UIWindow, shown !== self.window, self.enabled && self.locked {
+            if let shown = event.object as? UIWindow, shown !== self.window, self.lifecycle.needsCover {
                 self.cover()
             }
         })
-        resume()
+        if UIApplication.shared.applicationState == .active { lifecycle.becomeActive() }
+        updatePresentation()
     }
 
     func configure(_ enabled: Bool) {
-        self.enabled = enabled
+        lifecycle.configure(enabled)
         UserDefaults.standard.set(enabled, forKey: "cbox.security.enabled")
-        if enabled { resume() } else {
-            context?.invalidate()
+        if !enabled {
+            let old = context
             context = nil
-            window?.isHidden = true
+            old?.invalidate()
         }
+        updatePresentation()
     }
 
     var state: [String: Any] {
-        ["unlocked": !enabled || !locked, "generation": generation,
-         "foreground": UIApplication.shared.applicationState == .active,
+        ["unlocked": lifecycle.canAccessSecrets, "generation": lifecycle.generation,
+         "foreground": lifecycle.foreground,
          "pushAvailable": FirebaseManager.shared.isConfigured,
          "locale": Locale.preferredLanguages.first ?? "en"]
     }
 
-    private func resume() {
-        guard enabled else { return }
-        guard UIApplication.shared.applicationState == .active else { cover(); return }
-        if locked { cover(); unlock() } else { window?.isHidden = true }
+    func beginBrowserAuthentication() -> Bool {
+        guard lifecycle.beginBrowser() else { return false }
+        updatePresentation()
+        return true
+    }
+
+    func endBrowserAuthentication() {
+        lifecycle.endBrowser()
+        updatePresentation()
+    }
+
+    private func updatePresentation() {
+        if lifecycle.needsCover { cover() } else { window?.isHidden = true }
+        if lifecycle.shouldAutomaticallyUnlock { unlock(manual: false) }
     }
 
     private func localized(_ english: String, _ danish: String) -> String {
@@ -109,7 +123,7 @@ final class CboxSecurityGate {
             button.heightAnchor.constraint(greaterThanOrEqualToConstant: 48).isActive = true
             controller.view.accessibilityViewIsModal = true
             button.setTitle(self.localized("Unlock", "Lås op"), for: .normal)
-            button.addAction(UIAction { _ in self.unlock() }, for: .touchUpInside)
+            button.addAction(UIAction { _ in self.unlock(manual: true) }, for: .touchUpInside)
             let stack = UIStackView(arrangedSubviews: [title, text, button])
             stack.axis = .vertical
             stack.spacing = 24
@@ -127,23 +141,22 @@ final class CboxSecurityGate {
         window?.isHidden = false
     }
 
-    private func unlock() {
-        guard enabled, locked, context == nil, UIApplication.shared.applicationState == .active else { return }
+    private func unlock(manual: Bool) {
+        guard context == nil, let epoch = lifecycle.beginUnlock(manual: manual) else { return }
         let attempt = LAContext()
         var error: NSError?
         guard attempt.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
+            lifecycle.finishUnlock(success: false, generation: epoch)
             message?.text = self.localized("Set a device passcode in iPhone Settings to unlock Cbox ID.", "Indstil en adgangskode i iPhone-indstillinger for at låse Cbox ID op.")
             return
         }
         context = attempt
-        let epoch = generation
         attempt.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: self.localized("Unlock your codes and Cbox ID accounts", "Lås dine koder og Cbox ID-konti op")) { success, _ in
             DispatchQueue.main.async {
                 guard self.context === attempt else { return }
                 self.context = nil
-                guard success, self.generation == epoch else { return }
-                self.locked = false
-                self.window?.isHidden = true
+                self.lifecycle.finishUnlock(success: success, generation: epoch)
+                self.updatePresentation()
             }
         }
     }

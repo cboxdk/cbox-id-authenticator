@@ -7,6 +7,7 @@ namespace App\NativeComponents;
 use App\Accounts\AccountStore;
 use App\Concerns\NavigatesScreens;
 use App\Services\AppSecurity;
+use App\Totp\TotpStore;
 use Illuminate\View\View;
 use Native\Mobile\Edge\NativeComponent;
 
@@ -32,7 +33,7 @@ class Launch extends NativeComponent
         try {
             $empty = app(AccountStore::class)->isEmpty();
             app(AppSecurity::class)->refresh();
-            $this->replace($empty ? '/codes' : '/approvals');
+            $this->replace($empty && ! app(TotpStore::class)->isEmpty() ? '/codes' : '/approvals');
         } catch (\Throwable) {
             $this->error = 'Your saved accounts could not be read. Unlock your phone and try again. Nothing has been removed.';
         }

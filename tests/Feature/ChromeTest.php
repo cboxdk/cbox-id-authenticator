@@ -58,13 +58,13 @@ it('names all three tabs', function (): void {
     };
     $walk(Native::fakeBridge()->lastPublish());
 
-    expect($labels)->toBe(['Codes', 'Requests', 'Settings']);
+    expect($labels)->toBe(['Cbox ID', 'Codes', 'Settings']);
 });
 
 it('keeps account deep links in the settings tab', function (string $uri): void {
     fakeSecureStorage();
     Native::visit($uri)->assertElement('bottom_nav_item', fn (array $node): bool => ($node['props']['url'] ?? '') === '/settings' && ($node['props']['active'] ?? false));
-})->with(['/connect', '/connect?host=untrusted.example', '/account/missing', '/about', '/licenses']);
+})->with(['/account/missing', '/about', '/licenses']);
 
 it('leaves the safe areas to the layout on the screens it wraps', function (string $uri): void {
     // buildChromeColumn() applies neither edge when both bars exist — each handles its
@@ -101,3 +101,8 @@ it('keeps a route to the scanner now that the list has no controls of its own', 
 
     Native::visit('/settings')->assertSee('Add another account');
 });
+
+it('keeps connection flows in the Cbox ID tab', function (string $uri): void {
+    fakeSecureStorage();
+    Native::visit($uri)->assertElement('bottom_nav_item', fn (array $node): bool => ($node['props']['url'] ?? '') === '/approvals' && ($node['props']['active'] ?? false));
+})->with(['/connect', '/connect?host=untrusted.example']);

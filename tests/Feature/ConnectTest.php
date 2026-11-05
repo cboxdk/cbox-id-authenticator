@@ -73,6 +73,7 @@ it('reserves a separate account for each sign-in it starts', function (): void {
     // Two hosts scanned in a row must not share a namespace — that collision is the
     // whole defect this work exists to remove.
     $keychain = fakeSecureStorage();
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.OpenAuthentication', ['success' => true]);
 
     Http::fake([
         '*/.well-known/cbox-authenticator' => Http::sequence()
@@ -103,10 +104,10 @@ it('reserves a separate account for each sign-in it starts', function (): void {
     expect($keys)->toHaveCount(2);
 });
 
-it('opens codes with navigation available before connecting a Cbox account', function (): void {
+it('starts with Cbox onboarding before any accounts or codes exist', function (): void {
     fakeSecureStorage();
 
-    Native::test(Launch::class)->assertReplacedWith('/codes');
+    Native::test(Launch::class)->assertReplacedWith('/approvals');
 
     expect(app(AccountStore::class)->isEmpty())->toBeTrue();
 });

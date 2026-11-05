@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Coordinate system browser login with the native app lock; prevent competing Face ID
+  prompts during Google/password-manager handoffs and automatic retry after cancellation.
+- Finish scanner dismissal before opening login; clean up cancelled OAuth reservations.
+- Start new users on Cbox ID, show connection confirmation, and clarify the onboarding
+  steps with consistent native spacing. Code-only users still start in their vault.
+
 - Add offline TOTP (SHA1/SHA256/SHA512, six/eight digits) with native code lists,
   QR/manual setup, search, rename, individual deletion and expiring local clipboard.
 - Store up to 500 codes atomically in device-only Keychain, independently of Cbox accounts.

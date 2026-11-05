@@ -155,7 +155,7 @@ it('renders a usable native host field and Danish account screens', function ():
     fakeSecureStorage();
     app()->setLocale('da');
     Native::test(Connect::class)->call('toggleManual')
-        ->assertElement('outlined_text_input', fn ($node) => ($node['props']['keyboard'] ?? null) === 'url')
+        ->assertElement('bare_text_input', fn ($node) => ($node['props']['keyboard'] ?? null) === 'url')
         ->assertSee('Scan koden')->assertAccessible();
     Native::test(About::class)->assertSee('Dine konti og dit privatliv')->assertAccessible();
     Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', ['locale' => 'da-DK']);

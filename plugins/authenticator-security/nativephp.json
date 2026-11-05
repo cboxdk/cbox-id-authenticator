@@ -20,6 +20,10 @@
         {
             "name": "AuthenticatorSecurity.SaveBackup",
             "ios": "AuthenticatorBackupFunctions.SaveBackup"
+        },
+        {
+            "name": "AuthenticatorSecurity.OpenAuthentication",
+            "ios": "AuthenticatorBrowserFunctions.Open"
         }
     ],
     "ios": {

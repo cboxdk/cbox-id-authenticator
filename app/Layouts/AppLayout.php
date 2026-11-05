@@ -31,14 +31,15 @@ class AppLayout extends NativeLayout
         return true;
     }
 
-    /** Adding a Cbox account is an action under Settings; codes work without one. */
+    /** Cbox approvals lead; verification codes remain available without a Cbox account. */
     public function tabBar(NativeComponent $screen): ?TabBar
     {
         $bar = TabBar::make()
+            ->add(Tab::link('Cbox ID', '/approvals', ios: Ios::CheckmarkShield, android: Android::Shield)
+                ->active($screen instanceof Connect))
             ->add(Tab::link(__('Codes'), '/codes', ios: Ios::Key, android: Android::Lock))
-            ->add(Tab::link(__('Requests'), '/approvals', ios: Ios::Bell, android: Android::Notifications))
             ->add(Tab::link(__('Settings'), '/settings', ios: Ios::Gearshape, android: Android::Settings)
-                ->active($screen instanceof Connect || $screen instanceof AccountDetail || $screen instanceof About || $screen instanceof Licenses));
+                ->active($screen instanceof AccountDetail || $screen instanceof About || $screen instanceof Licenses));
 
         // This preserves explicit ownership for deep-link routes outside /settings.
         // The builder's URL highlighter only honors active flags on adopted elements.
@@ -70,7 +71,7 @@ class AppLayout extends NativeLayout
             $screen instanceof About => NavBar::make()->title(__('Privacy and help'))->back(),
             $screen instanceof Settings => NavBar::make()->title(__('Settings'))->displayMode('large')
                 ->action(NavAction::make('add')->icon('plus')->a11yLabel(__('Add another account'))->press('goAddAccount')),
-            default => NavBar::make()->title(__('Requests'))->displayMode('large')
+            default => NavBar::make()->title('Cbox ID')->displayMode('large')
                 ->action(NavAction::make('add')->icon('plus')->a11yLabel(__('Connect an account'))->press('addAccount')),
         };
     }

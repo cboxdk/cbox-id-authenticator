@@ -42,6 +42,20 @@ final class PendingSignIns
         $this->write($records);
     }
 
+    /** @param callable(PendingSignIn): void $forget */
+    public function cancel(string $state, callable $forget): void
+    {
+        $records = $this->records();
+        $row = $records[$state] ?? null;
+        $pending = is_array($row) ? PendingSignIn::fromArray($row) : null;
+        if ($pending !== null) {
+            // Retain the reservation if Keychain cleanup fails so it can be retried.
+            $forget($pending);
+        }
+        unset($records[$state]);
+        $this->write($records);
+    }
+
     /**
      * Read and remove in one step — a `state` answers exactly once.
      *

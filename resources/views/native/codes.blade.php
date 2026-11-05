@@ -1,6 +1,6 @@
 <column class="w-full h-full bg-theme-background">
     <scroll-view class="flex-1">
-        <column class="w-full px-5 py-3 gap-4">
+        <column class="w-full px-5 py-4 gap-4">
             @if ($codes !== [] || $search !== '')
                 <bare-text-input native:model="search" placeholder="{{ __('Search codes') }}" a11y-label="{{ __('Search codes') }}" :max-length="120" class="w-full px-4 py-3 rounded-xl bg-theme-surface-variant"></bare-text-input>
             @endif
@@ -32,7 +32,7 @@
                     <text class="text-xs text-theme-on-surface-variant">{{ __('New code in :seconds seconds', ['seconds' => $code['remaining']]) }}</text>
                 </column>
             @empty
-                <column class="w-full py-16 gap-4 items-center">
+                <column class="w-full py-8 gap-4 items-center">
                     <icon name="key.fill" :size="48" class="text-theme-primary" />
                     <text text-align="center" class="text-2xl font-semibold text-theme-on-background">{{ $search !== '' ? __('No matching codes.') : __('Your codes, on this phone.') }}</text>
                     <text text-align="center" class="text-base text-theme-on-surface-variant">{{ __('Secure codes for your accounts. Ready even when you are offline.') }}</text>

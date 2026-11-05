@@ -13,9 +13,11 @@ Android is not release-ready: the security plugin currently supports iOS only.
 
 The iOS implementation and matching Cbox ID API changes are ready for the physical
 phone test described in [IPHONE-TEST.md](IPHONE-TEST.md). Signed development builds
-1.0.0 (2 and 3) have been installed on an iPhone 16 Pro (iOS 27.0.1) over USB.
-TestFlight and App Store acceptance are pending. Deploy the matching server
-changes before connecting this app; discovery must return `api_version: 2`.
+1.0.0 (9) is installed on an iPhone 16 Pro (iOS 27.0.1) over USB. The matching
+server API v2 is deployed, and the user has confirmed successful connection.
+Build 9 coordinates browser sign-in with the app lock, starts new users on Cbox ID,
+and clarifies onboarding. Physical acceptance of these refinements, TOTP/backup,
+TestFlight and App Store acceptance are pending.
 
 - App branch: `sd/ios-release`, preserving the earlier multi-account work.
 - Server branch: `sd/authenticator-ios-api` in the separate Cbox ID worktree.
@@ -46,7 +48,8 @@ archive before release.
 
 The iOS preparation hook runs on every native project generation. It restricts push
 links to existing local installations, fixes foreground refresh delivery, disables
-native credential logging and Bifrost OTA updates. A Swift compile guard prevents a
+native credential logging and Bifrost OTA updates. It keeps native tabs visible and
+waits for scanner dismissal before delivering a scanned code. A Swift compile guard prevents a
 build if preparation did not complete. Source-only CI defines
 `CBOX_AUTHENTICATOR_SOURCE_CHECK`; never set this flag on an app build.
 
@@ -54,6 +57,13 @@ For native installation and building, follow [IPHONE-TEST.md](IPHONE-TEST.md).
 Do not hand-edit `vendor/` or the generated `nativephp/ios/` directory to fix product code.
 
 ## Security boundary
+
+The system sign-in browser and app lock share a native lifecycle. Google or password
+manager handoffs never automatically start the app's own Face ID prompt. Real
+backgrounding still locks secrets and covers app snapshots; after a browser handoff,
+any required unlock is deliberate. Cancelled biometrics never retry in a loop.
+Browser cancellation removes the unused OAuth reservation and its private key.
+The pure Swift lifecycle has seven regression scenarios in the iOS source CI job.
 
 Approvals require a matching asynchronous device-authentication result. Cancellation,
 leaving the screen, backgrounding, expiry and duplicate events cannot send an approval.

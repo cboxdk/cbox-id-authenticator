@@ -67,6 +67,15 @@ class OAuthCallback extends NativeComponent
         // The authorization server reports its own failures here too — a denied consent,
         // an invalid request — and those arrive with no code at all.
         if (($query['error'] ?? '') !== '') {
+            if ($state !== '') {
+                try {
+                    app(AccountContext::class)->cancelSignIn($state);
+                } catch (Throwable) {
+                    $this->error = 'Could not finish cleanup. Reopen the app and scan a new code.';
+
+                    return;
+                }
+            }
             $this->error = 'Sign-in was not completed.';
 
             return;
@@ -123,7 +132,7 @@ class OAuthCallback extends NativeComponent
             }
             app(DeviceSecurity::class)->configure(true);
 
-            $this->replace('/approvals');
+            $this->replace('/approvals', ['connected' => Account::labelFor($pending->issuer, $label)]);
         } catch (Throwable $e) {
             // Nothing was added to the index, so the reserved namespace is unreachable
             // through it. Wipe it rather than leave a DPoP key and a half-set of tokens
@@ -148,5 +157,10 @@ class OAuthCallback extends NativeComponent
     public function render(): View
     {
         return view('native.oauth-callback');
+    }
+
+    public function retry(): void
+    {
+        $this->replace('/connect');
     }
 }

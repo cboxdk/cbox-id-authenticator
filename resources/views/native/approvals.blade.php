@@ -1,15 +1,37 @@
 <column class="w-full h-full bg-theme-background">
     <refreshable @refresh="load" class="flex-1">
-        {{-- No heading: the nav bar carries "Pending requests" now, and repeating it
-             below would be the same words twice on one screen. --}}
-        <column class="w-full p-4 gap-3">
-            @if (! $hasAccounts)
-                <column class="w-full items-center py-16 gap-4">
-                    <icon name="checkmark.shield" :size="48" class="text-theme-primary" />
-                    <text text-align="center" class="text-2xl font-semibold text-theme-on-background">{{ __('Approve with your iPhone') }}</text>
-                    <text text-align="center" class="text-base text-theme-on-surface-variant">{{ __('Connect a Cbox ID account to approve sign-ins and requests.') }}</text>
-                    <button label="{{ __('Connect an account') }}" variant="primary" size="lg" class="glass:prominent" @press="addAccount"></button>
+        <column class="w-full px-5 py-4 gap-4">
+            @if ($connected !== null)
+                <column class="w-full p-4 gap-2 rounded-2xl bg-theme-surface">
+                    <row class="w-full gap-3 items-center">
+                        <icon name="checkmark.circle.fill" :size="24" class="text-theme-primary" />
+                        <text class="flex-1 text-base font-semibold text-theme-on-background">{{ __('Account connected') }}</text>
+                    </row>
+                    <text class="text-sm text-theme-on-surface-variant">{{ $connected }}</text>
+                    <button label="{{ __('Got it') }}" variant="ghost" @press="dismissConnected"></button>
                 </column>
+            @endif
+            @if (! $hasAccounts)
+                <column class="w-full gap-4 pt-4 pb-2">
+                    <icon name="checkmark.shield.fill" :size="44" class="text-theme-primary" />
+                    <text class="text-3xl font-semibold text-theme-on-background">{{ __('Approve with your iPhone') }}</text>
+                    <text class="text-base text-theme-on-surface-variant">{{ __('Connect your Cbox ID account. Review each request and approve it with Face ID or your passcode.') }}</text>
+                </column>
+                <column class="w-full p-5 gap-4 rounded-2xl bg-theme-surface">
+                    <text class="text-lg font-semibold text-theme-on-background">{{ __('Start with Cbox ID') }}</text>
+                    <text class="text-base text-theme-on-surface-variant">{{ __('Have your connection QR code ready. We will guide you through sign-in.') }}</text>
+                    <button label="{{ __('Connect an account') }}" variant="primary" size="lg" class="w-full glass:prominent" @press="addAccount"></button>
+                </column>
+                <pressable class="w-full p-4" a11y-label="{{ __('Add verification codes') }}" @press="addCode">
+                    <row class="w-full gap-3 items-center">
+                        <icon name="key" :size="24" class="text-theme-primary" />
+                        <column class="flex-1 gap-1">
+                            <text class="text-base font-semibold text-theme-on-background">{{ __('Also need verification codes?') }}</text>
+                            <text class="text-sm text-theme-on-surface-variant">{{ __('Add codes for your other accounts in the Codes tab.') }}</text>
+                        </column>
+                        <icon name="chevron.right" :size="14" class="text-theme-on-surface-variant" />
+                    </row>
+                </pressable>
             @endif
             {{-- Named, not counted. "One account is unreachable" leaves the user
                  guessing which of their tenants is not being watched. --}}
@@ -52,11 +74,11 @@
                 </pressable>
             @empty
                 @if ($hasAccounts)
-                <column class="w-full items-center justify-center gap-2 py-16">
+                <column class="w-full items-center gap-3 px-4 py-8">
                     <icon name="checkmark.circle" :size="40" class="text-theme-on-surface-variant" />
-                    <text class="text-base text-theme-on-surface-variant">{{ $degraded !== [] ? __('Could not check all accounts.') : __('Nothing waiting.') }}</text>
+                    <text class="text-xl font-semibold text-theme-on-background">{{ $degraded !== [] ? __('Could not check all accounts.') : __('You are all set') }}</text>
                     <text text-align="center" class="text-sm text-theme-on-surface-variant">
-                        {{ $degraded !== [] ? __('Check your connection, then pull to retry.') : __('Requests appear here automatically. Notifications are optional.') }}
+                        {{ $degraded !== [] ? __('Check your connection, then pull to retry.') : __('When you sign in or need to approve an action, the request appears here.') }}
                     </text>
                 </column>
                 @endif

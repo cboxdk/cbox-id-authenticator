@@ -52,6 +52,8 @@ class Approvals extends NativeComponent
 
     public bool $hasAccounts = false;
 
+    public ?string $connected = null;
+
     private int $retryAt = 0;
 
     private int $failures = 0;
@@ -60,6 +62,7 @@ class Approvals extends NativeComponent
 
     public function mount(): void
     {
+        $this->connected = is_string($this->data('connected')) ? $this->data('connected') : null;
         $this->load();
     }
 
@@ -72,6 +75,16 @@ class Approvals extends NativeComponent
     public function addAccount(): void
     {
         $this->navigate('/connect');
+    }
+
+    public function addCode(): void
+    {
+        $this->navigate('/codes/add');
+    }
+
+    public function dismissConnected(): void
+    {
+        $this->connected = null;
     }
 
     #[Poll(15000)]

@@ -5,6 +5,14 @@ all app screens, requests device-owner authentication on launch and after backgr
 and exposes a monotonic background generation to PHP. Approval prompts must capture and
 recheck that generation so a queued biometric result cannot approve after the app locks.
 
+`AuthenticatorSecurity.OpenAuthentication` owns one `ASWebAuthenticationSession`,
+coordinates with the lock, and sends the fixed, correlated
+`App\Events\AuthenticationFinished` event. While that browser is active, app Face ID
+never starts. Backgrounding still increments the generation and protects snapshots.
+Any required unlock on browser return is deliberate; cancelled Face ID also waits
+for an explicit retry. The platform-independent lifecycle is tested in
+`tests/Unit/AuthenticationLifecycleTests.swift`.
+
 `AuthenticatorSecurity.Configure` enables the lock when an account is connected.
 `AuthenticatorSecurity.State` reports `unlocked`, `foreground` and `generation`.
 The lock uses `LAContext.deviceOwnerAuthentication`, including the iPhone passcode

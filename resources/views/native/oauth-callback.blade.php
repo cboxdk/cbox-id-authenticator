@@ -4,6 +4,6 @@
     @else
         <icon name="exclamationmark.triangle" :size="40" class="text-theme-destructive" />
         <text text-align="center" class="text-base text-theme-on-background">{{ __($error) }}</text>
-        <button label="{{ __('Try again') }}" variant="primary" @press="goConnect"></button>
+        <button label="{{ __('Try again') }}" variant="primary" @press="retry"></button>
     @endif
 </column>

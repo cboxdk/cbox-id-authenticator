@@ -7,7 +7,9 @@ namespace App\NativeComponents;
 use App\Accounts\AccountContext;
 use App\Accounts\AccountStore;
 use App\Concerns\NavigatesScreens;
+use App\Events\AuthenticationFinished;
 use App\Services\AppSecurity;
+use App\Services\AuthenticationBrowser;
 use App\Services\EnrolmentCode;
 use App\Services\EnrolmentCodeRejected;
 use App\Services\EnrolmentFailed;
@@ -47,6 +49,14 @@ class Connect extends NativeComponent
     public bool $working = false;
 
     public bool $showManual = false;
+
+    public ?string $notice = null;
+
+    public string $signInHost = '';
+
+    private ?string $browserId = null;
+
+    private ?string $pendingState = null;
 
     public function toggleManual(): void
     {
@@ -111,7 +121,42 @@ class Connect extends NativeComponent
 
     public function scan(): void
     {
+        if ($this->working) {
+            return;
+        }
         Scanner::scan()->id('connect-host')->scan();
+    }
+
+    #[On(AuthenticationFinished::class)]
+    public function authenticationFinished(string $id, string $result): void
+    {
+        if ($this->browserId === null || ! hash_equals($this->browserId, $id)) {
+            return;
+        }
+        $this->browserId = null;
+        $this->working = false;
+        if ($result === 'completed') {
+            $this->pendingState = null;
+
+            return;
+        }
+        try {
+            $this->cancelPending();
+        } catch (Throwable) {
+            $this->error = 'Could not finish cleanup. Reopen the app and scan a new code.';
+
+            return;
+        }
+        $this->notice = $result === 'cancelled' ? 'Sign-in cancelled. Scan the code when you are ready.' : null;
+        $this->error = $result === 'cancelled' ? null : 'Sign-in could not finish. Scan a fresh code to try again.';
+    }
+
+    private function cancelPending(): void
+    {
+        if ($this->pendingState !== null) {
+            app(AccountContext::class)->cancelSignIn($this->pendingState);
+            $this->pendingState = null;
+        }
     }
 
     #[On(CodeScanned::class)]
@@ -151,6 +196,8 @@ class Connect extends NativeComponent
         }
         $this->working = true;
         $this->error = null;
+        $this->notice = null;
+        $this->signInHost = $code->host;
 
         try {
             $host = app(HostDiscovery::class)->fetch($code->host);
@@ -164,31 +211,34 @@ class Connect extends NativeComponent
 
             $pending = app(AccountContext::class)
                 ->beginSignIn($host->issuer, $host->clientId, $code->token, $existing?->subject);
+            $this->pendingState = $pending->state;
+            $this->browserId = bin2hex(random_bytes(16));
 
-            // The SYSTEM browser, not an in-app web view. The user has to be able to see
-            // a real address bar and a real padlock while typing their password — an
-            // app-controlled view can draw whatever it likes, which is precisely the
-            // phishing surface a sign-in must not have.
-            //
-            // The return value is not decoration. `Browser::auth()` reports failure by
-            // returning false — including when the native bridge is absent entirely,
-            // because the build shipped without the browser plugin. Ignoring it once cost
-            // an afternoon: the scanner closed, the screen sat there, and nothing said why.
-            $opened = Browser::auth(
+            // The system authentication session coordinates with the native app lock.
+            $opened = app(AuthenticationBrowser::class)->open(
                 app(AccountContext::class)
                     ->reserved($pending)
                     ->oauth
-                    ->authorizeUrl(RedirectUri::current(), $pending->state, $pending->verifier)
+                    ->authorizeUrl(RedirectUri::current(), $pending->state, $pending->verifier),
+                $this->browserId,
             );
 
             if (! $opened) {
+                $this->cancelPending();
+                $this->browserId = null;
+                $this->working = false;
                 $this->error = "This device can't open a browser for sign-in.";
             }
         } catch (Throwable $e) {
+            $this->working = false;
+            $this->browserId = null;
+            try {
+                $this->cancelPending();
+            } catch (Throwable) {
+                // The indexed reservation remains available for the next cleanup.
+            }
             $this->error = ($e instanceof EnrolmentFailed || $e instanceof EnrolmentCodeRejected) ? $e->getMessage()
                 : 'Could not connect this account. Open Trusted devices and scan a fresh code.';
-        } finally {
-            $this->working = false;
         }
     }
 
