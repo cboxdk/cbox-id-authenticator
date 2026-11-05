@@ -20,6 +20,17 @@ Verifikation efter implementeringen: **230 app-tests / 9746 assertions på PHP 8
 
 Build 11 er installeret over USB og har en samlet designrunde på ni native skærme: fælles kort, ikoner, farver, typografi og vedvarende feltlabels. Kontooversigten kan åbnes direkte fra forsiden; TOTP viser nedtælling og lokal kopieringsfeedback. UI-forløb består i lys/mørk og med stor tilgængelighedstekst. Eksempelkonti og anmodninger er visuelt kontrolleret separat med simulator-fixtures, som ikke indgår i buildet.
 
+## Rettelser — build 15
+
+Installeret via USB og verificeret med devicectl. Splash-generatoren rasteriserer nu
+SVG med alpha bevaret; den hvide firkant i lys/mørk er væk. QR-parseren læser
+form-encoded query-parametre (`Cbox+ID`) som Cbox ID-serveren udsender dem, uden at
+ændre literal plus i labels eller acceptere reelle issuer-konflikter. 233 PHP-tests /
+9762 assertions og Larastan består. Scanning på den fysiske telefon afventer brugerens test.
+
+Separate, navngivne TOTP-tilmeldinger udvikles i serveren og ID-pakken; de kræver en
+selvstændig serveropdatering og er ikke gjort tilgængelige af telefonbuildet alene.
+
 ## UI/UX-runde — build 12–14
 
 **Status:** implementeret og installeret som 1.0.0 (14) over USB; automatisk åbning

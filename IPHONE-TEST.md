@@ -6,11 +6,11 @@ Mål for den aktuelle telefontest: 1.0.0 (14) på Sylvesters iPhone 16 Pro med i
 Serverrettelserne følges i https://github.com/cboxdk/cbox-id/pull/108.
 Firebaseprojekt findes endnu ikke; første test er udtrykkeligt uden push.
 
-Build 14 er installeret og verificeret via devicectl. Automatisk åbning fejlede,
-fordi telefonen var låst; appen skal åbnes på telefonen. Buildet har alle ti ID-sprog,
+Build 15 er installeret og verificeret via devicectl. Automatisk åbning fejlede,
+fordi telefonen var låst; appen skal åbnes på telefonen. Buildet retter hvid firkant i splash og læser Cbox ID’s TOTP-QR med mellemrum korrekt. Det har alle ti ID-sprog,
 lokaliseret kamera/applås, korte hjælperubrikker, sprogindstilling og opdateret splash.
 
-230 PHP-tests / 9746 assertions, Larastan, 11 Swift-livscyklusscenarier,
+233 PHP-tests / 9762 assertions, Larastan, 11 Swift-livscyklusscenarier,
 input-echo-tests og native kilde-/pakningskontrol består. Simulatorforløb gennem
 forside → tilslutning → Indstillinger → hjælp → Koder består på alle ti sprog.
 Tyske formularer med accessibility-large består, inklusive indtastning, Færdig,

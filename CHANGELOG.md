@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Preserve SVG transparency when generating splash artwork, removing the white box
+  around the shield in both light and dark themes.
+- Accept form-encoded spaces in TOTP QR query parameters, including Cbox ID's existing
+  provisioning codes, while preserving literal plus signs and rejecting issuer mismatches.
+
 - Support all ten Cbox ID languages, including native scanner, permission and lock
   screens; follow the iOS app language and expose its system setting from the app.
 - Replace the long help page with expandable topics for codes, scanning, privacy,

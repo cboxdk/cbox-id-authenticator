@@ -59,3 +59,20 @@ it('keeps the sources the assets are generated from', function (): void {
     expect(resource_path('brand/icon.svg'))->toBeFile()
         ->and(resource_path('brand/mark.svg'))->toBeFile();
 });
+
+it('composites the transparent shield without a white thumbnail background', function (): void {
+    foreach (['splash.png' => [250, 249, 246], 'splash-dark.png' => [23, 25, 28]] as $name => $background) {
+        $image = imagecreatefrompng(public_path($name));
+        // Corners of the centred 640px mark box used to be opaque white.
+        $left = (int) ((imagesx($image) - 640) / 2);
+        $top = (int) ((imagesy($image) - 640) / 2);
+        foreach ([[$left, $top], [$left + 639, $top], [$left, $top + 639], [$left + 639, $top + 639]] as [$x, $y]) {
+            $pixel = imagecolorsforindex($image, imagecolorat($image, $x, $y));
+            expect([$pixel['red'], $pixel['green'], $pixel['blue']])->toBe($background);
+        }
+        // Preserve the white lock inside the shield; removing every white pixel is wrong.
+        $lock = imagecolorsforindex($image, imagecolorat($image, $left + 320, $top + 360));
+        expect([$lock['red'], $lock['green'], $lock['blue']])->toBe([255, 255, 255]);
+        imagedestroy($image);
+    }
+});

@@ -45,6 +45,24 @@ it('parses an escaped standard URI and honors all settings', function (): void {
         ->and($entry->algorithm)->toBe('SHA256')->and($entry->digits)->toBe(8)->and($entry->period)->toBe(60);
 });
 
+it('accepts form-encoded Cbox ID QR codes without changing the account or secret', function (): void {
+    $secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
+    // Mirrors Cbox ID's provisioningUri: rawurlencode(label) + http_build_query.
+    $uri = 'otpauth://totp/'.rawurlencode('Cbox ID:alice+test@example.test').'?'.http_build_query([
+        'secret' => $secret, 'issuer' => 'Cbox ID', 'algorithm' => 'SHA1', 'digits' => 6, 'period' => 30,
+    ]);
+    $entry = TotpUri::parse($uri);
+
+    expect($entry->issuer)->toBe('Cbox ID')->and($entry->account)->toBe('alice+test@example.test')
+        ->and($entry->secret)->toBe($secret)->and($entry->code(59))->toBe('287082');
+});
+
+it('preserves literal plus signs in issuer names and path labels', function (): void {
+    $entry = TotpUri::parse('otpauth://totp/C%2B%2B%20Cloud:alice+test%40example.test?secret=JBSWY3DPEHPK3PXP&issuer=C%2B%2B+Cloud');
+
+    expect($entry->issuer)->toBe('C++ Cloud')->and($entry->account)->toBe('alice+test@example.test');
+});
+
 it('rejects ambiguous or unsupported setup codes', function (string $uri): void {
     expect(fn () => TotpUri::parse($uri))->toThrow(InvalidArgumentException::class);
 })->with([

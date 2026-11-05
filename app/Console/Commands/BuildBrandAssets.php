@@ -122,9 +122,8 @@ class BuildBrandAssets extends Command
     /**
      * Rasterise an SVG at a given edge length.
      *
-     * qlmanage is macOS's own Quick Look renderer — no ImageMagick or librsvg to
-     * install, and the same engine Finder previews with. It names its output after the
-     * source, hence the fixed filename below.
+     * macOS sips preserves SVG transparency. Quick Look thumbnails flatten the mark
+     * onto white, which otherwise leaves a visible square on both splash variants.
      */
     private function render(string $svg, int $size): GdImage
     {
@@ -134,29 +133,22 @@ class BuildBrandAssets extends Command
             throw new RuntimeException("Missing {$source}.");
         }
 
-        $temp = storage_path('app/brand-render');
+        $temp = storage_path('app/brand-render-'.bin2hex(random_bytes(8)));
         File::ensureDirectoryExists($temp);
-
-        Process::run(['qlmanage', '-t', '-s', (string) $size, '-o', $temp, $source]);
-
         $rendered = $temp.'/'.$svg.'.png';
-
-        if (! File::exists($rendered)) {
-            throw new RuntimeException("qlmanage produced nothing for {$svg}.");
+        try {
+            Process::run(['sips', '-s', 'format', 'png', '-z', (string) $size, (string) $size, $source, '--out', $rendered])->throw();
+            $image = @imagecreatefrompng($rendered);
+        } finally {
+            File::deleteDirectory($temp);
         }
-
-        $image = @imagecreatefrompng($rendered);
-        File::deleteDirectory($temp);
 
         if (! $image instanceof GdImage) {
             throw new RuntimeException("Could not read the render of {$svg}.");
         }
 
-        // qlmanage honours the requested edge, but a non-square source would come back
-        // fitted rather than filled. Both marks are square; assert it rather than
-        // silently producing an icon the store will reject for its aspect ratio.
-        if (imagesx($image) !== imagesy($image)) {
-            throw new RuntimeException("{$svg} did not render square.");
+        if (imagesx($image) !== $size || imagesy($image) !== $size) {
+            throw new RuntimeException("{$svg} did not render at the requested size.");
         }
 
         return $image;

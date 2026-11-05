@@ -21,11 +21,13 @@ final class TotpUri
         $query = [];
         foreach (explode('&', $parts['query'] ?? '') as $pair) {
             $pieces = explode('=', $pair, 2);
-            $key = rawurldecode($pieces[0]);
+            $key = urldecode($pieces[0]);
             if (count($pieces) !== 2 || isset($query[$key])) {
                 throw new InvalidArgumentException('That QR code contains conflicting settings.');
             }
-            $query[$key] = rawurldecode($pieces[1]);
+            // Provisioning tools also use form encoding: a query '+' means a space,
+            // while an actual plus is %2B. The path label uses RFC 3986 decoding below.
+            $query[$key] = urldecode($pieces[1]);
         }
         $label = rawurldecode(ltrim($parts['path'] ?? '', '/'));
         $labels = explode(':', $label, 2);
