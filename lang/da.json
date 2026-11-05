@@ -287,5 +287,10 @@
     "Clear scans": "Ryd scanninger",
     "Open Settings": "Åbn Indstillinger",
     "Scan Cbox ID connection codes and verification-code setup keys. Camera images are not saved or uploaded.": "Scan Cbox ID-tilslutningskoder og opsætningsnøgler til engangskoder. Kamerabilleder gemmes eller uploades ikke.",
-    "Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS.": "Lås dine engangskoder og Cbox ID-konti op, og bekræft godkendelser. Dine biometriske data bliver i iOS."
+    "Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS.": "Lås dine engangskoder og Cbox ID-konti op, og bekræft godkendelser. Dine biometriske data bliver i iOS.",
+    "List view": "Listevisning",
+    "Grid view": "Gittervisning",
+    "Selected": "Valgt",
+    "Your services": "Dine tjenester",
+    "Show code for :account": "Vis kode for :account"
 }

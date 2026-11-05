@@ -287,5 +287,10 @@
     "Clear scans": "Clear scans",
     "Open Settings": "Open Settings",
     "Scan Cbox ID connection codes and verification-code setup keys. Camera images are not saved or uploaded.": "Scan Cbox ID connection codes and verification-code setup keys. Camera images are not saved or uploaded.",
-    "Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS.": "Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS."
+    "Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS.": "Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS.",
+    "List view": "List view",
+    "Grid view": "Grid view",
+    "Selected": "Selected",
+    "Your services": "Your services",
+    "Show code for :account": "Show code for :account"
 }

@@ -55,6 +55,23 @@ SWIFT;
         }
         $tabsPath = $root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift';
         $tabs = File::get($tabsPath);
+        $actionMarker = '// Cbox: announce the localized action instead of the SF Symbol name.';
+        if (! str_contains($tabs, $actionMarker)) {
+            $start = strpos($tabs, 'private struct TabsActionView: View {');
+            $end = strpos($tabs, '/// Pins a `bottom_bar`', $start ?: 0);
+            if ($start === false || $end === false) {
+                throw new RuntimeException('Review toolbar accessibility: upstream changed.');
+            }
+            $section = substr($tabs, $start, $end - $start);
+            $original = '                    .foregroundColor(textColor)';
+            if (substr_count($section, $original) !== 2) {
+                throw new RuntimeException('Review toolbar action labels: upstream changed.');
+            }
+            $label = '.accessibilityLabel(Text(action.props.getString("a11y_label", default: icon)))';
+            $section = str_replace($original, $original."\n                    ".$actionMarker."\n                    ".$label, $section);
+            $tabs = substr($tabs, 0, $start).$section.substr($tabs, $end);
+            File::put($tabsPath, $tabs);
+        }
         $tabsMarker = '// Cbox: keep account and code tabs available on pushed screens.';
         if (! str_contains($tabs, $tabsMarker)) {
             $original = "if isRoot && !forceHide {\n            content";
@@ -63,6 +80,69 @@ SWIFT;
             }
             $tabs = str_replace($original, "$tabsMarker\n        if !forceHide {\n            content.toolbar(.visible, for: .tabBar)", $tabs);
             File::put($tabsPath, $tabs);
+        }
+        $backgroundMarker = '// Cbox: carry the screen background beneath the floating tab bar.';
+        if (! str_contains($tabs, $backgroundMarker)) {
+            $original = "            NodeView(node: content)\n        } else {";
+            if (substr_count($tabs, $original) !== 1) {
+                throw new RuntimeException('Review tab background before building: the upstream renderer changed.');
+            }
+            $tabs = str_replace($original, "            NodeView(node: content)\n                .modifier(CboxTabContentBackground(node: content))\n        } else {", $tabs);
+            $tabs .= <<<'SWIFT'
+
+// Cbox: carry the screen background beneath the floating tab bar.
+private struct CboxTabContentBackground: ViewModifier {
+    let node: NativeUINode
+    @Environment(\.colorScheme) private var colorScheme
+
+    func body(content: Content) -> some View {
+        let dark = colorScheme == .dark ? node.props.getColor("dark_bg_color", default: 0) : 0
+        let argb = dark != 0 ? dark : (node.style?.bgColor ?? 0)
+        GeometryReader { geometry in
+            content
+                .environment(\.cboxTabBottomInset, geometry.safeAreaInsets.bottom)
+                .ignoresSafeArea(.container, edges: .bottom)
+                .background((argb != 0 ? Color(argb: argb) : Color.clear).ignoresSafeArea(edges: .bottom))
+        }
+    }
+}
+
+private struct CboxTabBottomInsetKey: EnvironmentKey {
+    static let defaultValue: CGFloat = 0
+}
+
+extension EnvironmentValues {
+    var cboxTabBottomInset: CGFloat {
+        get { self[CboxTabBottomInsetKey.self] }
+        set { self[CboxTabBottomInsetKey.self] = newValue }
+    }
+}
+
+SWIFT;
+            File::put($tabsPath, $tabs);
+        }
+        foreach (['NativeUIScrollViewRenderer.swift', 'NativeUILazyGridRenderer.swift'] as $renderer) {
+            $paths = glob($root.'/NativePHP/Bridge/Plugins/*/'.$renderer) ?: [];
+            if (count($paths) !== 1) {
+                throw new RuntimeException('Expected one native scroll renderer: '.$renderer);
+            }
+            $source = File::get($paths[0]);
+            if (! str_contains($source, 'cboxTabBottomInset')) {
+                $original = '    var body: some View {';
+                if (substr_count($source, $original) !== 1) {
+                    throw new RuntimeException('Review scroll insets: upstream changed '.$renderer);
+                }
+                $replacement = <<<'SWIFT'
+    @Environment(\.cboxTabBottomInset) private var cboxTabBottomInset
+
+    var body: some View {
+        scrollContent.safeAreaPadding(.bottom, cboxTabBottomInset)
+    }
+
+    @ViewBuilder private var scrollContent: some View {
+SWIFT;
+                File::put($paths[0], str_replace($original, $replacement, $source));
+            }
         }
         $scanners = glob($root.'/NativePHP/Bridge/Plugins/*/ScannerViewController.swift') ?: [];
         if (count($scanners) !== 1) {

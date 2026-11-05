@@ -8,8 +8,11 @@ use App\NativeComponents\Codes;
 use App\NativeComponents\Launch;
 use App\NativeComponents\Settings;
 use App\Services\AppSecurity;
+use App\Support\ServiceIcon;
 use App\Totp\EncryptedBackup;
+use App\Totp\TotpEntry;
 use App\Totp\TotpStore;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Native\Mobile\Events\Alert\ButtonPressed;
 use Native\Mobile\Testing\Native;
@@ -44,7 +47,59 @@ it('copies a fresh code with its actual expiration and clears displayed codes wh
     $screen = Native::test(Codes::class)->call('copy', $id)->assertSet('copiedId', $id)->assertSee('Copied');
     Native::fakeBridge()->assertCalled('AuthenticatorSecurity.CopyCode', fn (array $p): bool => preg_match('/^[0-9]{6}$/D', $p['code']) === 1 && $p['expires'] > time() && $p['expires'] <= time() + 30);
     Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', ['unlocked' => false, 'foreground' => false, 'generation' => 1]);
-    $screen->call('refresh')->assertSet('codes', [])->assertSet('copiedId', null);
+    $screen->call('refresh')->assertSet('codes', [])->assertSet('copiedId', null)
+        ->assertSet('selectedCode', null)->assertSet('selectedId', null);
+});
+
+it('keeps the chosen service through refreshes and resolves filtering and removal without stale codes', function (): void {
+    fakeSecureStorage();
+    $first = testTotpEntry();
+    $second = new TotpEntry(str_repeat('b', 32), 'GitHub', 'work@example.test', 'JBSWY3DPEHPK3PXP', 'SHA256', 8, 60);
+    app(TotpStore::class)->merge([$first, $second]);
+    [$a, $b] = app(TotpStore::class)->all();
+    $screen = Native::test(Codes::class)->assertSet('selectedId', $a->id)
+        ->call('select', $b->id)->call('refresh')->assertSet('selectedId', $b->id);
+    expect($screen->get('selectedCode')['code'])->toMatch('/^\d{4} \d{4}$/')
+        ->and($screen->get('selectedCode')['period'])->toBe(60)
+        ->and($screen->get('selectedCode')['icon'])->toBe('github');
+    $screen->call('select', 'unknown')->assertSet('selectedId', $b->id)
+        ->set('search', '  example  ')->assertSet('selectedId', $b->id)
+        ->set('search', ' ALICE ')->assertSet('selectedId', $a->id)
+        ->set('search', 'nothing matches')->assertSet('selectedId', null)->assertSet('selectedCode', null)
+        ->set('search', '')->call('select', $b->id);
+    app(TotpStore::class)->remove($b->id);
+    $screen->call('onResume')->assertSet('selectedId', $a->id);
+});
+
+it('remembers only a valid display preference without persisting codes or selection', function (): void {
+    fakeSecureStorage();
+    Cache::forget('codes.display');
+    Native::test(Codes::class)->assertSet('display', 'grid')->call('show', 'list');
+    Native::test(Codes::class)->assertSet('display', 'list')->call('show', 'invalid')->assertSet('display', 'list');
+    expect(Cache::get('codes.display'))->toBe('list');
+    Native::test(Codes::class)->call('show', 'grid');
+    Native::test(Codes::class)->assertSet('display', 'grid')->assertSet('selectedId', null);
+});
+
+it('uses bundled service icons with an honest fallback for unfamiliar issuers', function (): void {
+    $manifest = json_decode(file_get_contents(resource_path('brand/services/source.json')), true);
+    foreach (array_keys($manifest['colors']) as $slug) {
+        expect(file_exists(public_path('service-icons/'.$slug.'.png')))->toBeTrue();
+    }
+    expect(ServiceIcon::forIssuer(' GitHub '))->toBe('github')
+        ->and(ServiceIcon::forIssuer('github.com.evil.test'))->toBeNull()
+        ->and(ServiceIcon::forIssuer('../../google'))->toBeNull()
+        ->and(ServiceIcon::forIssuer('Custom service'))->toBeNull();
+});
+
+it('keeps search results and accessibility text sizes in a scrollable list', function (): void {
+    fakeSecureStorage();
+    app(TotpStore::class)->merge([testTotpEntry()]);
+    Native::test(Codes::class)->call('show', 'grid')->assertSee('Your services')
+        ->set('search', 'alice')->assertDontSee('Your services')->assertSee('Copy code for alice@example.test');
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', ['unlocked' => true, 'foreground' => true, 'generation' => 0, 'largeText' => true]);
+    Native::test(Codes::class)->assertSet('largeText', true)->assertDontSee('Your services')
+        ->assertDontSee('Grid view')->assertSee('Copy code for alice@example.test')->assertAccessible();
 });
 
 it('keeps the TOTP vault and app lock when the last Cbox account is removed', function (): void {

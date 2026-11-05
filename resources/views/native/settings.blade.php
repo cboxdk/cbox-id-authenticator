@@ -3,11 +3,20 @@
         <column class="w-full px-5 pt-3 pb-8 gap-6">
             <text class="text-base text-theme-on-surface-variant">{{ __('Your accounts, security and backups.') }}</text>
             <column class="w-full gap-3">
-                <text class="px-1 text-sm font-semibold text-theme-on-surface-variant">{{ __('Accounts') }}</text>
+                <text class="px-1 text-sm font-semibold text-theme-on-surface-variant">Cbox ID</text>
                 <column class="w-full rounded-2xl bg-theme-surface border border-theme-outline/50">
                     @foreach ($accounts as $account)
                         <pressable class="w-full p-4" a11y-label="{{ $account['label'] }}" a11y-hint="{{ parse_url($account['issuer'], PHP_URL_HOST) }}" @press="account('{{ $account['id'] }}')">
-                            @include('native.partials.action-content', ['symbol' => 'person.crop.circle', 'title' => $account['label'], 'subtitle' => parse_url($account['issuer'], PHP_URL_HOST)])
+                            <row class="w-full items-center gap-3">
+                                <column class="w-11 h-11 rounded-xl bg-theme-primary/10 items-center justify-center">
+                                    <text class="text-base font-semibold text-theme-primary">{{ mb_strtoupper(mb_substr($account['label'], 0, 1)) }}</text>
+                                </column>
+                                <column class="flex-1 gap-1">
+                                    <text class="text-base font-semibold text-theme-on-background">{{ $account['label'] }}</text>
+                                    <text class="text-sm text-theme-on-surface-variant">{{ parse_url($account['issuer'], PHP_URL_HOST) }}</text>
+                                </column>
+                                <icon name="chevron.right" :size="16" class="text-theme-on-surface-variant" />
+                            </row>
                         </pressable>
                         <column class="w-full px-4"><column class="w-full h-[1] bg-theme-outline/40"></column></column>
                     @endforeach

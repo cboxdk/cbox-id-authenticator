@@ -58,6 +58,11 @@ final class DeviceSecurity
         return ($this->state()['pushAvailable'] ?? false) === true;
     }
 
+    public function usesLargeText(): bool
+    {
+        return ($this->state()['largeText'] ?? false) === true;
+    }
+
     /** @return array<string, mixed> */
     private function state(): array
     {

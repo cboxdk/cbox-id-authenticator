@@ -2,7 +2,7 @@
 
 Koden ligger på `sd/ios-release`. Backendændringerne fra `sd/authenticator-ios-api` er merged og udrullet via PR108.
 De eksisterende ændringer i de oprindelige `cbox-id`- og `laravel-id`-checkouts er bevaret.
-Mål for den aktuelle telefontest: 1.0.0 (19) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret og versionskontrolleret. Åbn appen på telefonen. Indeholder TOTP, krypteret backup, native glasnavigation og ni redesignede skærme med tydeligere handlinger, formularer, kodekort og mørk tilstand.
+Mål for den aktuelle telefontest: 1.0.0 (24) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret og versionskontrolleret. Åbn appen på telefonen. Indeholder TOTP, krypteret backup, native glasnavigation og den nye kodevisning med stor valgt kode, lokale tjenesteikoner og liste/gitter.
 Serverrettelserne følges i https://github.com/cboxdk/cbox-id/pull/108.
 Separate TOTP-tilmeldinger fra PR109 er også udrullet: serverrevision
 `6788b6473f32f246382e7c6339b849d60f7d32d5`, verificeret 2026-11-05 kl. 21:50 UTC
@@ -24,7 +24,7 @@ monotont ur og gemmes kun i hukommelsen. Den nye frist afventer fysisk UX-accept
 Buildet bevarer rettelsen af hvid firkant i splash og læser Cbox ID’s TOTP-QR med mellemrum korrekt. Det har alle ti ID-sprog,
 lokaliseret kamera/applås, korte hjælperubrikker, sprogindstilling og opdateret splash.
 
-248 PHP-tests / 9826 assertions og Larastan består på PHP 8.4.27, inklusive fem
+252 PHP-tests / 10043 assertions og Larastan består på PHP 8.4.27, inklusive fem
 regressionsscenarier for Face ID før forgrund, låsning, navigation og udløb.
 18 Swift-livscyklusscenarier og native kilde-/pakningskontrol består.
 Tidligere input-echo-tests og simulatorforløb er bevaret. Simulatorforløb gennem
@@ -34,8 +34,21 @@ backup, annullering og tilbage til Indstillinger. Dansk/engelsk præsentation af
 anmodning, flere konti, kodekort og backup består på en 6,9-tommers simulator.
 
 Simulatoren bruger opfundne visningsdata og tomme formularer uden lokal oplåsning.
-Disse fixtures indgår aldrig i telefonbuildet og gendannes efter billederne. Testene
+Disse fixtures ændrer kun simulatorens udpakkede app og indgår aldrig i telefonbuildet. Testene
 verificerer UI og navigation, ikke fysisk Face ID, Google-login, kamera, push eller Filer.
+
+Build 24 tager inspiration fra Authys kodevalg: stor aktiv kode, søgning, lokale
+ikoner for ni tjenester samt Cbox-skjold og initial for andre tjenester. Valget
+af liste/gitter huskes lokalt; konti, nøgler og valgt kode gemmes ikke i denne
+præference. Søgning og tilgængelighedstekst bruger en scrollbar liste. Baggrund
+og indhold fortsætter bag glasmenuen, med plads til at scrolle sidste række fri.
+Native værktøjslinjeknapper annoncerer deres oversatte handling i VoiceOver.
+
+Afprøv på telefonen: skift tjeneste, kopiér, skift liste/gitter, søg på kontonavn,
+åbn kodedetaljer via de tre prikker, og scroll til sidste tjeneste. Alle ti sprog
+har de nye labels. Simulatorforløb består i lys/mørk, med store skrifter,
+lange kontonavne og ottecifrede koder. Installeret PHP og kodekilder er kontrolleret
+i telefonpakken; den indeholder ingen simulator-fixtures.
 
 ## 1. Server før telefon
 

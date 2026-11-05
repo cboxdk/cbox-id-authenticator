@@ -6,8 +6,10 @@ namespace App\NativeComponents;
 
 use App\Concerns\NavigatesScreens;
 use App\Services\DeviceSecurity;
+use App\Support\ServiceIcon;
 use App\Totp\NativeBackupFiles;
 use App\Totp\TotpStore;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Native\Mobile\Attributes\Poll;
 use Native\Mobile\Edge\NativeComponent;
@@ -18,6 +20,15 @@ class Codes extends NativeComponent
     use NavigatesScreens;
 
     public string $search = '';
+
+    public string $display = 'grid';
+
+    public bool $largeText = false;
+
+    public ?string $selectedId = null;
+
+    /** @var array<string, mixed>|null */
+    public ?array $selectedCode = null;
 
     public ?string $notice = null;
 
@@ -32,6 +43,7 @@ class Codes extends NativeComponent
 
     public function mount(): void
     {
+        $this->display = Cache::get('codes.display') === 'list' ? 'list' : 'grid';
         $this->refresh();
     }
 
@@ -43,31 +55,57 @@ class Codes extends NativeComponent
     #[Poll(1000)]
     public function refresh(): void
     {
+        $this->largeText = app(DeviceSecurity::class)->usesLargeText();
         $this->codes = [];
+        $this->selectedCode = null;
         if (time() >= $this->copiedUntil) {
             $this->copiedId = null;
         }
         if (app(DeviceSecurity::class)->generation() === null) {
             $this->notice = null;
             $this->copiedId = null;
+            $this->selectedId = null;
 
             return;
         }
         try {
             $now = time();
             foreach (app(TotpStore::class)->all() as $entry) {
-                if ($this->search !== '' && ! str_contains(mb_strtolower($entry->issuer.' '.$entry->account), mb_strtolower($this->search))) {
+                if (trim($this->search) !== '' && ! str_contains(mb_strtolower($entry->issuer.' '.$entry->account), mb_strtolower(trim($this->search)))) {
                     continue;
                 }
                 $code = $entry->code($now);
                 $this->codes[] = ['id' => $entry->id, 'issuer' => $entry->issuer, 'account' => $entry->account,
+                    'icon' => ServiceIcon::forIssuer($entry->issuer),
                     'code' => implode(' ', str_split($code, intdiv($entry->digits, 2))),
                     'remaining' => $entry->period - ($now % $entry->period), 'period' => $entry->period];
             }
+            $this->selectedCode = collect($this->codes)->firstWhere('id', $this->selectedId) ?? ($this->codes[0] ?? null);
+            $this->selectedId = $this->selectedCode['id'] ?? null;
             $this->error = null;
         } catch (Throwable) {
+            $this->codes = [];
+            $this->selectedId = null;
             $this->error = 'Your saved codes could not be read. Nothing has been changed.';
         }
+    }
+
+    public function select(string $id): void
+    {
+        $this->refresh();
+        if (collect($this->codes)->contains('id', $id)) {
+            $this->selectedId = $id;
+            $this->refresh();
+        }
+    }
+
+    public function show(string $display): void
+    {
+        if (! in_array($display, ['grid', 'list'], true)) {
+            return;
+        }
+        $this->display = $display;
+        Cache::forever('codes.display', $display);
     }
 
     public function updatedSearch(): void

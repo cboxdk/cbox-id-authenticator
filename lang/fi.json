@@ -287,5 +287,10 @@
     "Clear scans": "Tyhjennä skannaukset",
     "Open Settings": "Avaa Asetukset",
     "Scan Cbox ID connection codes and verification-code setup keys. Camera images are not saved or uploaded.": "Skannaa Cbox ID -yhdistämiskoodeja ja vahvistuskoodien käyttöönottoavaimia. Kamerakuvia ei tallenneta eikä lähetetä.",
-    "Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS.": "Avaa vahvistuskoodien ja Cbox ID -tilien lukitus ja vahvista hyväksynnät. Biometriset tietosi pysyvät iOS:ssä."
+    "Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS.": "Avaa vahvistuskoodien ja Cbox ID -tilien lukitus ja vahvista hyväksynnät. Biometriset tietosi pysyvät iOS:ssä.",
+    "List view": "Luettelonäkymä",
+    "Grid view": "Ruudukkonäkymä",
+    "Selected": "Valittu",
+    "Your services": "Palvelusi",
+    "Show code for :account": "Näytä tilin :account koodi"
 }

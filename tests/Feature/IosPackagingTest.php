@@ -25,6 +25,9 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
     File::ensureDirectoryExists(dirname($input));
     File::copy(base_path('vendor/nativephp/mobile-ui/resources/ios/NativeUITextInputCore.swift'), $input);
     File::copy(base_path('vendor/nativephp/mobile-ui/resources/ios/NativeUISimpleRenderers.swift'), dirname($input).'/NativeUISimpleRenderers.swift');
+    foreach (['NativeUIScrollViewRenderer.swift', 'NativeUILazyGridRenderer.swift'] as $renderer) {
+        File::copy(base_path('vendor/nativephp/mobile-ui/resources/ios/'.$renderer), dirname($input).'/'.$renderer);
+    }
     $biometric = $root.'/NativePHP/Bridge/Plugins/Biometric/BiometricFunctions.swift';
     File::ensureDirectoryExists(dirname($biometric));
     File::copy(base_path('vendor/nativephp/mobile-biometrics/resources/ios/BiometricFunctions.swift'), $biometric);
@@ -36,6 +39,9 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
         expect(File::get($root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift'))
             ->toContain('if !forceHide {')
             ->toContain('content.toolbar(.visible, for: .tabBar)')
+            ->toContain('.modifier(CboxTabContentBackground(node: content))')
+            ->toContain('.accessibilityLabel(Text(action.props.getString("a11y_label", default: icon)))')
+            ->toContain('.ignoresSafeArea(edges: .bottom)')
             ->not->toContain('if isRoot && !forceHide {');
         expect(File::get($root.'/NativePHP/de.lproj/Localizable.strings'))->toContain('Kamera nicht verfügbar');
         expect(File::get($biometric))->toContain('cboxLocalized("Confirm this Cbox ID request")');

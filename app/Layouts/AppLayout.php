@@ -56,7 +56,7 @@ class AppLayout extends NativeLayout
     public function navBar(NativeComponent $screen): ?NavBar
     {
         return match (true) {
-            $screen instanceof Codes => NavBar::make()->title(__('Codes'))->displayMode('large')
+            $screen instanceof Codes => NavBar::make()->title(__('Codes'))->displayMode('inline')
                 ->action(NavAction::make('backup')->icon('ellipsis')->a11yLabel(__('More options'))->items([
                     NavAction::make('backup')->icon('lock.doc')->label(__('Encrypted backup'))->press('backup'),
                 ]))

@@ -23,6 +23,8 @@ class Licenses extends NativeComponent
         $data = json_decode(File::get(resource_path('third-party.json')), true, 512, JSON_THROW_ON_ERROR);
         $native = json_decode(File::get(resource_path('ios-third-party.json')), true, 512, JSON_THROW_ON_ERROR);
         $this->packages = array_merge($native['components'], $data['components']);
+        $this->packages[] = ['name' => 'Simple Icons', 'version' => '16.0.0', 'licenses' => ['CC0-1.0'],
+            'notice' => File::get(resource_path('brand/services/LICENSE.txt'))."\n\nhttps://github.com/simple-icons/simple-icons/tree/16.0.0\nBrand names and logos belong to their respective owners."];
     }
 
     public function select(int $index): void

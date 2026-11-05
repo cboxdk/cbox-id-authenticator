@@ -287,5 +287,10 @@
     "Clear scans": "Scans wissen",
     "Open Settings": "Instellingen openen",
     "Scan Cbox ID connection codes and verification-code setup keys. Camera images are not saved or uploaded.": "Scan Cbox ID-koppelcodes en installatiesleutels voor verificatiecodes. Camerabeelden worden niet opgeslagen of geüpload.",
-    "Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS.": "Ontgrendel je verificatiecodes en Cbox ID-accounts en bevestig goedkeuringen. Je biometrische gegevens blijven bij iOS."
+    "Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS.": "Ontgrendel je verificatiecodes en Cbox ID-accounts en bevestig goedkeuringen. Je biometrische gegevens blijven bij iOS.",
+    "List view": "Lijstweergave",
+    "Grid view": "Rasterweergave",
+    "Selected": "Geselecteerd",
+    "Your services": "Je diensten",
+    "Show code for :account": "Code voor :account tonen"
 }

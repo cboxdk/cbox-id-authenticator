@@ -6,6 +6,21 @@ Appen bruger NativePHP 4 / SuperNative med native SwiftUI-rendering. Kodearbejde
 
 ## Implementeringsstatus efter analysen
 
+**Seneste telefonbuild: 1.0.0 (24), installeret og åbnet over USB.** Koder har nu
+stor valgt kode, liste/gitter, søgning og ni lokalt gemte tjenesteikoner med
+Cbox-skjold og initial som øvrige muligheder. Ukendte tjenester udløser ingen
+netværksopslag. Indholdet fortsætter bag den native glasmenu; sidste række kan
+scrolles fri. Store tilgængelighedsskrifter og søgning bruger listevisning.
+Alle nye labels er oversat til de ti ID-sprog. Konti har tydeligere identitet,
+og native værktøjslinjeknapper bruger deres oversatte VoiceOver-label.
+
+252 PHP-tests / 10043 assertions, Larastan, plugin-/pakningskontrol og 18 Swift-
+livscyklusscenarier består. XCUITest dækker valg, kopiering, husket liste/gitter,
+søgning, lange navne, ottecifrede koder og sidste række over menuen i lys/mørk
+og med større tekst. UI-fixtures findes kun i simulatorcontaineren. Telefonpakken
+er kontrolleret mod produktionskilder og PHP 8.4.27. Fysisk designaccept afventer
+brugeren; releaseblokeringerne nedenfor er fortsat gældende.
+
 | Område | Implementeret | Resterende accept |
 | --- | --- | --- |
 | A01, A02 | Korreleret completion-event, native app-lås/generation, DPoP/enrolment-guard og fælles revocation med refresh-tilbagekaldelse. Test med rigtigt udstedt token består. | Face ID, kodefallback, låsning og app-lifecycle på fysisk iPhone. |

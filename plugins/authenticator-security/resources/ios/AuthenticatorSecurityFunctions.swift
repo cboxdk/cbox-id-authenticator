@@ -101,6 +101,7 @@ final class CboxSecurityGate {
          "foreground": lifecycle.foreground,
          "recentAuthentication": lifecycle.hasRecentAuthentication(),
          "pushAvailable": FirebaseManager.shared.isConfigured,
+         "largeText": UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory,
          "locale": Bundle.main.preferredLocalizations.first ?? "en"]
     }
 
