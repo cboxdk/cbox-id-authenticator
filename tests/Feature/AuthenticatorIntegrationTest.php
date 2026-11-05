@@ -41,7 +41,7 @@ it('enrols without Firebase and never passes an APNs fallback token to the FCM h
     Native::fakeBridge()->assertNotCalled('PushNotification.GetToken');
     Native::fakeBridge()->assertNotCalled('PushNotification.Enroll');
     Native::test(Settings::class)->assertSet('permission', 'unavailable')
-        ->assertSee('Push notifications are not available yet.')
+        ->assertSee('Open the app to retrieve current requests.')
         ->assertDontSee('Re-sync notifications');
 });
 

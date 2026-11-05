@@ -1,7 +1,8 @@
 # App Store-udkast
 
-Dette er tekstgrundlaget. Ingen metadata er uploadet, og App Store Connect er ikke
-ændret. Screenshots skal tages fra den endelige, signerede app.
+Metadata er gemt i den private App Store-kladde **6831374770**, iOS **1.0.0**, 6. november 2026.
+Ti sprog, Utilities, manuel frigivelse. Det reproducerbare tekstgrundlag er
+`resources/store/listings.json`. Ingen reviewindsendelse eller offentlig frigivelse.
 
 | Felt | Dansk | English |
 | --- | --- | --- |
@@ -20,8 +21,8 @@ handling du godkender. Sammenlign beskrivelsen med det, du blev vist på din and
 Bekræft med Face ID eller din iPhones adgangskode. Afvis anmodninger, du ikke ønsker,
 eller vælg “Det var ikke mig” for at afvise og rapportere en uventet anmodning.
 
-Tilslut flere Cbox ID-konti, og se deres anmodninger samlet. Notifikationer er valgfrie;
-du kan altid åbne appen for at hente aktuelle anmodninger fra din Cbox ID-server.
+Tilslut flere Cbox ID-konti, og se deres anmodninger samlet. Åbn appen for at hente
+aktuelle anmodninger fra din Cbox ID-server.
 
 Gem også TOTP-bekræftelseskoder til andre tjenester. Scan en opsætningskode eller
 indtast en nøgle, og brug koderne offline uden en Cbox-konto. Gem en krypteret backup
@@ -41,8 +42,7 @@ confirm with Face ID or your iPhone passcode. Deny unwanted requests or choose
 “This wasn't me” to deny and report an unexpected request.
 
 Connect several Cbox ID accounts and see their pending requests together.
-Notifications are optional; open the app to retrieve current requests from your
-Cbox ID host.
+Open the app to retrieve current requests from your Cbox ID host.
 
 Keep TOTP verification codes for other services, too. Scan a setup QR code or enter
 a setup key, then use your codes offline without a Cbox account. Save an encrypted
@@ -66,7 +66,7 @@ ud fra App Store Connects aktuelle spørgeskema.
 
 Privacy-grundlag: ingen annoncer eller tracking; kontokoblet bruger-ID, enheds-ID og
 produktinteraktioner bruges til appens funktion. Device metadata og beslutninger
-behandles af Cbox ID; Apple/Firebase leverer push. Ingen adgang til Face ID-data eller
+behandles af Cbox ID. Firebase er deaktiveret, og denne version leverer ikke push. Ingen adgang til Face ID-data eller
 lagring af adgangskoder i appen. Kontrollér den endelige SDK-sammensætning og hostens
 faktiske indsamling, før privacy-svarene indsendes.
 
@@ -110,7 +110,7 @@ auf einem neuen Telefon. Es gibt keine automatische Synchronisierung. Cbox kann
 ein vergessenes Backup-Passwort nicht wiederherstellen.
 
 Cbox-Anfragen benötigen ein bestehendes Konto auf einem unterstützten Cbox ID-Server.
-Mitteilungen sind optional; du kannst Anfragen auch direkt in der App abrufen.
+Öffne die App, um aktuelle Anfragen abzurufen.
 
 ### Svenska
 
@@ -125,7 +125,7 @@ Det finns ingen automatisk synkronisering. Cbox kan inte återställa ett glömt
 lösenord till säkerhetskopian.
 
 Cbox-förfrågningar kräver ett befintligt konto på en Cbox ID-server som stöds.
-Notiser är valfria; du kan också öppna appen för att hämta förfrågningar.
+Öppna appen för att hämta aktuella förfrågningar.
 
 ### Norsk bokmål
 
@@ -139,7 +139,7 @@ sikkerhetskopi med ditt eget passord og importer den på en ny telefon. Det finn
 ingen automatisk synkronisering. Cbox kan ikke gjenopprette et glemt passord til sikkerhetskopien.
 
 Cbox-forespørsler krever en eksisterende konto på en støttet Cbox ID-server.
-Varslinger er valgfrie; du kan også åpne appen for å hente forespørsler.
+Åpne appen for å hente aktuelle forespørsler.
 
 ### Français
 
@@ -155,7 +155,7 @@ importez-la sur un nouveau téléphone. Il n’y a pas de synchronisation automa
 Cbox ne peut pas récupérer un mot de passe de sauvegarde oublié.
 
 Les demandes Cbox nécessitent un compte existant sur un serveur Cbox ID pris en
-charge. Les notifications sont facultatives ; vous pouvez consulter les demandes dans l’app.
+charge. Ouvrez l’app pour consulter les demandes en cours.
 
 ### Suomi
 
@@ -169,7 +169,7 @@ salasanallasi suojattu, salattu varmuuskopio ja tuo se uuteen puhelimeen.
 Automaattista synkronointia ei ole. Cbox ei voi palauttaa unohtunutta varmuuskopion salasanaa.
 
 Cbox-pyynnöt edellyttävät olemassa olevaa tiliä tuetulla Cbox ID -palvelimella.
-Ilmoitukset ovat valinnaisia; voit hakea pyynnöt myös avaamalla sovelluksen.
+Avaa sovellus hakeaksesi nykyiset pyynnöt.
 
 ### Español
 
@@ -185,7 +185,7 @@ nuevo teléfono. No hay sincronización automática. Cbox no puede recuperar una
 contraseña de copia olvidada.
 
 Las solicitudes de Cbox requieren una cuenta existente en un servidor compatible.
-Las notificaciones son opcionales; también puedes consultar las solicitudes en la app.
+Abre la app para consultar las solicitudes actuales.
 
 ### Italiano
 
@@ -200,7 +200,7 @@ Non è prevista la sincronizzazione automatica. Cbox non può recuperare una pas
 di backup dimenticata.
 
 Le richieste Cbox richiedono un account esistente su un server Cbox ID supportato.
-Le notifiche sono facoltative; puoi consultare le richieste anche aprendo l’app.
+Apri l’app per recuperare le richieste in sospeso.
 
 ### Nederlands
 
@@ -216,7 +216,7 @@ telefoon. Er is geen automatische synchronisatie. Cbox kan een vergeten
 back-upwachtwoord niet herstellen.
 
 Cbox-verzoeken vereisen een bestaand account op een ondersteunde Cbox ID-server.
-Meldingen zijn optioneel; je kunt verzoeken ook ophalen door de app te openen.
+Open de app om actuele verzoeken op te halen.
 
 ## Kontrolleret 5. november 2026
 
@@ -227,7 +227,7 @@ Meldingen zijn optioneel; je kunt verzoeken ook ophalen door de app te openen.
 - Appen indeholder licenstekster for 97 Composer-pakker samt de 9 låste CocoaPods/
   Swift-pakker. `authenticator:ios-notices --check` kontrollerer native notices mod
   de opløste afhængigheder; storekontrollen opdager ændrede lock-filer.
-- Metadata er ikke uploadet. App Store Connects privacy- og eksportspørgsmål skal
+- Metadata er gemt i kladden. App Store Connects privacy- og eksportspørgsmål skal
   udfyldes for det endelige build. Se Apples [krypteringsvejledning](https://developer.apple.com/help/app-store-connect/manage-app-information/overview-of-export-compliance)
   og [screenshotkrav](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications).
 
@@ -241,3 +241,30 @@ på billederne er fiktive visningsdata; ingen rigtige nøgler eller login er bru
 Billederne er fra build 13; build 14 ændrer kun accessibility-labels i disse skærme.
 Indstillinger-billedet viser test uden push og skal genoptages efter Firebase-opsætning.
 Brug billederne som udkast; ingen er uploadet til App Store Connect.
+
+
+## App Review — TOTP og backup, klar til brug
+
+These features do not require an account or network connection:
+
+1. Open Codes, tap Add code, and choose manual entry. Set service to “Review demo”,
+   account to “review@example.com”, and key to `JBSWY3DPEHPK3PXP`. This is a public
+   demonstration key, not a credential for a real account. Keep SHA-1, 6 digits,
+   and 30 seconds. Save.
+2. Select the service, copy its current code, and switch between grid and list.
+   Turn on airplane mode: codes continue rotating offline.
+3. Open Settings → Encrypted backup → Create backup. Choose a temporary password,
+   save the file through the native Files dialog, then import that file. The preview
+   identifies duplicate entries and import preserves the existing code.
+4. Import with an incorrect password: the app rejects it without changing saved codes.
+5. Open the code details to rename or remove the demonstration entry. Cancelling the
+   native removal confirmation preserves it.
+
+Cbox approvals use existing accounts on the host encoded in a connection QR/link.
+The app does not create a separate app account. There are no purchases, ads, cloud
+sync, or push notifications in this build. Requests are fetched on opening the app
+and refreshed while the inbox is visible. Biometric confirmation is handled by iOS;
+no face data is received by the app. Browser sign-in is ASWebAuthenticationSession.
+
+**Do not submit the approval review path until an isolated review host/account and
+self-service request trigger are available.** Never put review passwords in git.

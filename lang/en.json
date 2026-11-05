@@ -213,7 +213,6 @@
     "Connection": "Connection",
     "Cancel": "Cancel",
     "For other authenticators, scan each service setup QR code or enter its setup key.": "For other authenticators, scan each service setup QR code or enter its setup key.",
-    "Push notifications are not available yet.": "Push notifications are not available yet.",
     "Off. Enable notifications in iPhone Settings.": "Off. Enable notifications in iPhone Settings.",
     "Continue signing in": "Continue signing in",
     "Finish in the sign-in window. You will return here automatically.": "Finish in the sign-in window. You will return here automatically.",
@@ -292,5 +291,6 @@
     "Grid view": "Grid view",
     "Selected": "Selected",
     "Your services": "Your services",
-    "Show code for :account": "Show code for :account"
+    "Show code for :account": "Show code for :account",
+    "Open the app to retrieve current requests.": "Open the app to retrieve current requests."
 }

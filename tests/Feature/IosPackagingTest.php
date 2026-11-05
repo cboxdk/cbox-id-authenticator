@@ -15,6 +15,10 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
     File::ensureDirectoryExists(dirname($path));
     File::put($root.'/Podfile', "platform :ios, '18.2'\n");
     File::copy(base_path('vendor/nativephp/mobile-firebase/resources/ios/PushNotificationFunctions.swift'), $path);
+    File::copy(base_path('vendor/nativephp/mobile-firebase/resources/ios/FirebaseManager.swift'), dirname($path).'/FirebaseManager.swift');
+    foreach (['Info.plist', 'NativePHP.entitlements'] as $name) {
+        File::put($root.'/NativePHP/'.$name, '<?xml version="1.0"?><plist version="1.0"><dict><key>aps-environment</key><string>development</string><key>UIBackgroundModes</key><array><string>remote-notification</string></array></dict></plist>');
+    }
     $security = $root.'/NativePHP/Bridge/Plugins/AuthenticatorSecurity/AuthenticatorSecurityFunctions.swift';
     File::ensureDirectoryExists(dirname($security));
     File::copy(base_path('plugins/authenticator-security/resources/ios/AuthenticatorSecurityFunctions.swift'), $security);
@@ -36,6 +40,11 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
     File::copy(base_path('vendor/nativephp/mobile/resources/xcode/NativePHP/NativeRender/NativeRootTabsRenderer.swift'), $root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift');
     try {
         $this->artisan('authenticator:prepare-ios', ['--platform' => 'ios', '--build-path' => $root])->assertSuccessful();
+        expect(File::get($root.'/NativePHP/NativePHP.entitlements'))->not->toContain('aps-environment');
+        expect(File::get($root.'/NativePHP/Info.plist'))->not->toContain('remote-notification')
+            ->toContain("<key>CboxPushEnabled</key>\n    <false/>")
+            ->toContain('ITSAppUsesNonExemptEncryption');
+        expect(File::get(dirname($path).'/FirebaseManager.swift'))->toContain('as? Bool == true else { return }');
         expect(File::get($root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift'))
             ->toContain('if !forceHide {')
             ->toContain('content.toolbar(.visible, for: .tabBar)')
@@ -66,6 +75,12 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
         expect(File::get($root.'/NativePHP/Bridge/BridgeRouter.swift'))->not->toContain('print(')->toContain('cboxDiscardLog(');
         expect(File::get($security))->not->toContain('#error(')->toContain('// Cbox: source security prepared.');
         $this->artisan('authenticator:check', ['--generated' => $root])->assertSuccessful();
+        expect(File::get($root.'/Podfile.lock'))->toBe(File::get(resource_path('ios/Podfile.lock')));
+        config(['authenticator.push_enabled' => true]);
+        $this->artisan('authenticator:prepare-ios', ['--platform' => 'ios', '--build-path' => $root])->assertSuccessful();
+        expect(File::get($root.'/NativePHP/Info.plist'))->toContain("<key>CboxPushEnabled</key>\n    <true/>");
+        File::put(dirname($path).'/FirebaseManager.swift', 'class FirebaseManager {}');
+        $this->artisan('authenticator:check', ['--generated' => $root])->assertFailed();
     } finally {
         File::deleteDirectory($root);
     }
@@ -105,6 +120,9 @@ it('prepares the complete locked iOS source tree without logging credentials', f
                 File::ensureDirectoryExists(dirname($target));
                 File::copy($file->getPathname(), $target);
             }
+        }
+        foreach (['Info.plist', 'NativePHP.entitlements'] as $name) {
+            File::put($root.'/NativePHP/'.$name, '<?xml version="1.0"?><plist version="1.0"><dict/></plist>');
         }
         $this->artisan('authenticator:prepare-ios', ['--platform' => 'ios', '--build-path' => $root])->assertSuccessful();
         $files = File::allFiles($root.'/NativePHP');

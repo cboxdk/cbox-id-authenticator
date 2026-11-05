@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\File;
 
 final class CheckRelease extends Command
 {
-    protected $signature = 'authenticator:check {--store : Check production settings and push configuration} {--generated= : Validate the generated iOS project after native:install}';
+    protected $signature = 'authenticator:check {--store : Check production settings and configured release capabilities} {--generated= : Validate the generated iOS project after native:install}';
 
     protected $description = 'Validate authenticator packaging before an iPhone build or App Store archive';
 
@@ -31,7 +31,7 @@ final class CheckRelease extends Command
         foreach (['openssl', 'sodium', 'pdo_sqlite', 'mbstring'] as $extension) {
             $check(extension_loaded($extension), 'Missing PHP extension: '.$extension);
         }
-        foreach (['resources/openssl.cnf', 'public/icon.png', 'plugins/authenticator-security/resources/ios/PrivacyInfo.xcprivacy'] as $file) {
+        foreach (['resources/openssl.cnf', 'public/icon.png', 'resources/ios/Podfile.lock', 'resources/ios/Package.resolved', 'plugins/authenticator-security/resources/ios/PrivacyInfo.xcprivacy'] as $file) {
             $check(is_file(base_path($file)), 'Missing packaging asset: '.$file);
         }
         $check(class_exists(SecurityServiceProvider::class), 'Install the local authenticator security plugin with Composer.');
@@ -48,6 +48,10 @@ final class CheckRelease extends Command
             $security = glob(rtrim($generated, '/').'/NativePHP/Bridge/Plugins/*/AuthenticatorSecurityFunctions.swift') ?: [];
             $source = count($security) === 1 ? file_get_contents($security[0]) : false;
             $check(is_string($source) && str_contains($source, '// Cbox: source security prepared.'), 'The native security build guard has not passed.');
+            $managers = glob(rtrim($generated, '/').'/NativePHP/Bridge/Plugins/*/FirebaseManager.swift') ?: [];
+            $manager = count($managers) === 1 ? file_get_contents($managers[0]) : false;
+            $check(is_string($manager) && str_contains($manager, 'guard Bundle.main.object(forInfoDictionaryKey: "CboxPushEnabled") as? Bool == true else { return }'),
+                'Firebase must require the explicit release capability before initialization.');
             if (is_dir(rtrim($generated, '/').'/NativePHP')) {
                 foreach (File::allFiles(rtrim($generated, '/').'/NativePHP') as $file) {
                     if ($file->getExtension() !== 'swift') {
@@ -81,11 +85,25 @@ final class CheckRelease extends Command
             $check(config('nativephp.fps_overlay') === false, 'Disable the FPS overlay.');
             $check(config('logging.default') === 'silent', 'Use LOG_CHANNEL=silent in the store archive.');
             $firebase = base_path('GoogleService-Info.plist');
-            $check(is_file($firebase), 'Add the iOS GoogleService-Info.plist for push notifications.');
-            if (is_file($firebase)) {
+            $pushEnabled = config('authenticator.push_enabled') === true;
+            $check(! $pushEnabled || is_file($firebase), 'Push is enabled: add the iOS GoogleService-Info.plist.');
+            if ($pushEnabled && is_file($firebase)) {
                 $contents = file_get_contents($firebase);
                 $check(is_string($contents) && preg_match('/<key>BUNDLE_ID<\/key>\s*<string>com\.cboxid\.authenticator<\/string>/', $contents) === 1,
                     'The Firebase plist must belong to com.cboxid.authenticator.');
+            }
+            if (is_string($generated) && is_file(rtrim($generated, '/').'/NativePHP/Info.plist')
+                && is_file(rtrim($generated, '/').'/NativePHP/NativePHP.entitlements')) {
+                $plist = File::get(rtrim($generated, '/').'/NativePHP/Info.plist');
+                $check(preg_match('/<key>CboxPushEnabled<\/key>\s*<'.($pushEnabled ? 'true' : 'false').'\s*\/>/', $plist) === 1,
+                    'The generated push configuration does not match this release.');
+                $check(preg_match('/<key>ITSAppUsesNonExemptEncryption<\/key>\s*<true\s*\/>/', $plist) === 1,
+                    'Declare the bundled encryption before exporting.');
+                if (! $pushEnabled) {
+                    $entitlements = File::get(rtrim($generated, '/').'/NativePHP/NativePHP.entitlements');
+                    $check(! str_contains($entitlements, 'aps-environment') && ! str_contains($plist, 'remote-notification'),
+                        'Remove push entitlements and background modes from the release without push.');
+                }
             }
             $check(is_string(config('nativephp.development_team')) && config('nativephp.development_team') !== '', 'Set your Apple development team.');
         }

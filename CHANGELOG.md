@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Prepare the first release without push: require explicit Firebase activation,
+  omit push capabilities, and explain foreground approvals in all ten languages.
+- Pin native dependency locks for fresh Bifrost builds and fail the native security
+  build guard when production debug/logging settings are unsafe.
+- Declare bundled encryption and prepare localized App Store metadata for iOS 1.0.0.
+
 - Preserve SVG transparency when generating splash artwork, removing the white box
   around the shield in both light and dark themes.
 - Accept form-encoded spaces in TOTP QR query parameters, including Cbox ID's existing

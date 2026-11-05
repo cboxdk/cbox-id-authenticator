@@ -25,7 +25,17 @@ final class PrepareIosSecurity extends Command
         if (! is_string($root) || ! is_dir($root)) {
             throw new RuntimeException('The iOS build path does not exist.');
         }
+        if (app()->environment('production') && (config('app.debug') !== false
+            || config('nativephp.fps_overlay') !== false || config('logging.default') !== 'silent')) {
+            throw new RuntimeException('Production requires APP_DEBUG=false, NATIVEPHP_FPS_OVERLAY=false and LOG_CHANNEL=silent.');
+        }
+        // Keep fresh Bifrost builds on the same native dependencies as device QA.
+        foreach (['Podfile.lock' => 'Podfile.lock', 'Package.resolved' => 'NativePHP.xcworkspace/xcshareddata/swiftpm/Package.resolved'] as $source => $target) {
+            File::ensureDirectoryExists(dirname($root.'/'.$target));
+            File::copy(resource_path('ios/'.$source), $root.'/'.$target);
+        }
         $this->prepareLocalizations($root);
+        $this->prepareReleaseCapabilities($root);
         $pressables = glob($root.'/NativePHP/Bridge/Plugins/*/NativeUISimpleRenderers.swift') ?: [];
         if (count($pressables) !== 1) {
             throw new RuntimeException('Expected one native pressable renderer.');
@@ -302,6 +312,62 @@ SWIFT;
         $this->components->info('Native credential logging disabled; fixed push event installed; security build guard satisfied.');
 
         return self::SUCCESS;
+    }
+
+    private function prepareReleaseCapabilities(string $root): void
+    {
+        $enabled = config('authenticator.push_enabled') === true;
+        $managers = glob($root.'/NativePHP/Bridge/Plugins/*/FirebaseManager.swift') ?: [];
+        if (count($managers) !== 1) {
+            throw new RuntimeException('Expected one Firebase initialization manager.');
+        }
+        $source = File::get($managers[0]);
+        $guard = '        guard Bundle.main.object(forInfoDictionaryKey: "CboxPushEnabled") as? Bool == true else { return }';
+        if (! str_contains($source, $guard)) {
+            $original = '    func configureIfAvailable() {';
+            if (substr_count($source, $original) !== 1) {
+                throw new RuntimeException('Review Firebase initialization before building.');
+            }
+            File::put($managers[0], str_replace($original, $original."\n".$guard, $source));
+        }
+        foreach (['Info.plist', 'NativePHP.entitlements'] as $name) {
+            $path = $root.'/NativePHP/'.$name;
+            $document = new \DOMDocument;
+            $document->preserveWhiteSpace = false;
+            $document->formatOutput = true;
+            if (! is_file($path) || ! $document->loadXML(File::get($path), LIBXML_NONET)) {
+                throw new RuntimeException('Cannot prepare release capabilities: '.$name);
+            }
+            $xpath = new \DOMXPath($document);
+            $nodes = $xpath->query('/plist/dict');
+            $dict = $nodes !== false ? $nodes->item(0) : null;
+            if (! $dict instanceof \DOMElement) {
+                throw new RuntimeException('Invalid release property list: '.$name);
+            }
+            $remove = $name === 'Info.plist'
+                ? ['CboxPushEnabled', 'ITSAppUsesNonExemptEncryption'] : [];
+            if (! $enabled) {
+                $remove[] = 'aps-environment';
+                // This app has no background feature other than remote notifications.
+                $remove[] = 'UIBackgroundModes';
+            }
+            foreach ($remove as $key) {
+                foreach ($xpath->query('/plist/dict/key[text()="'.$key.'"]') ?: [] as $node) {
+                    $value = $node->nextSibling;
+                    if ($value !== null) {
+                        $dict->removeChild($value);
+                    }
+                    $dict->removeChild($node);
+                }
+            }
+            if ($name === 'Info.plist') {
+                foreach (['CboxPushEnabled' => $enabled, 'ITSAppUsesNonExemptEncryption' => true] as $key => $value) {
+                    $dict->appendChild($document->createElement('key', $key));
+                    $dict->appendChild($document->createElement($value ? 'true' : 'false'));
+                }
+            }
+            File::put($path, $document->saveXML() ?: throw new RuntimeException('Cannot save '.$name));
+        }
     }
 
     private function prepareLocalizations(string $root): void

@@ -213,7 +213,6 @@
     "Connection": "Collegamento",
     "Cancel": "Annulla",
     "For other authenticators, scan each service setup QR code or enter its setup key.": "Per altre app di autenticazione, scansiona il QR di ogni servizio o inserisci la sua chiave di configurazione.",
-    "Push notifications are not available yet.": "Le notifiche push non sono ancora disponibili.",
     "Off. Enable notifications in iPhone Settings.": "Disattivate. Abilita le notifiche nelle impostazioni dell’iPhone.",
     "Continue signing in": "Continua l’accesso",
     "Finish in the sign-in window. You will return here automatically.": "Completa l’accesso nella finestra. Tornerai qui automaticamente.",
@@ -292,5 +291,6 @@
     "Grid view": "Vista griglia",
     "Selected": "Selezionato",
     "Your services": "I tuoi servizi",
-    "Show code for :account": "Mostra codice per :account"
+    "Show code for :account": "Mostra codice per :account",
+    "Open the app to retrieve current requests.": "Apri l’app per recuperare le richieste in sospeso."
 }

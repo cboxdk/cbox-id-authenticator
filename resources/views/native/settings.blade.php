@@ -45,7 +45,7 @@
                             <icon name="bell.slash" :size="22" class="text-theme-on-surface-variant" />
                             <column class="flex-1 gap-1">
                                 <text class="text-base font-medium text-theme-on-background">{{ __('Check requests in the app') }}</text>
-                                <text class="text-sm text-theme-on-surface-variant">{{ __('Push notifications are not available yet.') }}</text>
+                                <text class="text-sm text-theme-on-surface-variant">{{ __('Open the app to retrieve current requests.') }}</text>
                             </column>
                         </row>
                     @else

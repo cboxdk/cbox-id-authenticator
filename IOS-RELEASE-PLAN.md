@@ -1,8 +1,97 @@
 # Cbox ID Authenticator — analyse og plan for iOS-release
 
-Dato: 5. november 2026. **Implementeringen er klar til fysisk iPhone-test. App Store-release er endnu ikke valideret.**
+Status 6. november 2026: **Koden klargøres til Bifrost. Push/Firebase er udskudt.**
+Det endelige distributionsbuild og TestFlight-accept er endnu ikke udført.
 
-Appen bruger NativePHP 4 / SuperNative med native SwiftUI-rendering. Kodearbejdet ligger på `sd/ios-release`; serverkontrakten ligger på `sd/authenticator-ios-api` i et separat worktree. De oprindelige lokale backendændringer er bevaret.
+Appen bruger NativePHP 4 / SuperNative med SwiftUI. Arbejdet ligger på `sd/ios-release`.
+App Store-kladden er [6831374770](https://appstoreconnect.apple.com/apps/6831374770/distribution):
+iOS 1.0.0, Utilities, manuel frigivelse, ti lokaliserede navne/undertitler/beskrivelser/nøgleord,
+support- og privacy-links. Ingen indsendelse eller offentlig frigivelse er foretaget.
+
+## Bifrost — næste build
+
+Sylvester bygger gennem Bifrost. Brug repository `cboxdk/cbox-id-authenticator`,
+branch `sd/ios-release`, projektrod `/`, bundle-ID `com.cboxid.authenticator`,
+team `7CX7963T36`, App Store-app `6831374770`, version `1.0.0` og buildnummer **mindst 25**.
+Vælg **Production Arc** til releasekandidaten og upload først til intern TestFlight.
+Staging Arc kan ifølge Bifrost ikke senere sendes til App Store review.
+
+Shared/Production environment:
+
+```dotenv
+APP_DEBUG=false
+LOG_CHANNEL=silent
+NATIVEPHP_FPS_OVERLAY=false
+AUTHENTICATOR_PUSH_ENABLED=false
+NATIVEPHP_DEEPLINK_SCHEME=com.cboxid.authenticator
+NATIVEPHP_RUNTIME_MODE=persistent
+```
+
+Bifrost sætter `APP_ENV` ud fra Arc og administrerer app-ID/version/signering. Brug
+PHP **8.4** til buildværktøjerne; `nativephp.lock` låser den indlejrede runtime til
+**8.4.27 uden ICU**. Bifrosts konfigurationsside nævner stadig PHP 8.3 for tidlige
+custom commands. Appen kræver 8.4; kontrollér den faktiske buildlog, og kør ikke
+Artisan i det tidlige custom-command-trin. PHP 8.5 må ikke regenerere native-projektet.
+
+Tilføj NativePHP Marketplace-adgang under **Team → Settings → Integrations**.
+GitHub CI har nu den nødvendige Composer-adgang; den er ikke automatisk delt med Bifrost.
+Signingnøgler, Composer-login og serverhemmeligheder må ikke tilføjes til appens runtime-env.
+Der skal ikke uploades GoogleService-Info.plist i denne version.
+
+Den lokale plugins `post_compile`-hook kører `authenticator:prepare-ios` og:
+
+- fjerner native credential-logging og deaktiverer OTA-opdateringer;
+- fastholder de testede scanner-, keyboard-, navigation- og Face ID-rettelser;
+- kopierer versionerede CocoaPods/Swift-lockfiler fra `resources/ios`;
+- slår Firebase-init fra og fjerner push-entitlement/baggrundstilstand;
+- tilføjer `ITSAppUsesNonExemptEncryption=true`, så krypteringsspørgsmålet ikke skjules;
+- afviser usikker produktionskonfiguration før Swift-buildguard kan ophæves.
+
+Efter generering/build, hvor Bifrost giver adgang til projektet, er kontrollen:
+
+```sh
+php artisan authenticator:check --store --generated=nativephp/ios
+php artisan authenticator:ios-notices --check --generated=nativephp/ios
+```
+
+Kontrollér buildloggen for hookens succes, PHP-version, bundle-ID og buildnummer.
+Kildens Swift `#error` forhindrer et nyt build, hvis hardening-hooken ikke fuldføres.
+Det uploadede build skal være releasekilden; simulatorens screenshots benytter kun
+fiktive visningsdata i simulatorcontaineren og må aldrig indgå i pakningen.
+
+Bifrost-dokumentation: [buildkonfiguration](https://bifrost.nativephp.com/docs/mobile/builds/configuration),
+[Arcs](https://bifrost.nativephp.com/docs/mobile/builds/arcs).
+
+## Det, der stadig skal være opfyldt før indsendelse
+
+1. **Bifrost + TestFlight:** Et succesfuldt signeret build og kort fysisk accept:
+   connect fra frisk QR, godkend/afvis, baggrund/screenshot uden gentagen Face ID,
+   TOTP offline, krypteret eksport/import og opgradering med eksisterende data.
+2. **Reviewadgang:** En isoleret testkonto og et selvbetjent forløb, der kan skabe
+   en rigtig Cbox-godkendelse. En tom konto eller en udløbet engangs-QR er ikke nok.
+   Den eksisterende testklient krævede en operatør og blev slettet efter telefonprøven.
+   Der er ikke givet en ekstern reviewer adgang til Cboxs interne organisation.
+   TOTP-/backup-reviewtrinnene er klar i `STORE-LISTING.md`.
+3. **Apple-oplysninger:** Bekræft juridisk rettighedshaver, reviewkontakt, pris/lande,
+   alder/privacy og eksportklassifikation på det endelige build. Se det konkrete
+   tekniske krypteringsgrundlag nedenfor. Ingen blanket erklæring om undtagelse er indsendt.
+4. **Indsendelse:** Vælg det accepterede build og indsend først efter Sylvesters
+   beslutning. Kladden er sat til manuel frigivelse.
+
+Firebase og push-tests er **ikke** en blokering for denne version. Alle historiske
+push-punkter nedenfor gælder en senere version og erstatter ikke denne status.
+
+## Krypteringsgrundlag til Apple
+
+Appen bruger standardkryptografi: TLS/HTTPS, RSA/SHA-256 til OAuth DPoP,
+HMAC SHA-1/256/512 til TOTP og libsodium Argon2id + XChaCha20-Poly1305 til
+brugerinitieret backup. Keychain og Face ID/passcode anvender iOS. Der er ingen
+proprietær krypteringsalgoritme. Backup-krypteringen er ikke alene leveret af iOS.
+
+Apples aktuelle tabel skelner mellem standardkryptografi i appen og OS-only;
+Frankrig kan kræve en fransk erklæring. Distributionslandene og den juridiske
+klassifikation skal derfor bekræftes før indsendelse. Appen er ikke automatisk
+markeret som undtaget. [Apples dokumentationskrav](https://developer.apple.com/help/app-store-connect/reference/app-information/export-compliance-documentation-for-encryption).
 
 ## Implementeringsstatus efter analysen
 

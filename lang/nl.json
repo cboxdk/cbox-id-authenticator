@@ -213,7 +213,6 @@
     "Connection": "Verbinding",
     "Cancel": "Annuleren",
     "For other authenticators, scan each service setup QR code or enter its setup key.": "Voor andere authenticatie-apps scan je de installatie-QR-code van elke dienst of voer je de installatiesleutel in.",
-    "Push notifications are not available yet.": "Pushmeldingen zijn nog niet beschikbaar.",
     "Off. Enable notifications in iPhone Settings.": "Uit. Schakel meldingen in via de iPhone-instellingen.",
     "Continue signing in": "Doorgaan met aanmelden",
     "Finish in the sign-in window. You will return here automatically.": "Rond het af in het aanmeldvenster. Je keert automatisch hier terug.",
@@ -292,5 +291,6 @@
     "Grid view": "Rasterweergave",
     "Selected": "Geselecteerd",
     "Your services": "Je diensten",
-    "Show code for :account": "Code voor :account tonen"
+    "Show code for :account": "Code voor :account tonen",
+    "Open the app to retrieve current requests.": "Open de app om actuele verzoeken op te halen."
 }

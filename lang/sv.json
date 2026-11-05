@@ -213,7 +213,6 @@
     "Connection": "Anslutning",
     "Cancel": "Avbryt",
     "For other authenticators, scan each service setup QR code or enter its setup key.": "För andra autentiseringsappar skannar du varje tjänsts QR-kod eller anger dess konfigurationsnyckel.",
-    "Push notifications are not available yet.": "Push-notiser är inte tillgängliga än.",
     "Off. Enable notifications in iPhone Settings.": "Av. Aktivera notiser i iPhone-inställningarna.",
     "Continue signing in": "Fortsätt logga in",
     "Finish in the sign-in window. You will return here automatically.": "Slutför inloggningen i fönstret. Du kommer automatiskt tillbaka hit.",
@@ -292,5 +291,6 @@
     "Grid view": "Rutnätsvy",
     "Selected": "Vald",
     "Your services": "Dina tjänster",
-    "Show code for :account": "Visa kod för :account"
+    "Show code for :account": "Visa kod för :account",
+    "Open the app to retrieve current requests.": "Öppna appen för att hämta aktuella förfrågningar."
 }

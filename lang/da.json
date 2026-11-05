@@ -213,7 +213,6 @@
     "Connection": "Tilslutning",
     "Cancel": "Annullér",
     "For other authenticators, scan each service setup QR code or enter its setup key.": "Fra andre authenticator-apps: Scan tjenestens opsætningskode, eller indtast dens nøgle.",
-    "Push notifications are not available yet.": "Pushnotifikationer er ikke tilgængelige endnu.",
     "Off. Enable notifications in iPhone Settings.": "Slået fra. Aktivér notifikationer i iPhone-indstillinger.",
     "Continue signing in": "Fortsæt dit login",
     "Finish in the sign-in window. You will return here automatically.": "Gør login færdigt i vinduet. Du vender automatisk tilbage hertil.",
@@ -292,5 +291,6 @@
     "Grid view": "Gittervisning",
     "Selected": "Valgt",
     "Your services": "Dine tjenester",
-    "Show code for :account": "Vis kode for :account"
+    "Show code for :account": "Vis kode for :account",
+    "Open the app to retrieve current requests.": "Åbn appen for at hente aktuelle anmodninger."
 }

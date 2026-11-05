@@ -213,7 +213,6 @@
     "Connection": "Yhteys",
     "Cancel": "Peru",
     "For other authenticators, scan each service setup QR code or enter its setup key.": "Muiden tunnistautumissovellusten kohdalla skannaa kunkin palvelun QR-koodi tai anna sen käyttöönottoavain.",
-    "Push notifications are not available yet.": "Push-ilmoitukset eivät ole vielä saatavilla.",
     "Off. Enable notifications in iPhone Settings.": "Pois käytöstä. Ota ilmoitukset käyttöön iPhonen asetuksissa.",
     "Continue signing in": "Jatka kirjautumista",
     "Finish in the sign-in window. You will return here automatically.": "Viimeistele kirjautumisikkunassa. Palaat tänne automaattisesti.",
@@ -292,5 +291,6 @@
     "Grid view": "Ruudukkonäkymä",
     "Selected": "Valittu",
     "Your services": "Palvelusi",
-    "Show code for :account": "Näytä tilin :account koodi"
+    "Show code for :account": "Näytä tilin :account koodi",
+    "Open the app to retrieve current requests.": "Avaa sovellus hakeaksesi nykyiset pyynnöt."
 }
