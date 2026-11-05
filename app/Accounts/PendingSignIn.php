@@ -26,6 +26,7 @@ final readonly class PendingSignIn
         public string $verifier,
         public int $createdAt,
         public ?string $enrolmentToken = null,
+        public ?string $expectedSubject = null,
     ) {}
 
     /**
@@ -41,6 +42,7 @@ final readonly class PendingSignIn
             'verifier' => $this->verifier,
             'created_at' => $this->createdAt,
             'enrolment_token' => $this->enrolmentToken,
+            'expected_subject' => $this->expectedSubject,
         ];
     }
 
@@ -63,6 +65,7 @@ final readonly class PendingSignIn
             $row['verifier'],
             is_numeric($row['created_at'] ?? null) ? (int) $row['created_at'] : 0,
             is_string($row['enrolment_token'] ?? null) ? $row['enrolment_token'] : null,
+            is_string($row['expected_subject'] ?? null) ? $row['expected_subject'] : null,
         );
     }
 }

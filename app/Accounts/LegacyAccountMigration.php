@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accounts;
 
-use Native\Mobile\Facades\SecureStorage;
+use App\Services\SecureVault as SecureStorage;
 
 /**
  * Carries a single-account install into the account-keyed layout.

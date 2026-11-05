@@ -6,6 +6,7 @@ namespace App\NativeComponents;
 
 use App\Accounts\AccountStore;
 use App\Concerns\NavigatesScreens;
+use App\Services\DeviceSecurity;
 use Illuminate\View\View;
 use Native\Mobile\Edge\NativeComponent;
 
@@ -24,9 +25,17 @@ class Launch extends NativeComponent
 {
     use NavigatesScreens;
 
+    public ?string $error = null;
+
     public function mount(): void
     {
-        $this->replace(app(AccountStore::class)->isEmpty() ? '/connect' : '/approvals');
+        try {
+            $empty = app(AccountStore::class)->isEmpty();
+            app(DeviceSecurity::class)->configure(! $empty);
+            $this->replace($empty ? '/connect' : '/approvals');
+        } catch (\Throwable) {
+            $this->error = 'Your saved accounts could not be read. Unlock your phone and try again. Nothing has been removed.';
+        }
     }
 
     public function render(): View

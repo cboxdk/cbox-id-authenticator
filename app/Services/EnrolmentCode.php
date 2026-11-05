@@ -45,6 +45,13 @@ final readonly class EnrolmentCode
                 return null;
             }
 
+            if (! in_array($parts['scheme'] ?? '', ['https', 'com.cboxid.authenticator'], true) || isset($parts['user']) || isset($parts['pass']) || isset($parts['fragment'])) {
+                return null;
+            }
+            if ($parts['scheme'] === 'com.cboxid.authenticator' && ($parts['host'] ?? '') !== 'connect') {
+                return null;
+            }
+
             $query = [];
             parse_str($parts['query'] ?? '', $query);
 
@@ -52,7 +59,7 @@ final readonly class EnrolmentCode
 
             // Our own scheme carries the host as a query parameter; an https URL carries
             // it as the authority. Anything else is neither.
-            $raw = ($parts['scheme'] ?? '') === 'https'
+            $raw = $parts['scheme'] === 'https'
                 ? ($parts['host'] ?? '')
                 : (is_string($query['host'] ?? null) ? $query['host'] : '');
         }

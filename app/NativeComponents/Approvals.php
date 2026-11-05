@@ -6,11 +6,14 @@ namespace App\NativeComponents;
 
 use App\Accounts\AccountContext;
 use App\Concerns\NavigatesScreens;
+use App\Events\PushReceived;
+use App\Services\ApprovalInbox;
+use App\Services\DeviceSecurity;
 use Illuminate\View\View;
 use Native\Mobile\Attributes\On;
 use Native\Mobile\Attributes\Poll;
 use Native\Mobile\Edge\NativeComponent;
-use Native\Mobile\Events\PushNotification\PushNotificationReceived;
+use Native\Mobile\Facades\PushNotifications;
 use Throwable;
 
 /**
@@ -44,6 +47,15 @@ class Approvals extends NativeComponent
     /** @var list<string> Labels of accounts whose host could not be reached. */
     public array $degraded = [];
 
+    /** @var list<array{id: string, label: string, error: string}> */
+    public array $connectionErrors = [];
+
+    private int $retryAt = 0;
+
+    private int $failures = 0;
+
+    private int $pushCheckedAt = 0;
+
     public function mount(): void
     {
         if (app(AccountContext::class)->store()->isEmpty()) {
@@ -64,6 +76,9 @@ class Approvals extends NativeComponent
     #[Poll(15000)]
     public function refresh(): void
     {
+        if (time() < $this->retryAt || app(DeviceSecurity::class)->generation() === null) {
+            return;
+        }
         $this->load();
     }
 
@@ -71,10 +86,15 @@ class Approvals extends NativeComponent
      * A push arrived while this screen was open. Reload rather than trusting the
      * payload: it carries routing only, and everything shown here comes from the API.
      */
-    #[On(PushNotificationReceived::class)]
+    #[On(PushReceived::class)]
     public function pushed(): void
     {
         $this->load();
+    }
+
+    public function account(string $id): void
+    {
+        $this->navigate('/account/'.$id);
     }
 
     public function open(string $key): void
@@ -90,30 +110,20 @@ class Approvals extends NativeComponent
 
     public function load(): void
     {
-        $rows = [];
+        $accounts = app(AccountContext::class)->all();
+        $result = app(ApprovalInbox::class)->fetch($accounts);
+        $rows = $result['rows'];
         $degraded = [];
-
-        foreach (app(AccountContext::class)->all() as $services) {
-            try {
-                foreach ($services->api->pendingApprovals() as $approval) {
-                    $id = $approval['id'] ?? null;
-
-                    if (! is_string($id) || $id === '') {
-                        continue;
-                    }
-
-                    $rows[] = $approval + [
-                        'account_id' => $services->account->id,
-                        'account_label' => $services->account->label,
-                        'row_key' => $services->account->id.':'.$id,
-                    ];
-                }
-            } catch (Throwable) {
-                // Offline, or this one host is unreachable. Say which, and carry on with
-                // the rest.
+        $this->connectionErrors = [];
+        foreach ($accounts as $services) {
+            if (isset($result['errors'][$services->account->id])) {
                 $degraded[] = $services->account->label;
+                $this->connectionErrors[] = ['id' => $services->account->id, 'label' => $services->account->label,
+                    'error' => $result['errors'][$services->account->id]];
             }
         }
+        $this->failures = $degraded === [] ? 0 : min(3, $this->failures + 1);
+        $this->retryAt = time() + min(60, 15 * (2 ** max(0, $this->failures - 1)));
 
         $this->degraded = $degraded;
 
@@ -130,6 +140,17 @@ class Approvals extends NativeComponent
         usort($rows, fn (array $a, array $b): int => $this->expiryOf($a) <=> $this->expiryOf($b));
 
         $this->approvals = $rows;
+        if (time() - $this->pushCheckedAt >= 60 && app(DeviceSecurity::class)->generation() !== null) {
+            $this->pushCheckedAt = time();
+            $token = PushNotifications::getToken();
+            foreach ($accounts as $services) {
+                try {
+                    $services->enrolment->syncTokenIfChanged($token);
+                } catch (Throwable) {
+                    // Retry on a later foreground refresh, without hiding the inbox.
+                }
+            }
+        }
     }
 
     /**

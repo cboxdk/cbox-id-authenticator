@@ -8,6 +8,8 @@ use App\Accounts\Account;
 use App\Accounts\AccountContext;
 use App\Accounts\PendingSignIns;
 use App\Concerns\NavigatesScreens;
+use App\Services\ApiFailure;
+use App\Services\DeviceSecurity;
 use App\Support\DeepLinkQuery;
 use App\Support\RedirectUri;
 use Illuminate\View\View;
@@ -92,33 +94,54 @@ class OAuthCallback extends NativeComponent
         $services = $context->reserved($pending);
 
         try {
+            if (isset($query['iss']) && rtrim($query['iss'], '/') !== rtrim($pending->issuer, '/')) {
+                throw new \RuntimeException('The sign-in response came from an unexpected host.');
+            }
             $services->oauth->exchange($code, $pending->verifier, RedirectUri::current());
-
-            // Enrol BEFORE the account joins the index, so a REFUSED enrolment code is
-            // reported here rather than leaving an account that silently never receives
-            // prompts. It throws only for that — a refusal by the host.
-            //
-            // A handset with no push token returns false instead, and the sign-in
-            // carries on. That covers someone who tapped "Don't Allow", and it covers a
-            // self-hosted installation that cannot push at all. Neither is a broken
-            // account: the approvals list is fetched with the OAuth token and refreshes
-            // on its own. Settings says plainly which accounts can reach this phone.
+            // Read identity from the authenticated API, never from an unverified ID token.
+            $identity = $services->api->identity();
+            if ($pending->expectedSubject !== null && $pending->expectedSubject !== $identity['subject']) {
+                throw new \RuntimeException('Use the same account when reconnecting.');
+            }
+            $duplicates = array_filter($context->store()->forIssuer($pending->issuer),
+                fn (Account $account): bool => $account->subject === $identity['subject']);
             $services->enrolment->enrol($pending->enrolmentToken);
-
+            $label = $identity['label'];
             $context->store()->put(new Account(
-                $pending->accountId,
-                $pending->issuer,
-                Account::labelFor($pending->issuer),
+                $pending->accountId, $pending->issuer, Account::labelFor($pending->issuer, $label), $identity['subject'],
             ));
+            foreach ($duplicates as $old) {
+                $previous = $context->for($old);
+                try {
+                    if (($device = $previous->enrolment->deviceId()) !== null) {
+                        $previous->api->deregisterDevice($device);
+                    }
+                } catch (Throwable) {
+                    // Local key removal still makes this old installation unusable.
+                }
+                $context->remove($old);
+            }
+            app(DeviceSecurity::class)->configure(true);
 
             $this->replace('/approvals');
         } catch (Throwable $e) {
             // Nothing was added to the index, so the reserved namespace is unreachable
             // through it. Wipe it rather than leave a DPoP key and a half-set of tokens
             // behind on every failed attempt.
-            $services->forget();
+            if ($context->store()->find($pending->accountId) === null) {
+                try {
+                    if (($device = $services->enrolment->deviceId()) !== null) {
+                        $services->api->deregisterDevice($device);
+                    }
+                    $services->forget();
+                } catch (Throwable) {
+                    $this->error = 'Could not finish cleanup. Reopen the app and scan a new code.';
 
-            $this->error = $e->getMessage();
+                    return;
+                }
+            }
+            $this->error = $e instanceof ApiFailure ? $e->getMessage()
+                : 'Could not connect this account. Open Trusted devices and scan a fresh code.';
         }
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Accounts\Account;
 use App\Accounts\AccountContext;
+use App\Accounts\AccountStorageFailed;
 use App\Accounts\AccountStore;
 use App\Accounts\PendingSignIns;
 use App\Services\ServerClock;
@@ -29,8 +30,8 @@ it('keeps two accounts on the same host completely separate', function (): void 
         ->and($context->for($bob)->tokens->refreshToken())->toBe('bob-refresh');
 
     // And prove it at the storage layer, not just through the accessor.
-    expect($keychain)->toHaveKey('cboxid.acct.01ALICE.token.refresh')
-        ->and($keychain)->toHaveKey('cboxid.acct.01BOB.token.refresh');
+    expect($keychain)->toHaveKey('cboxid.acct.01ALICE.credentials.v1')
+        ->and($keychain)->toHaveKey('cboxid.acct.01BOB.credentials.v1');
 });
 
 it('does not let one account prefix match another', function (): void {
@@ -84,13 +85,12 @@ it('finds the accounts on one issuer so a push can be routed home', function ():
         ->and($store->forIssuer('https://nobody.cboxid.com'))->toBe([]);
 });
 
-it('survives a corrupt index rather than reading half of it', function (): void {
-    fakeSecureStorage(['cboxid.accounts' => '{not json']);
-
-    // Reported as empty, which sends the user to the connect screen and re-enrols
-    // cleanly. A partial read would point at secrets it could not name.
-    expect((new AccountStore)->all())->toBe([])
-        ->and((new AccountStore)->isEmpty())->toBeTrue();
+it('refuses to overwrite a corrupt account index', function (): void {
+    $raw = '{not json';
+    $keychain = fakeSecureStorage(['cboxid.accounts' => $raw]);
+    expect(fn () => (new AccountStore)->put(new Account('new', 'https://cbox.cboxid.com', 'new')))
+        ->toThrow(AccountStorageFailed::class);
+    expect($keychain['cboxid.accounts'])->toBe($raw);
 });
 
 it('drops index rows that are missing an issuer instead of guessing one', function (): void {
@@ -101,8 +101,5 @@ it('drops index rows that are missing an issuer instead of guessing one', functi
         ]),
     ]);
 
-    $accounts = (new AccountStore)->all();
-
-    expect($accounts)->toHaveCount(1)
-        ->and($accounts[0]->id)->toBe('01GOOD');
+    expect(fn () => (new AccountStore)->all())->toThrow(AccountStorageFailed::class);
 });

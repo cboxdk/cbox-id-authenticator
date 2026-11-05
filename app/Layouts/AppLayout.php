@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Layouts;
 
+use App\Accounts\AccountStore;
 use App\Icons\Android;
 use App\Icons\Ios;
+use App\NativeComponents\About;
+use App\NativeComponents\AccountDetail;
 use App\NativeComponents\ApprovalDetail;
+use App\NativeComponents\Licenses;
 use App\NativeComponents\Settings;
 use Native\Mobile\Edge\Layouts\Builders\NavBar;
 use Native\Mobile\Edge\Layouts\Builders\Tab;
@@ -45,9 +49,13 @@ class AppLayout extends NativeLayout
      */
     public function tabBar(NativeComponent $screen): ?TabBar
     {
+        if (($screen instanceof About || $screen instanceof Licenses) && app(AccountStore::class)->isEmpty()) {
+            return null;
+        }
+
         return TabBar::make()
-            ->add(Tab::link('Requests', '/approvals', ios: Ios::Bell, android: Android::Notifications))
-            ->add(Tab::link('Settings', '/settings', ios: Ios::Gearshape, android: Android::Settings));
+            ->add(Tab::link(__('Requests'), '/approvals', ios: Ios::Bell, android: Android::Notifications))
+            ->add(Tab::link(__('Settings'), '/settings', ios: Ios::Gearshape, android: Android::Settings));
     }
 
     /**
@@ -60,9 +68,12 @@ class AppLayout extends NativeLayout
     public function navBar(NativeComponent $screen): ?NavBar
     {
         return match (true) {
-            $screen instanceof ApprovalDetail => NavBar::make()->title('Request')->back(),
-            $screen instanceof Settings => NavBar::make()->title('Settings'),
-            default => NavBar::make()->title('Pending requests'),
+            $screen instanceof AccountDetail => NavBar::make()->title(__('Account'))->back(),
+            $screen instanceof ApprovalDetail => NavBar::make()->title(__('Request'))->back(),
+            $screen instanceof Licenses => NavBar::make()->title(__('Licenses'))->back(),
+            $screen instanceof About => NavBar::make()->title(__('Privacy and help'))->back(),
+            $screen instanceof Settings => NavBar::make()->title(__('Settings')),
+            default => NavBar::make()->title(__('Pending requests')),
         };
     }
 }

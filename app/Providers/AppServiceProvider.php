@@ -8,6 +8,7 @@ use App\Accounts\AccountContext;
 use App\Accounts\AccountStore;
 use App\Accounts\LegacyAccountMigration;
 use App\Accounts\PendingSignIns;
+use App\Services\DeviceSecurity;
 use App\Services\ServerClock;
 use Illuminate\Support\ServiceProvider;
 use Throwable;
@@ -50,12 +51,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->app->setLocale($this->app->make(DeviceSecurity::class)->locale());
         try {
             $this->app->make(LegacyAccountMigration::class)->run();
         } catch (Throwable) {
-            // A keychain that refuses to answer during boot must not take the whole app
-            // down. The user lands on the connect screen and re-enrols — worse than a
-            // clean upgrade, far better than an app that will not start.
+            // Launch shows a retry state when storage is unavailable. Never replace
+            // the saved account index with an empty one after a failed read.
         }
     }
 }

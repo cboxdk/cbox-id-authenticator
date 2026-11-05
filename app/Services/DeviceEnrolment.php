@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Services\SecureVault as SecureStorage;
 use App\Support\InstallId;
 use Native\Mobile\Facades\Device;
 use Native\Mobile\Facades\PushNotifications;
-use Native\Mobile\Facades\SecureStorage;
 use Native\Mobile\Facades\System;
 use Throwable;
 
@@ -21,6 +21,8 @@ use Throwable;
  */
 final class DeviceEnrolment
 {
+    private const PUSH_READY = 'push_ready';
+
     private const DEVICE_ID = 'device_id';
 
     public function __construct(
@@ -48,22 +50,13 @@ final class DeviceEnrolment
      */
     public function enrol(?string $enrolmentToken = null): bool
     {
+        // Registration consumes the QR code independently of notification permission.
+        $token = PushNotifications::getToken();
+        $this->post(is_string($token) && $token !== '' ? $token : null, $enrolmentToken);
+
         if (PushNotifications::checkPermission() === 'not_determined') {
             PushNotifications::enroll()->enroll();
         }
-
-        $pushToken = PushNotifications::getToken();
-
-        // No token, nothing to register — and that must not fail the sign-in. Someone
-        // who tapped "Don't Allow" still has a working account: the approvals list is
-        // fetched with the OAuth token and refreshes on its own. Losing the account over
-        // a lost banner is far the worse outcome, and treating the two as one failure is
-        // exactly what this method used to do.
-        if (! is_string($pushToken) || $pushToken === '') {
-            return false;
-        }
-
-        $this->post($pushToken, $enrolmentToken);
 
         return true;
     }
@@ -95,7 +88,7 @@ final class DeviceEnrolment
      *                         expired enrolment code, a claimed install id, an
      *                         unreachable host
      */
-    private function post(string $pushToken, ?string $enrolmentToken = null): void
+    private function post(?string $pushToken, ?string $enrolmentToken = null): void
     {
         try {
             $response = $this->api->enrolDevice(
@@ -116,8 +109,18 @@ final class DeviceEnrolment
         $id = $response['data']['id'] ?? null;
 
         if (is_string($id) && $id !== '') {
-            SecureStorage::set($this->prefix.self::DEVICE_ID, $id);
+            if (! SecureStorage::set($this->prefix.self::DEVICE_ID, $id)) {
+                throw new EnrolmentFailed('Could not save this device securely. Try connecting again.');
+            }
+            if ($pushToken !== null) {
+                if (! SecureStorage::set($this->prefix.self::PUSH_READY, hash('sha256', $pushToken))) {
+                    throw new EnrolmentFailed('Could not save this device securely. Try connecting again.');
+                }
+            }
+
+            return;
         }
+        throw new EnrolmentFailed('The host returned an incomplete device registration.');
     }
 
     /**
@@ -130,9 +133,23 @@ final class DeviceEnrolment
         return is_string($id) && $id !== '' ? $id : null;
     }
 
+    public function hasPushToken(): bool
+    {
+        return SecureStorage::get($this->prefix.self::PUSH_READY) !== null;
+    }
+
+    public function syncTokenIfChanged(?string $token): void
+    {
+        if (is_string($token) && $token !== '' && SecureStorage::get($this->prefix.self::PUSH_READY) !== hash('sha256', $token)) {
+            $this->register($token);
+        }
+    }
+
     public function forget(): void
     {
-        SecureStorage::delete($this->prefix.self::DEVICE_ID);
+        if (! SecureStorage::delete($this->prefix.self::PUSH_READY) || ! SecureStorage::delete($this->prefix.self::DEVICE_ID)) {
+            throw new \RuntimeException('Could not remove the saved device. Try again.');
+        }
     }
 
     /**
@@ -141,7 +158,8 @@ final class DeviceEnrolment
     private function deviceName(): string
     {
         try {
-            $info = Device::getInfo();
+            $raw = Device::getInfo();
+            $info = is_string($raw) ? json_decode($raw, true) : null;
 
             $name = is_array($info) ? ($info['name'] ?? $info['model'] ?? null) : null;
 

@@ -6,9 +6,12 @@ namespace App\NativeComponents;
 
 use App\Accounts\AccountContext;
 use App\Concerns\NavigatesScreens;
+use App\Services\DeviceSecurity;
 use Illuminate\View\View;
 use Native\Mobile\Edge\NativeComponent;
+use Native\Mobile\Facades\Browser;
 use Native\Mobile\Facades\PushNotifications;
+use Native\Mobile\Facades\System;
 use Throwable;
 
 class Settings extends NativeComponent
@@ -21,6 +24,8 @@ class Settings extends NativeComponent
 
     public ?string $notice = null;
 
+    public ?string $removing = null;
+
     /** @var list<array{id: string, label: string, issuer: string}> */
     public array $accounts = [];
 
@@ -28,6 +33,44 @@ class Settings extends NativeComponent
     {
         $this->permission = PushNotifications::checkPermission();
         $this->loadAccounts();
+    }
+
+    public function onResume(): void
+    {
+        $this->mount();
+    }
+
+    public function account(string $id): void
+    {
+        $this->navigate('/account/'.$id);
+    }
+
+    public function notificationSettings(): void
+    {
+        System::appSettings();
+    }
+
+    public function about(): void
+    {
+        $this->navigate('/about');
+    }
+
+    public function manage(string $id): void
+    {
+        $account = app(AccountContext::class)->store()->find($id);
+        if ($account !== null && ! Browser::open($account->issuer.'/account')) {
+            $this->notice = 'Could not open your browser. Open your Cbox ID host to manage your account.';
+        }
+    }
+
+    public function requestRemoval(string $id): void
+    {
+        $this->removing = $id;
+    }
+
+    public function cancelRemoval(): void
+    {
+        $this->removing = null;
     }
 
     public function goAddAccount(): void
@@ -48,6 +91,9 @@ class Settings extends NativeComponent
     {
         $this->working = true;
 
+        if (PushNotifications::checkPermission() === 'not_determined') {
+            PushNotifications::enroll()->enroll();
+        }
         $token = PushNotifications::getToken();
         $failed = [];
 
@@ -60,7 +106,7 @@ class Settings extends NativeComponent
         $this->permission = PushNotifications::checkPermission();
         $this->notice = $failed === []
             ? 'Notifications re-synced.'
-            : 'Could not re-sync: '.implode(', ', $failed);
+            : __('Could not re-sync: :accounts', ['accounts' => implode(', ', $failed)]);
         $this->working = false;
     }
 
@@ -102,11 +148,19 @@ class Settings extends NativeComponent
             // carry a proof signed by it.
         }
 
-        $context->remove($account);
+        try {
+            $context->remove($account);
+        } catch (Throwable) {
+            $this->working = false;
+            $this->notice = 'Could not finish removing the saved account. Unlock your phone and try again.';
 
+            return;
+        }
+        $this->removing = null;
         $this->loadAccounts();
         $this->working = false;
 
+        app(DeviceSecurity::class)->configure($this->accounts !== []);
         if ($this->accounts === []) {
             $this->replace('/connect');
         }
@@ -127,7 +181,7 @@ class Settings extends NativeComponent
                 // whether because notifications were declined or because the host has no
                 // push transport at all. Saying "On" for every account when the switch
                 // is per host is how someone waits for a prompt that is never coming.
-                'notifies' => $context->for($account)->enrolment->deviceId() !== null,
+                'notifies' => $this->permission === 'granted' && $context->for($account)->enrolment->hasPushToken(),
             ],
             $context->store()->all(),
         );

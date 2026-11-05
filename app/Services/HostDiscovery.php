@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
-use RuntimeException;
 
 /**
  * Asks a host what its authenticator client looks like.
@@ -30,20 +29,28 @@ final class HostDiscovery
     {
         $base = self::baseUrlFor($host);
 
-        $response = Http::acceptJson()->timeout(15)->get($base.'/.well-known/cbox-authenticator');
+        $response = Http::acceptJson()->withoutRedirecting()->connectTimeout(5)->timeout(15)->get($base.'/.well-known/cbox-authenticator');
 
         // Correct the clock from the very first call, before any proof is minted —
         // otherwise a drifting handset fails its token exchange with nothing to learn from.
         $this->clock->syncTo($response->header('Date'));
 
         if (! $response->successful()) {
-            throw new RuntimeException('That host does not offer the Cbox ID authenticator.');
+            throw new EnrolmentFailed('That host does not offer the Cbox ID authenticator.');
         }
 
         $body = $response->json();
 
         if (! is_array($body) || ! is_string($body['issuer'] ?? null) || ! is_string($body['client_id'] ?? null)) {
-            throw new RuntimeException('That host returned an unusable authenticator document.');
+            throw new EnrolmentFailed('That host returned an unusable authenticator document.');
+        }
+
+        if (rtrim($body['issuer'], '/') !== $base || trim($body['client_id']) === '') {
+            throw new EnrolmentFailed('The host returned an unexpected issuer. Scan a fresh code from Trusted devices.');
+        }
+
+        if (($body['api_version'] ?? 0) < 2) {
+            throw new EnrolmentFailed('Your Cbox ID host needs an update before this app can connect. Contact your administrator.');
         }
 
         return new DiscoveredHost(
@@ -66,13 +73,11 @@ final class HostDiscovery
      */
     public static function baseUrlFor(string $host): string
     {
-        $bare = preg_replace('#^https?://#', '', rtrim($host, '/')) ?? $host;
-        $name = explode(':', $bare)[0];
-
-        $loopback = $name === 'localhost'
-            || $name === '127.0.0.1'
-            || $name === '::1'
-            || str_ends_with($name, '.localhost');
+        $bare = strtolower(preg_replace('#^https?://#', '', rtrim($host, '/')) ?? $host);
+        if (! SupportedHost::allows($bare)) {
+            throw new EnrolmentFailed(SupportedHost::refusal());
+        }
+        $loopback = preg_match('/^(localhost|127\.0\.0\.1|\[::1\])(:\d{1,5})?$/', $bare) === 1;
 
         return ($loopback ? 'http://' : 'https://').$bare;
     }

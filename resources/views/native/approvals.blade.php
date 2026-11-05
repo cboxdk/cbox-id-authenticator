@@ -5,24 +5,24 @@
         <column class="w-full p-4 gap-3">
             {{-- Named, not counted. "One account is unreachable" leaves the user
                  guessing which of their tenants is not being watched. --}}
-            @foreach ($degraded as $label)
-                <row class="w-full items-center gap-2 p-3 rounded-xl bg-theme-surface-variant">
-                    <icon name="wifi.slash" :size="18" class="text-theme-on-surface-variant" />
-                    <text class="text-sm text-theme-on-surface-variant">
-                        Can't reach {{ $label }}. Pull to retry.
-                    </text>
-                </row>
+            @foreach ($connectionErrors as $connection)
+                <column class="w-full gap-2 p-3 rounded-xl bg-theme-surface-variant">
+                    <text class="text-base font-semibold text-theme-on-background">{{ $connection['label'] }}</text>
+                    <text class="text-sm text-theme-on-surface-variant">{{ __($connection['error']) }}</text>
+                    <button label="{{ __('Account settings') }}" variant="secondary" @press="account('{{ $connection['id'] }}')"></button>
+                </column>
             @endforeach
 
             @forelse ($approvals as $approval)
                 <pressable
                     class="w-full p-4 gap-1 rounded-2xl bg-theme-surface"
+                    a11y-label="{{ ($approval['client_name'] ?? __('An application')).', '.$approval['account_label'] }}"
                     @press="open('{{ $approval['row_key'] }}')"
                 >
                     <row class="w-full items-center gap-2">
                         <icon name="shield" :size="20" class="text-theme-primary" />
                         <text class="text-base font-semibold text-theme-on-background">
-                            {{ $approval['client_name'] ?? 'An application' }}
+                            {{ $approval['client_name'] ?? __('An application') }}
                         </text>
                     </row>
 
@@ -39,14 +39,15 @@
                         </text>
                     @endif
 
-                    <text class="text-xs text-theme-on-surface-variant">Tap to review</text>
+                    <text class="text-sm text-theme-on-surface-variant">{{ ($approval['purpose'] ?? '') === 'action' ? __('Action request') : __('Sign-in request') }}</text>
+                    <text class="text-sm text-theme-on-surface-variant">{{ __("Tap to review") }}</text>
                 </pressable>
             @empty
                 <column class="w-full items-center justify-center gap-2 py-16">
                     <icon name="checkmark.circle" :size="40" class="text-theme-on-surface-variant" />
-                    <text class="text-base text-theme-on-surface-variant">Nothing waiting.</text>
+                    <text class="text-base text-theme-on-surface-variant">{{ $degraded !== [] ? __('Could not check all accounts.') : __('Nothing waiting.') }}</text>
                     <text text-align="center" class="text-sm text-theme-on-surface-variant">
-                        You'll get a notification when an app asks for approval.
+                        {{ $degraded !== [] ? __('Check your connection, then pull to retry.') : __('Requests appear here automatically. Notifications are optional.') }}
                     </text>
                 </column>
             @endforelse

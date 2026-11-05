@@ -1,0 +1,26 @@
+{
+    "name": "cbox/authenticator-security",
+    "description": "Native iOS privacy shield and device authentication for Cbox ID Authenticator",
+    "type": "nativephp-plugin",
+    "license": "proprietary",
+    "version": "0.1.0",
+    "require": {
+        "php": "^8.3",
+        "nativephp/mobile": "^4.0@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cbox\\AuthenticatorSecurity\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Cbox\\AuthenticatorSecurity\\SecurityServiceProvider"
+            ]
+        },
+        "nativephp": {
+            "manifest": "nativephp.json"
+        }
+    }
+}

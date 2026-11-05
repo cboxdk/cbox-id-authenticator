@@ -3,28 +3,28 @@
         {{-- No heading: the nav bar carries "Settings". --}}
         <column class="w-full p-4 gap-4">
             <column class="w-full gap-2 p-4 rounded-2xl bg-theme-surface">
-                <text class="text-sm font-semibold text-theme-on-background">Notifications</text>
+                <text class="text-sm font-semibold text-theme-on-background">{{ __("Notifications") }}</text>
                 <text class="text-sm text-theme-on-surface-variant">
                     @if ($permission === 'granted')
-                        On. You'll be alerted when an app asks for approval.
+                        {{ __("On. You will be alerted when an app asks for approval.") }}
                     @elseif ($permission === 'denied')
-                        Off. Turn them on in your phone's settings, then re-sync below —
-                        approvals still work, but you'll have to open the app to see them.
+                        {{ __("Off. Enable notifications in iPhone Settings, then re-sync below. You can still open the app to check requests.") }}
                     @else
-                        Not set up yet.
+                        {{ __("Not set up yet.") }}
                     @endif
                 </text>
 
-                <button label="Re-sync notifications" variant="secondary" size="sm" :loading="$working" @press="resync"></button>
+                <button label="{{ __('Notification settings') }}" variant="secondary" @press="notificationSettings"></button>
+                <button label="{{ __('Re-sync notifications') }}" variant="secondary" size="md" :loading="$working" @press="resync"></button>
 
                 @if ($notice !== null)
-                    <text class="text-xs text-theme-on-surface-variant">{{ $notice }}</text>
+                    <text class="text-xs text-theme-on-surface-variant">{{ __($notice) }}</text>
                 @endif
             </column>
 
             <divider class="border-theme-outline" />
 
-            <text class="text-sm font-semibold text-theme-on-background">Accounts</text>
+            <text class="text-sm font-semibold text-theme-on-background">{{ __("Accounts") }}</text>
 
             {{-- One card per account, each with its own sign-out. A single global
                  "sign out" would remove every tenant at once, which is never what
@@ -41,30 +41,35 @@
                     @if (! $account['notifies'])
                         <row class="w-full items-center gap-2">
                             <icon name="bell.slash" :size="14" class="text-theme-on-surface-variant" />
-                            <text class="text-xs text-theme-on-surface-variant">
-                                No alerts from this host — open the app to check for requests.
-                            </text>
+                            <text class="text-xs text-theme-on-surface-variant">{{ __("No alerts from this host — open the app to check for requests.") }}</text>
                         </row>
                     @endif
 
+                    <button label="{{ __('Account details') }}" variant="secondary" @press="account('{{ $account['id'] }}')"></button>
+                    <button label="{{ __('Manage account') }}" variant="secondary" size="md" @press="manage('{{ $account['id'] }}')"></button>
+                    @if ($removing === $account['id'])
+                        <text class="text-base text-theme-on-background">{{ __("Remove this account from this phone? You can connect it again with a new code from Trusted devices.") }}</text>
+                        <button label="{{ __('Remove account') }}" variant="destructive" :disabled="$working" @press="signOut('{{ $account['id'] }}')"></button>
+                        <button label="{{ __('Keep account') }}" variant="secondary" @press="cancelRemoval"></button>
+                    @else
                     <button
-                        label="Sign out and remove this device"
+                        label="{{ __('Sign out and remove this device') }}"
                         variant="destructive"
-                        size="sm"
+                        size="md"
                         :disabled="$working"
-                        @press="signOut('{{ $account['id'] }}')"
+                        @press="requestRemoval('{{ $account['id'] }}')"
                     ></button>
+                    @endif
                 </column>
             @endforeach
 
-            <text class="text-xs text-theme-on-surface-variant">
-                Signing out of an account stops approval requests from that host only.
-            </text>
+            <text class="text-xs text-theme-on-surface-variant">{{ __("Signing out of an account stops approval requests from that host only.") }}</text>
 
             {{-- The only route to the scanner now that the approvals list has no controls
                  of its own. No Back button: this is a tab root, so there is nothing
                  beneath it to go back to — the other tab is one tap away. --}}
-            <button label="Add another account" variant="secondary" @press="goAddAccount"></button>
+            <button label="{{ __('Privacy and help') }}" variant="secondary" @press="about"></button>
+            <button label="{{ __('Add another account') }}" variant="secondary" @press="goAddAccount"></button>
         </column>
     </scroll-view>
 </column>

@@ -1,0 +1,41 @@
+name: iOS source checks
+on:
+  pull_request:
+  push:
+    branches: [main, 'sd/**']
+permissions:
+  contents: read
+jobs:
+  php:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: openssl, sodium, pdo_sqlite, mbstring, dom, fileinfo
+          coverage: none
+      - name: Install locked dependencies
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+        run: composer install --prefer-dist --no-interaction --no-progress
+      - run: cp .env.example .env
+      - run: php artisan key:generate --no-interaction
+      - run: composer validate --strict
+      - run: composer audit --locked
+      - run: composer qa
+      - run: vendor/bin/pint --test
+  swift:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Type-check the native security plugin
+        run: |
+          cat > /tmp/BridgeFunction.swift <<'SWIFT'
+          import Foundation
+          protocol BridgeFunction {
+              func execute(parameters: [String: Any]) throws -> [String: Any]
+          }
+          SWIFT
+          xcrun swiftc -typecheck -D CBOX_AUTHENTICATOR_SOURCE_CHECK -target arm64-apple-ios18.2-simulator -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" /tmp/BridgeFunction.swift plugins/authenticator-security/resources/ios/AuthenticatorSecurityFunctions.swift
+          plutil -lint plugins/authenticator-security/resources/ios/PrivacyInfo.xcprivacy

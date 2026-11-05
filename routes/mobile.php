@@ -3,11 +3,15 @@
 declare(strict_types=1);
 
 use App\Layouts\AppLayout;
+use App\NativeComponents\About;
+use App\NativeComponents\AccountDetail;
 use App\NativeComponents\ApprovalDetail;
 use App\NativeComponents\Approvals;
 use App\NativeComponents\Connect;
 use App\NativeComponents\Launch;
+use App\NativeComponents\Licenses;
 use App\NativeComponents\OAuthCallback;
+use App\NativeComponents\PushLink;
 use App\NativeComponents\Settings;
 use Illuminate\Support\Facades\Route;
 
@@ -92,3 +96,14 @@ Route::nativeGroup(AppLayout::class, function (): void {
 
     Route::native('/settings', Settings::class);
 });
+
+// Version 2 push route: installation maps locally to exactly one account.
+Route::native('/request/{install}/{id}', PushLink::class);
+Route::native('/security/{install}', PushLink::class);
+// Old queued notifications safely open the inbox.
+Route::native('/approvals/{legacy}', Approvals::class)->layout(AppLayout::class);
+Route::native('/about', About::class)->layout(AppLayout::class);
+
+Route::native('/account/{id}', AccountDetail::class)->layout(AppLayout::class);
+
+Route::native('/licenses', Licenses::class)->layout(AppLayout::class);

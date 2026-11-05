@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Accounts;
 
+use App\Services\SecureVault as SecureStorage;
 use JsonException;
-use Native\Mobile\Facades\SecureStorage;
 
 /**
  * Sign-ins in flight, keyed by their OAuth `state`.
@@ -53,6 +53,11 @@ final class PendingSignIns
         $records = $this->records();
         $row = $records[$state] ?? null;
 
+        if (is_array($row) && ($expired = PendingSignIn::fromArray($row)) !== null && $this->hasExpired($expired)) {
+            // Leave it indexed for sweep(), which also removes its reserved secrets.
+            return null;
+        }
+
         unset($records[$state]);
         $this->write($records);
 
@@ -75,9 +80,10 @@ final class PendingSignIns
      * Returns the account ids they had reserved so the caller can wipe the DPoP key and
      * install id that were written into those namespaces when the flow started.
      *
+     * @param  null|callable(string): void  $forget
      * @return list<string>
      */
-    public function sweep(): array
+    public function sweep(?callable $forget = null): array
     {
         $records = $this->records();
         $abandoned = [];
@@ -86,9 +92,13 @@ final class PendingSignIns
             $pending = is_array($row) ? PendingSignIn::fromArray($row) : null;
 
             if ($pending === null || $this->hasExpired($pending)) {
-                $abandoned[] = is_array($row) && is_string($row['account_id'] ?? null)
+                $id = is_array($row) && is_string($row['account_id'] ?? null)
                     ? $row['account_id']
                     : null;
+                if ($id !== null && $forget !== null) {
+                    $forget($id);
+                }
+                $abandoned[] = $id;
 
                 unset($records[$state]);
             }
@@ -117,8 +127,8 @@ final class PendingSignIns
 
         try {
             $decoded = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException) {
-            return [];
+        } catch (JsonException $e) {
+            throw new AccountStorageFailed('Could not read pending sign-ins.', previous: $e);
         }
 
         return is_array($decoded) ? $decoded : [];
@@ -130,11 +140,15 @@ final class PendingSignIns
     private function write(array $records): void
     {
         if ($records === []) {
-            SecureStorage::delete(self::KEY);
+            if (! SecureStorage::delete(self::KEY)) {
+                throw new AccountStorageFailed('Could not clear the pending sign-in.');
+            }
 
             return;
         }
 
-        SecureStorage::set(self::KEY, json_encode($records, JSON_THROW_ON_ERROR));
+        if (! SecureStorage::set(self::KEY, json_encode($records, JSON_THROW_ON_ERROR))) {
+            throw new AccountStorageFailed('Could not save the pending sign-in.');
+        }
     }
 }

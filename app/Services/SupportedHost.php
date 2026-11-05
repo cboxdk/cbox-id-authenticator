@@ -28,7 +28,11 @@ final class SupportedHost
         // testable against a local `php artisan serve` without a deployment. Port and
         // all — EnrolmentCode has already established the shape.
         if (preg_match('/^(localhost|127\.0\.0\.1|\[::1\])(:\d{1,5})?$/', $host) === 1) {
-            return true;
+            return app()->environment(['local', 'testing']);
+        }
+
+        if (preg_match('/^[a-z0-9]+(?:[a-z0-9.-]*[a-z0-9])?$/', $host) !== 1 || str_contains($host, '..')) {
+            return false;
         }
 
         foreach (self::suffixes() as $suffix) {
@@ -50,8 +54,7 @@ final class SupportedHost
     {
         $suffixes = implode(', ', self::suffixes());
 
-        return "This app connects to {$suffixes} accounts only. A self-hosted Cbox ID "
-            .'needs its own build to send approval prompts to your phone.';
+        return __('This app connects to :hosts accounts only. A self-hosted Cbox ID needs its own build to send approval prompts to your phone.', ['hosts' => $suffixes]);
     }
 
     /**

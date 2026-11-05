@@ -75,7 +75,7 @@ final class AccountContext
      * nothing to show the user, and an index entry with no refresh token would render as
      * a signed-out account they never created.
      */
-    public function beginSignIn(string $issuer, string $clientId, ?string $enrolmentToken = null): PendingSignIn
+    public function beginSignIn(string $issuer, string $clientId, ?string $enrolmentToken = null, ?string $expectedSubject = null): PendingSignIn
     {
         $this->sweepAbandoned();
 
@@ -90,8 +90,6 @@ final class AccountContext
         // Writes the client id under the reserved namespace, and generates the DPoP key
         // the tokens will be bound to.
         $services = $this->for($account);
-        $services->oauth->rememberClientId($clientId);
-        $services->key->pem();
 
         $pending = new PendingSignIn(
             $attempt['state'],
@@ -101,9 +99,14 @@ final class AccountContext
             $attempt['verifier'],
             time(),
             $enrolmentToken,
+            $expectedSubject,
         );
 
         $this->pending->put($pending);
+        // Index the reservation before creating secrets so interrupted setup can be
+        // swept later without leaving an unreachable Keychain namespace.
+        $services->oauth->rememberClientId($clientId);
+        $services->key->pem();
 
         return $pending;
     }
@@ -155,17 +158,17 @@ final class AccountContext
      */
     private function sweepAbandoned(): void
     {
-        foreach ($this->pending->sweep() as $accountId) {
+        $this->pending->sweep(function (string $accountId): void {
             // Only ever an unfinished attempt: a completed sign-in removes its own
             // pending record, so nothing in the index can appear here.
             if ($this->store->find($accountId) !== null) {
-                continue;
+                return;
             }
 
             (new AccountServices(
                 new Account($accountId, '', ''),
                 $this->clock,
             ))->forget();
-        }
+        });
     }
 }

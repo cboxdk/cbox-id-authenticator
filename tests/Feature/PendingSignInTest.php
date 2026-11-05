@@ -101,5 +101,5 @@ it('never sweeps an account that completed sign-in', function (): void {
 
     $context->beginSignIn('https://b.cboxid.com', 'cid_b');
 
-    expect($keychain)->toHaveKey('cboxid.acct.'.$attempt->accountId.'.token.refresh');
+    expect($keychain)->toHaveKey('cboxid.acct.'.$attempt->accountId.'.credentials.v1');
 });

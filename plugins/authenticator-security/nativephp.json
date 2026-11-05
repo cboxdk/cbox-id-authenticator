@@ -1,0 +1,31 @@
+{
+    "namespace": "AuthenticatorSecurity",
+    "bridge_functions": [
+        {
+            "name": "AuthenticatorSecurity.Configure",
+            "ios": "AuthenticatorSecurityFunctions.Configure"
+        },
+        {
+            "name": "AuthenticatorSecurity.State",
+            "ios": "AuthenticatorSecurityFunctions.State"
+        }
+    ],
+    "ios": {
+        "min_version": "18.2",
+        "init_function": "CboxAuthenticatorSecurityInit"
+    },
+    "assets": {
+        "ios": {
+            "ios/PrivacyInfo.xcprivacy": "Resources/PrivacyInfo.xcprivacy"
+        }
+    },
+    "android": {
+        "min_version": 26
+    },
+    "platforms": [
+        "ios"
+    ],
+    "hooks": {
+        "post_compile": "authenticator:prepare-ios"
+    }
+}

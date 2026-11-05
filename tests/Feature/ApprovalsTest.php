@@ -131,8 +131,12 @@ it('completes sign-in on a handset that will never receive a push', function ():
     $services = app(AccountContext::class)->for($account);
 
     // No push token: the bridge answers null, as it does when permission was refused.
-    expect($services->enrolment->enrol('a-code'))->toBeFalse()
-        ->and($services->enrolment->deviceId())->toBeNull();
+    $services->oauth->rememberClientId('cid');
+    $services->tokens->put('access', 'refresh', 900);
+    Http::fake(['*/api/v1/devices' => Http::response(['data' => ['id' => 'device-1']], 201)]);
+    expect($services->enrolment->enrol('a-code'))->toBeTrue()
+        ->and($services->enrolment->deviceId())->toBe('device-1');
+    Http::assertSent(fn ($request) => $request['push_token'] === null && $request['enrolment_token'] === 'a-code');
 
     // And the account is untouched and usable.
     expect(app(AccountStore::class)->all())->toHaveCount(1);

@@ -48,7 +48,7 @@ it('accepts a loopback host over http so the flow can be tested locally', functi
     Http::fake([
         'http://localhost:8000/.well-known/cbox-authenticator' => Http::response([
             'issuer' => 'http://localhost:8000',
-            'client_id' => 'cid_local',
+            'client_id' => 'cid_local', 'api_version' => 2,
         ]),
     ]);
 
@@ -76,8 +76,8 @@ it('reserves a separate account for each sign-in it starts', function (): void {
 
     Http::fake([
         '*/.well-known/cbox-authenticator' => Http::sequence()
-            ->push(['issuer' => 'https://a.cboxid.com', 'client_id' => 'cid_a'])
-            ->push(['issuer' => 'https://b.cboxid.com', 'client_id' => 'cid_b']),
+            ->push(['issuer' => 'https://a.cboxid.com', 'client_id' => 'cid_a', 'api_version' => 2])
+            ->push(['issuer' => 'https://b.cboxid.com', 'client_id' => 'cid_b', 'api_version' => 2]),
     ]);
 
     Native::test(Connect::class)->call('scanned', 'a.cboxid.com');

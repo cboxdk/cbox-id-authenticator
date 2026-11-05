@@ -8,6 +8,8 @@ use App\Accounts\AccountContext;
 use App\Accounts\AccountStore;
 use App\Concerns\NavigatesScreens;
 use App\Services\EnrolmentCode;
+use App\Services\EnrolmentCodeRejected;
+use App\Services\EnrolmentFailed;
 use App\Services\EnrolmentToken;
 use App\Services\HostDiscovery;
 use App\Services\SupportedHost;
@@ -24,14 +26,8 @@ use Throwable;
 /**
  * Point the app at a Cbox ID host, then sign in.
  *
- * WHY A QR CODE AND NOT A TEXT FIELD
- * ----------------------------------
- * Partly forced, partly better. Forced because NativePHP 4.0.0-rc.1 registers no
- * `text_input` EDGE element — the class exists but nothing registers it, so there is no
- * way to render one. Better because typing `acme.cboxid.com` on a phone keyboard is
- * error-prone, and a mistyped host is not a harmless typo: it is the app asking a
- * stranger's server for an authenticator client. The console renders the code; the
- * handset reads it.
+ * Scan a connection code or open Trusted devices in the system browser.
+ * The latter also supports setup using only this phone.
  *
  * This screen ADDS an account. It never assumes it is the first — reaching it with two
  * accounts already connected is ordinary, and the sign-in that follows reserves its own
@@ -42,6 +38,10 @@ class Connect extends NativeComponent
     use NavigatesScreens;
 
     public ?string $error = null;
+
+    public string $host = '';
+
+    public ?string $reconnecting = null;
 
     public bool $working = false;
 
@@ -70,11 +70,29 @@ class Connect extends NativeComponent
         // route. data() is consulted first so an in-app navigation still works.
         $query = DeepLinkQuery::parse($this->nativeRouter?->currentUri());
 
+        $this->reconnecting = is_string($this->data('reconnect')) ? $this->data('reconnect') : null;
         $host = (string) ($this->data('host') ?? $query['host'] ?? '');
         $token = (string) ($this->data('t') ?? $query['t'] ?? '');
 
         if ($host !== '') {
             $this->begin(new EnrolmentCode($host, $token !== '' ? $token : null));
+        }
+    }
+
+    public function about(): void
+    {
+        $this->navigate('/about');
+    }
+
+    public function openConsole(): void
+    {
+        try {
+            $url = HostDiscovery::baseUrlFor(trim($this->host)).'/account/devices';
+            if (! Browser::open($url)) {
+                $this->error = 'Could not open your browser. Open My account → Trusted devices on your Cbox ID host.';
+            }
+        } catch (Throwable) {
+            $this->error = 'Enter a supported Cbox ID address, such as your-company.cboxid.com.';
         }
     }
 
@@ -112,6 +130,12 @@ class Connect extends NativeComponent
             return;
         }
 
+        $existing = $this->reconnecting === null ? null : app(AccountStore::class)->find($this->reconnecting);
+        if ($existing !== null && $existing->issuer !== HostDiscovery::baseUrlFor($code->host)) {
+            $this->error = 'Scan a fresh code for the account you are reconnecting.';
+
+            return;
+        }
         $this->working = true;
         $this->error = null;
 
@@ -126,7 +150,7 @@ class Connect extends NativeComponent
             }
 
             $pending = app(AccountContext::class)
-                ->beginSignIn($host->issuer, $host->clientId, $code->token);
+                ->beginSignIn($host->issuer, $host->clientId, $code->token, $existing?->subject);
 
             // The SYSTEM browser, not an in-app web view. The user has to be able to see
             // a real address bar and a real padlock while typing their password — an
@@ -148,7 +172,8 @@ class Connect extends NativeComponent
                 $this->error = "This device can't open a browser for sign-in.";
             }
         } catch (Throwable $e) {
-            $this->error = $e->getMessage();
+            $this->error = ($e instanceof EnrolmentFailed || $e instanceof EnrolmentCodeRejected) ? $e->getMessage()
+                : 'Could not connect this account. Open Trusted devices and scan a fresh code.';
         } finally {
             $this->working = false;
         }

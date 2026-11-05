@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Cbox\AuthenticatorSecurity\SecurityServiceProvider;
 use Illuminate\Support\ServiceProvider;
 use Native\Mobile\Providers\BiometricsServiceProvider;
 use Native\Mobile\Providers\BrowserServiceProvider;
@@ -46,6 +47,7 @@ class NativeServiceProvider extends ServiceProvider
             ScannerServiceProvider::class,
             NativeUIServiceProvider::class,
             BrowserServiceProvider::class,
+            SecurityServiceProvider::class,
 
         ];
     }

@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types=1);
+use App\Accounts\Account;
+use App\Accounts\AccountContext;
+use App\Accounts\AccountStore;
 use Native\Mobile\Testing\Native;
 use Tests\TestCase;
 
@@ -26,6 +29,7 @@ function fakeSecureStorage(array $seed = []): ArrayObject
     $store = new ArrayObject($seed);
 
     Native::fakeBridge()
+        ->respondTo('AuthenticatorSecurity.State', ['unlocked' => true, 'generation' => 0, 'foreground' => true])
         ->respondTo('SecureStorage.Set', function (array $params) use ($store): array {
             $store[$params['key']] = $params['value'];
 
@@ -41,4 +45,17 @@ function fakeSecureStorage(array $seed = []): ArrayObject
         });
 
     return $store;
+}
+
+function anAccount(): Account
+{
+    $account = new Account('01ACC', 'https://cbox.cboxid.com', 'alice');
+
+    app(AccountStore::class)->put($account);
+
+    $services = app(AccountContext::class)->for($account);
+    $services->oauth->rememberClientId('cid_a');
+    $services->tokens->put('access', 'refresh', 900);
+
+    return $account;
 }

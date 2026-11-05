@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use Native\Mobile\Facades\SecureStorage;
+use App\Services\SecureVault as SecureStorage;
 use RuntimeException;
 
 /**
@@ -122,7 +122,9 @@ final class DpopKey
      */
     public function forget(): void
     {
-        SecureStorage::delete($this->prefix.self::STORAGE_KEY);
+        if (! SecureStorage::delete($this->prefix.self::STORAGE_KEY)) {
+            throw new RuntimeException('Could not remove the device key. Try again.');
+        }
         $this->pem = null;
     }
 

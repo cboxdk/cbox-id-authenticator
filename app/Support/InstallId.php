@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use App\Services\SecureVault as SecureStorage;
 use Illuminate\Support\Str;
-use Native\Mobile\Facades\SecureStorage;
 
 /**
  * A stable id for this installation, AS SEEN BY ONE ACCOUNT.
@@ -42,13 +42,17 @@ final class InstallId
 
         $id = (string) Str::ulid();
 
-        SecureStorage::set($this->prefix.self::KEY, $id);
+        if (! SecureStorage::set($this->prefix.self::KEY, $id)) {
+            throw new \RuntimeException('Could not save this installation securely.');
+        }
 
         return $id;
     }
 
     public function forget(): void
     {
-        SecureStorage::delete($this->prefix.self::KEY);
+        if (! SecureStorage::delete($this->prefix.self::KEY)) {
+            throw new \RuntimeException('Could not remove this installation. Try again.');
+        }
     }
 }

@@ -3,24 +3,9 @@
 declare(strict_types=1);
 
 use App\Accounts\Account;
-use App\Accounts\AccountContext;
-use App\Accounts\AccountStore;
 use App\NativeComponents\ApprovalDetail;
 use Illuminate\Support\Facades\Http;
 use Native\Mobile\Testing\Native;
-
-function anAccount(): Account
-{
-    $account = new Account('01ACC', 'https://cbox.cboxid.com', 'alice');
-
-    app(AccountStore::class)->put($account);
-
-    $services = app(AccountContext::class)->for($account);
-    $services->oauth->rememberClientId('cid_a');
-    $services->tokens->put('access', 'refresh', 900);
-
-    return $account;
-}
 
 it('renders the decision screen for a live request', function (): void {
     // The screen's whole purpose, and it had never been rendered by a test. <x-btn>

@@ -125,7 +125,7 @@ return [
      */
     'permissions' => [
         'NSCameraUsageDescription' => 'Cbox ID uses the camera only to scan the enrolment code shown in your Cbox ID console. Nothing is recorded, stored or uploaded.',
-        'NSFaceIDUsageDescription' => 'Cbox ID asks for Face ID before you approve a sign-in or agent request, so that someone holding your unlocked phone cannot approve one in your name. Denying a request never asks.',
+        'NSFaceIDUsageDescription' => 'Cbox ID uses Face ID or your device passcode to unlock your accounts and confirm approvals. Your biometric data stays with iOS.',
     ],
 
     /*
@@ -148,14 +148,10 @@ return [
     */
 
     'permission_localizations' => [
-        // 'nl' => [
-        //     'NSCameraUsageDescription' => 'Gebruikt om een profielfoto te maken.',
-        //     'NSMicrophoneUsageDescription' => 'Gebruikt om audio op te nemen bij je video\'s.',
-        //     'NSPhotoLibraryUsageDescription' => 'Gebruikt om foto\'s voor je bericht te selecteren.',
-        // ],
-        // 'fr' => [
-        //     'NSCameraUsageDescription' => 'Utilisé pour prendre une photo de profil.',
-        // ],
+        'da' => [
+            'NSCameraUsageDescription' => 'Cbox ID bruger kun kameraet til at scanne tilslutningskoden på din Cbox ID-side. Intet bliver optaget, gemt eller uploadet.',
+            'NSFaceIDUsageDescription' => 'Cbox ID bruger Face ID eller enhedens adgangskode til at låse dine konti op og bekræfte godkendelser. Dine biometriske data bliver i iOS.',
+        ],
     ],
 
     /*
@@ -197,6 +193,16 @@ return [
         '*_SECRET',
         'DB_PASSWORD',
         'DB_USERNAME',
+        'NATIVEPHP_APP_STORE_*',
+        'FCM_*',
+        'FIREBASE_*',
+        'GOOGLE_APPLICATION_CREDENTIALS',
+        'COMPOSER_AUTH',
+        'BIFROST_*',
+        '*_PASSWORD',
+        '*_PRIVATE_KEY',
+        '*_API_KEY',
+        '*_TOKEN',
     ],
 
     /*
@@ -214,43 +220,28 @@ return [
         'storage/framework/sessions',
         'storage/framework/cache',
         'storage/framework/testing',
-        'storage/logs/laravel.log',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Runtime Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Controls the persistent PHP runtime behavior. In 'persistent' mode,
-    | Laravel boots once and the kernel is reused across requests (~5-30ms
-    | per dispatch instead of ~200-300ms). Falls back to 'classic' mode
-    | (full init/shutdown per request) if persistent boot fails.
-    |
-    */
-
-    'runtime' => [
-        'mode' => 'persistent', // 'classic' or 'persistent'
-        'reset_instances' => true,
-        'gc_between_dispatches' => false,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Runtime Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Controls the persistent PHP runtime behavior. In 'persistent' mode,
-    | Laravel boots once and the kernel is reused across requests (~5-30ms
-    | per dispatch instead of ~200-300ms). Falls back to 'classic' mode
-    | (full init/shutdown per request) if persistent boot fails.
-    |
-    */
-
-    'runtime' => [
-        'mode' => env('NATIVEPHP_RUNTIME_MODE', 'persistent'),
-        'reset_instances' => true,
-        'gc_between_dispatches' => false,
+        'storage/logs',
+        'storage/app/private',
+        'storage/app/native-build',
+        'database/database.sqlite',
+        'database/database.sqlite-*',
+        '.env.*',
+        'auth.json',
+        '*.p8',
+        '*.p12',
+        '*service-account*.json',
+        'credentials',
+        'tests',
+        '.github',
+        '.agents',
+        '.claude',
+        '.git',
+        'node_modules',
+        'AGENTS.md',
+        'IOS-RELEASE-PLAN.md',
+        'IPHONE-TEST.md',
+        'STORE-LISTING.md',
+        'CHANGELOG.md',
     ],
 
     /*

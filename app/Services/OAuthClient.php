@@ -6,9 +6,8 @@ namespace App\Services;
 
 use App\Accounts\Account;
 use App\Accounts\PendingSignIns;
+use App\Services\SecureVault as SecureStorage;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
-use Native\Mobile\Facades\SecureStorage;
 use RuntimeException;
 
 /**
@@ -42,7 +41,9 @@ final class OAuthClient
 
     public function rememberClientId(string $clientId): void
     {
-        SecureStorage::set($this->account->keyPrefix().self::CLIENT_ID, $clientId);
+        if (! SecureStorage::set($this->account->keyPrefix().self::CLIENT_ID, $clientId)) {
+            throw new RuntimeException('Could not save sign-in securely.');
+        }
     }
 
     public function clientId(): string
@@ -86,7 +87,6 @@ final class OAuthClient
             'redirect_uri' => $redirectUri,
             'scope' => 'openid offline_access devices.manage approvals.read approvals.write',
             'state' => $state,
-            'nonce' => (string) Str::ulid(),
             'code_challenge' => DpopKey::base64Url(hash('sha256', $verifier, true)),
             'code_challenge_method' => 'S256',
             // RFC 8707. Pins the token's audience to this issuer so it cannot be
@@ -141,6 +141,19 @@ final class OAuthClient
      */
     public function refresh(): string
     {
+        $before = $this->tokens->refreshToken();
+
+        return $this->tokens->synchronized(function () use ($before): string {
+            if ($this->tokens->refreshToken() !== $before && ! $this->tokens->needsRefresh()) {
+                return $this->tokens->accessToken() ?? throw new ApiFailure(401);
+            }
+
+            return $this->rotate();
+        });
+    }
+
+    private function rotate(): string
+    {
         $refresh = $this->tokens->refreshToken();
 
         if ($refresh === null) {
@@ -166,7 +179,7 @@ final class OAuthClient
             return;
         }
 
-        Http::asForm()->timeout(10)->post($this->issuer().'/oauth/revoke', [
+        Http::asForm()->withoutRedirecting()->connectTimeout(5)->timeout(10)->post($this->issuer().'/oauth/revoke', [
             'token' => $refresh,
             'token_type_hint' => 'refresh_token',
             'client_id' => $this->clientId(),
@@ -175,7 +188,9 @@ final class OAuthClient
 
     public function forget(): void
     {
-        SecureStorage::delete($this->account->keyPrefix().self::CLIENT_ID);
+        if (! SecureStorage::delete($this->account->keyPrefix().self::CLIENT_ID)) {
+            throw new RuntimeException('Could not remove the saved sign-in. Try again.');
+        }
     }
 
     /**
@@ -185,7 +200,7 @@ final class OAuthClient
     {
         $url = $this->issuer().'/oauth/token';
 
-        $response = Http::asForm()
+        $response = Http::asForm()->withoutRedirecting()->connectTimeout(5)
             ->withHeaders($this->proof->headers('POST', $url))
             ->timeout(20)
             ->post($url, $payload);
@@ -193,7 +208,7 @@ final class OAuthClient
         $this->proof->syncTo($response->header('Date'));
 
         if (! $response->successful()) {
-            throw new RuntimeException('Sign-in failed: '.(string) $response->json('error', $response->status()));
+            throw new ApiFailure($response->status() === 400 ? 401 : $response->status());
         }
 
         $body = $response->json();

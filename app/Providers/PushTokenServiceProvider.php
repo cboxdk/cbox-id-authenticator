@@ -8,6 +8,7 @@ use App\Accounts\AccountContext;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
 use Native\Mobile\Events\PushNotification\TokenGenerated;
+use Throwable;
 
 /**
  * Keeps the server's copy of the push token current.
@@ -29,11 +30,21 @@ class PushTokenServiceProvider extends ServiceProvider
             // leave every other account pushing to a token the OS no longer honours,
             // and the user would simply stop getting prompts from those tenants with
             // nothing on screen to explain it.
-            foreach ($this->app->make(AccountContext::class)->all() as $services) {
+            try {
+                $accounts = $this->app->make(AccountContext::class)->all();
+            } catch (Throwable) {
+                // Keychain may be locked during delivery. Foreground re-sync retries.
+                return;
+            }
+            foreach ($accounts as $services) {
                 // Nothing to register against until this account has signed in; the
                 // callback screen enrols explicitly once it has.
-                if ($services->isSignedIn()) {
-                    $services->enrolment->register($event->token);
+                try {
+                    if ($services->isSignedIn()) {
+                        $services->enrolment->register($event->token);
+                    }
+                } catch (Throwable) {
+                    // A single unavailable account must not prevent other rotations.
                 }
             }
         });

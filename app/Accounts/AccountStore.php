@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Accounts;
 
+use App\Services\SecureVault as SecureStorage;
 use Illuminate\Support\Str;
 use JsonException;
-use Native\Mobile\Facades\SecureStorage;
 
 /**
  * The index of connected accounts.
@@ -44,15 +44,12 @@ final class AccountStore
 
         try {
             $rows = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException) {
-            // A corrupt index is not recoverable by guessing. Reporting it as empty
-            // sends the user back to the connect screen, which re-enrols cleanly —
-            // far better than a half-read list pointing at secrets we can't name.
-            return $this->cache = [];
+        } catch (JsonException $e) {
+            throw new AccountStorageFailed('The saved accounts could not be read. Your accounts have not been overwritten.', previous: $e);
         }
 
-        if (! is_array($rows)) {
-            return $this->cache = [];
+        if (! is_array($rows) || ! array_is_list($rows)) {
+            throw new AccountStorageFailed('The saved accounts could not be read.');
         }
 
         $accounts = [];
@@ -60,6 +57,8 @@ final class AccountStore
         foreach ($rows as $row) {
             if (is_array($row) && ($account = Account::fromArray($row)) !== null) {
                 $accounts[] = $account;
+            } else {
+                throw new AccountStorageFailed('A saved account could not be read.');
             }
         }
 
