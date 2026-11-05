@@ -7,6 +7,7 @@ namespace App\NativeComponents;
 use App\Accounts\AccountContext;
 use App\Accounts\AccountStore;
 use App\Concerns\NavigatesScreens;
+use App\Services\AppSecurity;
 use App\Services\EnrolmentCode;
 use App\Services\EnrolmentCodeRejected;
 use App\Services\EnrolmentFailed;
@@ -58,7 +59,7 @@ class Connect extends NativeComponent
 
     public function mount(): void
     {
-        $this->canGoBack = ! app(AccountStore::class)->isEmpty();
+        $this->canGoBack = app(AppSecurity::class)->hasSecrets();
 
         // An enrolment link carries the code directly — the console renders one beside
         // the QR so a handset whose camera is unavailable, or a user who would rather
@@ -82,6 +83,11 @@ class Connect extends NativeComponent
     public function about(): void
     {
         $this->navigate('/about');
+    }
+
+    public function codes(): void
+    {
+        $this->replace('/codes');
     }
 
     public function openConsole(): void

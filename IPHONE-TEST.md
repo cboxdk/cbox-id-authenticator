@@ -3,7 +3,10 @@
 Koden ligger på `sd/ios-release`. Backendændringerne ligger separat på
 `sd/authenticator-ios-api` i `/Users/sylvester/.codex/worktrees/authenticator-ios-server/cbox-id`.
 De eksisterende ændringer i de oprindelige `cbox-id`- og `laravel-id`-checkouts er bevaret.
-Der er endnu ikke lavet en ny native installation, signeret build eller deployment.
+Signerede udviklingsbuilds 1.0.0 (2 og 3) er installeret på Sylvesters iPhone 16 Pro
+med iOS 27.0.1 via USB. Build 3 indeholder TOTP og krypteret backup.
+Serverrettelserne følges i https://github.com/cboxdk/cbox-id/pull/108.
+Firebaseprojekt findes endnu ikke; første test er udtrykkeligt uden push.
 
 ## 1. Server før telefon
 
@@ -35,7 +38,7 @@ rollback; slet ikke rapporterne for at rulle appkode tilbage.
 - PHP 8.4 på PATH for appen. Mac'ens øvrige PHP-version behøver ikke ændres:
   `export PATH="/opt/homebrew/opt/php@8.4/bin:$PATH"` i appens terminal.
 - `composer install` med de eksisterende NativePHP-marketplace-rettigheder.
-- `GoogleService-Info.plist` fra den rigtige iOS-app i projektroden. Bundle-ID skal være
+- Kun til push: `GoogleService-Info.plist` fra den rigtige iOS-app i projektroden. Bundle-ID skal være
   `com.cboxid.authenticator`. Firebaseprojektet skal have Apple APNs-konfiguration.
 - `.env` med `NATIVEPHP_APP_ID=com.cboxid.authenticator`, samme deeplink-scheme,
   `NATIVEPHP_APP_VERSION=1.0.0`, positivt buildnummer og korrekt Apple development team.
@@ -48,7 +51,8 @@ at telefonen bliver tilmeldt.
 
 ## 3. Byg og installér manuelt
 
-Kør fra `/Volumes/DockDisk/projects/cbox-id-authenticator`, efter backend er klar:
+Kør fra `/Volumes/DockDisk/projects/cbox-id-authenticator`. TOTP og native UI kan
+testes uden backend/Firebase; Cbox-forbindelser kræver API v2 på hosten fra QR-koden:
 
 ```sh
 composer install
@@ -58,6 +62,10 @@ php artisan native:install ios
 php artisan authenticator:check --generated=nativephp/ios
 php artisan native:run ios
 ```
+
+Forøg `NATIVEPHP_APP_VERSION_CODE` ved hvert installeret testbuild. NativePHP
+genbruger ellers den gamle udpakkede appkode, selv om native shell installeres igen.
+Det blev bekræftet på telefonen med build 1; build 2 løste det.
 
 Vælg den fysiske iPhone. `native:install` gendanner den afledte iOS-shell; gem eventuelle
 private signeringsfiler først. Kør ikke watch/Jump som del af denne accepttest.
@@ -72,6 +80,7 @@ Gem screenshots uden rigtige personoplysninger eller QR-/tilslutningskoder.
 
 | Forløb | Forventet resultat |
 | --- | --- |
+| Frisk installation | Tre faner: Koder, Anmodninger, Indstillinger. Koder kan bruges uden Cbox-login. |
 | Frisk installation → QR → systemlogin | Verificeret konto vises; ingen webview-skærme. |
 | Kun telefonen | Indtast host → Betroede enheder → tilslutningslink → samme loginforløb. |
 | Afvis kamera eller annullér scanner | Linkvejen er stadig tilgængelig. |
@@ -89,6 +98,27 @@ Gem screenshots uden rigtige personoplysninger eller QR-/tilslutningskoder.
 | Baggrund og appskifter | Konto- og requestoplysninger dækkes; retur kræver oplåsning. |
 | Dansk/engelsk, lys/mørk, stor tekst, VoiceOver | Labels, knapper, scroll, safe areas og tilbage-navigation fungerer. |
 | Opgradering / geninstallation | Gemte Keychain-konti håndteres uden utilsigtet nulstilling; antag ikke, at afinstallation sletter Keychain. |
+
+## TOTP og krypteret backup på telefonen
+
+Brug kun opfundne testkonti og testnøgler til første gennemløb.
+
+1. Koder → Tilføj kode. Scan en standard `otpauth://totp`-QR eller indtast
+   `JBSWY3DPEHPK3PXP` som offentlig testnøgle. Gennemse tjeneste/konto, og gem.
+2. Kontrollér skift efter 30 sekunder, kopiering til en anden app og offline brug.
+   TOTP-uret skal følge automatisk iPhone-tid, også hvis en Cbox-host har tidsafvigelse.
+3. Tilføj en anden nøgle, søg, omdøb og fjern kun én. Annullering af sletning bevarer den.
+4. Baggrund, appskifter og telefonlås skal skjule koderne. Retur kræver Face ID/kode.
+5. Backup → ny adgangskode på mindst 12 tegn → gentag → gem i Filer. Annullering
+   må ikke påstå at filen er gemt. Filen må ikke indeholde læsbare kontonavne eller nøgler.
+6. Vælg filen igen: forkert adgangskode ændrer intet. Korrekt adgangskode viser
+   antal nye/dubletter før import. Genimport bevarer eksisterende navne uden dubletter.
+7. Fjern en testkode, importér backup, og bekræft at den bliver gendannet. Eksisterende
+   Cbox-konti bevares. Fjernelse af sidste Cbox-konto må ikke slette TOTP eller slå låsen fra.
+8. Importér en ødelagt fil, en anden filtype og en for stor fil: tydelig fejl, ingen ændring.
+   Afbryd importoversigten med baggrund/lås; en gammel bekræftelse må ikke importere.
+9. Installér næste build oveni, og kontrollér at Keychain-koderne stadig findes.
+   Test gendannelse på en anden enhed inden App Store-release.
 
 ## 5. Efter godkendt telefontest
 

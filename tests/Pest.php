@@ -29,7 +29,7 @@ function fakeSecureStorage(array $seed = []): ArrayObject
     $store = new ArrayObject($seed);
 
     Native::fakeBridge()
-        ->respondTo('AuthenticatorSecurity.State', ['unlocked' => true, 'generation' => 0, 'foreground' => true])
+        ->respondTo('AuthenticatorSecurity.State', ['unlocked' => true, 'generation' => 0, 'foreground' => true, 'pushAvailable' => true])
         ->respondTo('SecureStorage.Set', function (array $params) use ($store): array {
             $store[$params['key']] = $params['value'];
 

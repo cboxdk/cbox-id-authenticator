@@ -46,6 +46,11 @@ final class DeviceSecurity
         return is_string($locale) && str_starts_with(strtolower($locale), 'da') ? 'da' : 'en';
     }
 
+    public function pushAvailable(): bool
+    {
+        return ($this->state()['pushAvailable'] ?? false) === true;
+    }
+
     /** @return array<string, mixed> */
     private function state(): array
     {

@@ -119,13 +119,12 @@ return [
      * Face ID's is the one reviewers read hardest.
      *
      * Each says what the app actually does, and each is checkable against the code:
-     * Scanner is invoked only from the connect screen, and Biometrics only before an
-     * approval — never before a denial, so someone shutting down a prompt they did not
-     * expect is never asked to authenticate first.
+     * Camera frames stay on the phone. iOS handles the app lock and confirmation
+     * of approval decisions; no biometric data enters PHP.
      */
     'permissions' => [
-        'NSCameraUsageDescription' => 'Cbox ID uses the camera only to scan the enrolment code shown in your Cbox ID console. Nothing is recorded, stored or uploaded.',
-        'NSFaceIDUsageDescription' => 'Cbox ID uses Face ID or your device passcode to unlock your accounts and confirm approvals. Your biometric data stays with iOS.',
+        'NSCameraUsageDescription' => 'Scan Cbox ID connection codes and verification-code setup keys. Camera images are not saved or uploaded.',
+        'NSFaceIDUsageDescription' => 'Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS.',
     ],
 
     /*
@@ -149,8 +148,8 @@ return [
 
     'permission_localizations' => [
         'da' => [
-            'NSCameraUsageDescription' => 'Cbox ID bruger kun kameraet til at scanne tilslutningskoden på din Cbox ID-side. Intet bliver optaget, gemt eller uploadet.',
-            'NSFaceIDUsageDescription' => 'Cbox ID bruger Face ID eller enhedens adgangskode til at låse dine konti op og bekræfte godkendelser. Dine biometriske data bliver i iOS.',
+            'NSCameraUsageDescription' => 'Scan Cbox ID-tilslutningskoder og opsætningsnøgler til bekræftelseskoder. Kamerabilleder gemmes eller uploades ikke.',
+            'NSFaceIDUsageDescription' => 'Lås dine bekræftelseskoder og Cbox ID-konti op, og bekræft godkendelser. Dine biometriske data bliver i iOS.',
         ],
     ],
 

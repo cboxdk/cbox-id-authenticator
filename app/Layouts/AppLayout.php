@@ -4,56 +4,36 @@ declare(strict_types=1);
 
 namespace App\Layouts;
 
-use App\Accounts\AccountStore;
 use App\Icons\Android;
 use App\Icons\Ios;
 use App\NativeComponents\About;
 use App\NativeComponents\AccountDetail;
+use App\NativeComponents\AddCode;
 use App\NativeComponents\ApprovalDetail;
+use App\NativeComponents\CodeBackup;
+use App\NativeComponents\CodeDetail;
+use App\NativeComponents\Codes;
 use App\NativeComponents\Licenses;
 use App\NativeComponents\Settings;
+use App\Services\AppSecurity;
 use Native\Mobile\Edge\Layouts\Builders\NavBar;
 use Native\Mobile\Edge\Layouts\Builders\Tab;
 use Native\Mobile\Edge\Layouts\Builders\TabBar;
 use Native\Mobile\Edge\Layouts\NativeLayout;
 use Native\Mobile\Edge\NativeComponent;
 
-/**
- * The chrome the signed-in screens share.
- *
- * WHY A LAYOUT RATHER THAN CONTROLS ON EACH SCREEN
- * ------------------------------------------------
- * The approvals list used to end in a hand-rolled row of ghost buttons. It scrolled away
- * with the content, it had to reserve the home-indicator inset itself, and every screen
- * that wanted the same controls had to repeat them — Settings never did, so from there
- * the only way back was the OS gesture.
- *
- * A tab bar is chrome: the renderer pins it, keeps it while the list scrolls, and marks
- * which screen you are on. It is also what makes `safe-area` classes wrong on these
- * screens — the framework frees the edges the bars do not own, so a screen claiming them
- * as well is inset twice. See NativeComponent::buildChromeColumn().
- *
- * NOT EVERY SCREEN IS UNDER IT. Launch is a router that paints one frame; OAuthCallback
- * is a moment between the browser and the approvals list; Connect is the first-run screen
- * where both tabs would lead somewhere there is nothing yet. Those three stay chrome-less
- * and keep their own `safe-area`.
- */
+/** Native navigation shared by the code vault, approvals and account settings. */
 class AppLayout extends NativeLayout
 {
-    /**
-     * Two tabs, because there are two places to be.
-     *
-     * Adding an account is deliberately NOT one: it is an action taken occasionally from
-     * Settings, and a permanent tab for it would give equal weight to something done once
-     * per account and something done every time a prompt arrives.
-     */
+    /** Adding a Cbox account is an action under Settings; codes work without one. */
     public function tabBar(NativeComponent $screen): ?TabBar
     {
-        if (($screen instanceof About || $screen instanceof Licenses) && app(AccountStore::class)->isEmpty()) {
+        if (($screen instanceof About || $screen instanceof Licenses) && ! app(AppSecurity::class)->hasSecrets()) {
             return null;
         }
 
         return TabBar::make()
+            ->add(Tab::link(__('Codes'), '/codes', ios: Ios::Key, android: Android::Lock))
             ->add(Tab::link(__('Requests'), '/approvals', ios: Ios::Bell, android: Android::Notifications))
             ->add(Tab::link(__('Settings'), '/settings', ios: Ios::Gearshape, android: Android::Settings));
     }
@@ -68,6 +48,10 @@ class AppLayout extends NativeLayout
     public function navBar(NativeComponent $screen): ?NavBar
     {
         return match (true) {
+            $screen instanceof Codes => NavBar::make()->title(__('Verification codes')),
+            $screen instanceof AddCode => NavBar::make()->title(__('Add code'))->back(),
+            $screen instanceof CodeDetail => NavBar::make()->title(__('Code details'))->back(),
+            $screen instanceof CodeBackup => NavBar::make()->title(__('Encrypted backup'))->back(),
             $screen instanceof AccountDetail => NavBar::make()->title(__('Account'))->back(),
             $screen instanceof ApprovalDetail => NavBar::make()->title(__('Request'))->back(),
             $screen instanceof Licenses => NavBar::make()->title(__('Licenses'))->back(),

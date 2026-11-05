@@ -5,8 +5,12 @@ declare(strict_types=1);
 use App\Layouts\AppLayout;
 use App\NativeComponents\About;
 use App\NativeComponents\AccountDetail;
+use App\NativeComponents\AddCode;
 use App\NativeComponents\ApprovalDetail;
 use App\NativeComponents\Approvals;
+use App\NativeComponents\CodeBackup;
+use App\NativeComponents\CodeDetail;
+use App\NativeComponents\Codes;
 use App\NativeComponents\Connect;
 use App\NativeComponents\Launch;
 use App\NativeComponents\Licenses;
@@ -107,3 +111,8 @@ Route::native('/about', About::class)->layout(AppLayout::class);
 Route::native('/account/{id}', AccountDetail::class)->layout(AppLayout::class);
 
 Route::native('/licenses', Licenses::class)->layout(AppLayout::class);
+
+Route::native('/codes', Codes::class)->layout(AppLayout::class);
+Route::native('/codes/add', AddCode::class)->layout(AppLayout::class);
+Route::native('/codes/backup', CodeBackup::class)->layout(AppLayout::class);
+Route::native('/codes/detail/{id}', CodeDetail::class)->layout(AppLayout::class);

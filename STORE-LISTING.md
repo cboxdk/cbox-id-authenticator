@@ -6,9 +6,9 @@ Dette er tekstgrundlaget. Ingen metadata er uploadet, og App Store Connect er ik
 | Felt | Dansk | English |
 | --- | --- | --- |
 | Navn | Cbox ID Authenticator | Cbox ID Authenticator |
-| Undertitel | Godkend login og handlinger | Approve sign-ins and actions |
+| Undertitel | Koder og sikre godkendelser | Codes and secure approvals |
 | Primær kategori | Hjælpeprogrammer | Utilities |
-| Nøgleord | cbox,id,login,godkendelse,konto,sikkerhed,agent | cbox,id,login,approval,account,security,agent |
+| Nøgleord | cbox,id,login,godkendelse,konto,sikkerhed,agent,totp,backup | cbox,id,login,approval,account,security,agent,totp,backup |
 | Support | https://cbox.dk/contact | https://cbox.dk/contact |
 
 ## Dansk beskrivelse
@@ -23,9 +23,13 @@ eller vælg “Det var ikke mig” for at afvise og rapportere en uventet anmodn
 Tilslut flere Cbox ID-konti, og se deres anmodninger samlet. Notifikationer er valgfrie;
 du kan altid åbne appen for at hente aktuelle anmodninger fra din Cbox ID-server.
 
-Appen kræver en eksisterende konto hos en understøttet Cbox ID-host. Den genererer ikke
-engangskoder til andre tjenester. Tilslut telefonen via Betroede enheder på din Cbox
-ID-side, enten med QR-koden eller et link på samme telefon.
+Gem også TOTP-bekræftelseskoder til andre tjenester. Scan en opsætningskode eller
+indtast en nøgle, og brug koderne offline uden en Cbox-konto. Gem en krypteret backup
+med din egen adgangskode, og importér den på en ny telefon. Der er ingen automatisk
+synkronisering. Cbox kan ikke gendanne en glemt adgangskode til backup.
+
+Cbox-godkendelser kræver en eksisterende konto hos en understøttet Cbox ID-host.
+Tilslut telefonen via Betroede enheder på din Cbox ID-side med QR eller et link.
 
 ## English description
 
@@ -40,9 +44,13 @@ Connect several Cbox ID accounts and see their pending requests together.
 Notifications are optional; open the app to retrieve current requests from your
 Cbox ID host.
 
-An existing account on a supported Cbox ID host is required. This app does not generate
-one-time codes for other services. Connect through Trusted devices on your Cbox ID
-website using its QR code or a link on the same phone.
+Keep TOTP verification codes for other services, too. Scan a setup QR code or enter
+a setup key, then use your codes offline without a Cbox account. Save an encrypted
+backup with your own password and import it on a new phone. There is no automatic
+sync. Cbox cannot recover a forgotten backup password.
+
+Cbox approvals require an existing account on a supported Cbox ID host. Connect
+through Trusted devices on your Cbox ID website using its QR code or a link.
 
 ## Reviewer-forløb og felter, der kræver det rigtige build
 
@@ -63,6 +71,8 @@ behandles af Cbox ID; Apple/Firebase leverer push. Ingen adgang til Face ID-data
 lagring af adgangskoder i appen. Kontrollér den endelige SDK-sammensætning og hostens
 faktiske indsamling, før privacy-svarene indsendes.
 
-Sæt ikke en eksport-undtagelse uden at gennemgå OpenSSL/DPoP og distributionen.
-Der må ikke annonceres Secure Enclave-nøgler, TOTP, Android-understøttelse eller
+TOTP-nøgler forlader kun telefonen i en brugerinitieret krypteret backup.
+Gennemgå OpenSSL/DPoP, libsodium/Argon2id/XChaCha20-Poly1305 og distributionen ved
+App Store Connects krypteringserklæring; antag ikke en undtagelse.
+Der må ikke annonceres Secure Enclave-nøgler, automatisk synkronisering, Android-understøttelse eller
 færdig App Store-godkendelse for denne iOS-version.

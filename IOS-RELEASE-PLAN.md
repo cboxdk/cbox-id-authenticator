@@ -11,17 +11,18 @@ Appen bruger NativePHP 4 / SuperNative med native SwiftUI-rendering. Kodearbejde
 | A01, A02 | Korreleret completion-event, native app-lås/generation, DPoP/enrolment-guard og fælles revocation med refresh-tilbagekaldelse. Test med rigtigt udstedt token består. | Face ID, kodefallback, låsning og app-lifecycle på fysisk iPhone. |
 | A03, A04 | Push v2 mapper installation til lokal konto; notification-routing er begrænset i Swift. Tilmelding sker før push-tilladelse; tokenrotation genforsøges. | APNs/FCM i forgrund, baggrund og kold start, samt permission afvist/senere tilladt. |
 | A05–A09 | Verificeret identitet, genlogin/deduplikering, rapporter/audit, API-statusser, trust/discovery, atomisk credential-lagring og beskyttet oprydning. | Samlet brugerforløb, netværksskift og opgradering/geninstallation. |
+| TOTP | RFC 6238-vektorer for SHA1/256/512, 6/8 cifre, QR/manuelt input, Keychain-vault, søgning, kopiering med udløb og sletning. Argon2id/XChaCha20-Poly1305-backup med native Filer, importoversigt og atomisk dubletfri sammenfletning. | Face ID, QR, kopiering, eksport/import og opgradering på fysisk telefon. |
 | Native UI | Kontodetaljer, dansk/engelsk, samme-telefon-input, native hjælp/privatliv/licenser, iOS Settings, mørk/lys og labels. | Faktiske screenshots, VoiceOver, stor tekst og små skærme. |
 | A10 | Dependencies opdateret uden kendte Composer-advisories; PHP 8.4-platform låst; CI, Larastan, pakningscheck og versioneret produktionsinventar/licenscheck. Swift-plugin og transformerede SDK-kilder kontrolleres. | Ren signeret archive; native SDK-inventar og marketplace-distributionsrettigheder. |
 | A11 | Offentlig policy-side på backendbranchen, native hjælp, metadataudkast og konkret telefontestvejledning. | Deploy, Firebase-plist/APNs, signing, reviewer-konto, App Store Connect og export compliance. |
 
-Verifikation efter implementeringen: **131 app-tests / 484 assertions på PHP 8.4.27**, **151 relevante server-tests / 643 assertions**, Larastan uden fejl, Composer-audit uden advisories, valideret plugin/privacy-plist, Swift-typekontrol og syntakskontrol af de transformerede iOS-kilder. CI-workflowet er tilføjet og læsbart; det er endnu ikke kørt på GitHub. iOS-runtime er fortsat låst til PHP 8.4.24; selve appen er ikke bygget eller afprøvet på en telefon.
+Verifikation efter implementeringen: **182 app-tests / 674 assertions på PHP 8.4.27**, **151 relevante server-tests / 643 assertions**, Larastan uden fejl, Composer-audit uden advisories, valideret plugin/privacy-plist, Swift-typekontrol og syntakskontrol af de transformerede iOS-kilder. CI-workflowet er tilføjet og læsbart; det er endnu ikke kørt på GitHub. iOS-runtime er nu PHP 8.4.27. Signerede udviklingsbuilds 2 og 3 er installeret på iPhone 16 Pro / iOS 27.0.1 via USB. Build 2 viste forbindelsesskærm og læste QR; hostens gamle API-kontrakt blokerede korrekt forbindelsen. Build 3 indeholder TOTP/backup; fysisk accept af disse forløb afventer test. Firebaseprojekt er endnu ikke oprettet; første test sker efter aftale uden push.
 
 Se [IPHONE-TEST.md](IPHONE-TEST.md) for næste trin og [STORE-LISTING.md](STORE-LISTING.md) for metadata. Afsnittene nedenfor bevarer analysens oprindelige fund og prioritering; de beskriver udgangspunktet før rettelserne. Dagsestimaterne var det oprindelige planlægningsestimat og er ikke et nyt estimat for det resterende arbejde.
 
 ## 1. Afgrænsning og evidens
 
-V1 omfatter kun Cbox ID-godkendelser: login og anmodninger fra apps og agenter. Sylvester har bekræftet denne afgrænsning den 5. november 2026. Almindelige TOTP-koder til andre tjenester samt import og eksport af TOTP-hemmeligheder er uden for v1.
+V1 omfatter Cbox ID-godkendelser samt lokale TOTP-koder, krypteret backup og import/eksport. Sylvester udvidede udtrykkeligt omfanget den 5. november 2026. Synkronisering venter. Alle skærme er native; både Cbox-konti og TOTP-koder kan administreres enkeltvis. Import understøtter standard-TOTP-QR/manuelle nøgler og appens eget krypterede backupformat; andre apps’ samlede migrationsformater er ikke implementeret.
 
 | Område | Grundlag og resultat |
 | --- | --- |
@@ -257,6 +258,6 @@ Foreslåede releasekriterier:
 
 ## 9. Efter v1
 
-Android, et tilpasset iPad-layout, almindelig TOTP med import/eksport og en gennemtænkt recoverymodel, selvhostede hosts med push-relay, widgets/Watch samt hardwarebundet signering vurderes separat. TOTP er en ny hemmelighedsboks med krav til migrering og gendannelse, ikke blot en ekstra skærm med seks cifre.
+Android, tilpasset iPad-layout, automatisk krypteret synkronisering, flere backup-/migrationsformater, selvhostede hosts med push-relay, widgets/Watch samt hardwarebundet signering vurderes efter v1. Lokal TOTP og krypteret filbackup er med i v1.
 
 Næste trin er backenddeployment og den fysiske iPhone-test i [IPHONE-TEST.md](IPHONE-TEST.md). M0/M3/M4/M5 er ikke accepteret alene på baggrund af grønne PHP-tests; device-, distributions- og reviewkravene ovenfor gælder fortsat.

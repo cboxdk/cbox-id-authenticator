@@ -53,7 +53,7 @@ it('gives every signed-in screen the same chrome', function (string $uri): void 
     '/settings',
 ]);
 
-it('names both tabs', function (): void {
+it('names all three tabs', function (): void {
     fakeSecureStorage();
 
     Native::visit('/approvals');
@@ -71,7 +71,7 @@ it('names both tabs', function (): void {
     };
     $walk(Native::fakeBridge()->lastPublish());
 
-    expect($labels)->toBe(['Requests', 'Settings']);
+    expect($labels)->toBe(['Codes', 'Requests', 'Settings']);
 });
 
 it('leaves the safe areas to the layout on the screens it wraps', function (string $uri): void {

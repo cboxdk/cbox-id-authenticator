@@ -5,7 +5,9 @@
             <column class="w-full gap-2 p-4 rounded-2xl bg-theme-surface">
                 <text class="text-sm font-semibold text-theme-on-background">{{ __("Notifications") }}</text>
                 <text class="text-sm text-theme-on-surface-variant">
-                    @if ($permission === 'granted')
+                    @if ($permission === 'unavailable')
+                        {{ __("Notifications are not configured in this build. Open the app to check requests.") }}
+                    @elseif ($permission === 'granted')
                         {{ __("On. You will be alerted when an app asks for approval.") }}
                     @elseif ($permission === 'denied')
                         {{ __("Off. Enable notifications in iPhone Settings, then re-sync below. You can still open the app to check requests.") }}
@@ -14,8 +16,10 @@
                     @endif
                 </text>
 
-                <button label="{{ __('Notification settings') }}" variant="secondary" @press="notificationSettings"></button>
-                <button label="{{ __('Re-sync notifications') }}" variant="secondary" size="md" :loading="$working" @press="resync"></button>
+                @if ($permission !== 'unavailable')
+                    <button label="{{ __('Notification settings') }}" variant="secondary" @press="notificationSettings"></button>
+                    <button label="{{ __('Re-sync notifications') }}" variant="secondary" size="md" :loading="$working" @press="resync"></button>
+                @endif
 
                 @if ($notice !== null)
                     <text class="text-xs text-theme-on-surface-variant">{{ __($notice) }}</text>

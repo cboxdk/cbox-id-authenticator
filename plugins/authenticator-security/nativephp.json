@@ -8,6 +8,18 @@
         {
             "name": "AuthenticatorSecurity.State",
             "ios": "AuthenticatorSecurityFunctions.State"
+        },
+        {
+            "name": "AuthenticatorSecurity.CopyCode",
+            "ios": "AuthenticatorBackupFunctions.CopyCode"
+        },
+        {
+            "name": "AuthenticatorSecurity.PickBackup",
+            "ios": "AuthenticatorBackupFunctions.PickBackup"
+        },
+        {
+            "name": "AuthenticatorSecurity.SaveBackup",
+            "ios": "AuthenticatorBackupFunctions.SaveBackup"
         }
     ],
     "ios": {

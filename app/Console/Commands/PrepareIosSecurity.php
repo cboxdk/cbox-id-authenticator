@@ -24,6 +24,32 @@ final class PrepareIosSecurity extends Command
         if (! is_string($root) || ! is_dir($root)) {
             throw new RuntimeException('The iOS build path does not exist.');
         }
+        $podfile = $root.'/Podfile';
+        if (is_file($podfile)) {
+            $pods = File::get($podfile);
+            if (! str_contains($pods, '# Cbox: align dependencies with the app deployment target.')) {
+                if (str_contains($pods, 'post_install do')) {
+                    throw new RuntimeException('Review the existing CocoaPods post_install hook before building.');
+                }
+                $pods .= <<<'RUBY'
+
+
+# Cbox: align dependencies with the app deployment target.
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      current = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] || '0'
+      if Gem::Version.new(current) < Gem::Version.new('18.2')
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '18.2'
+      end
+    end
+  end
+end
+
+RUBY;
+                File::put($podfile, $pods);
+            }
+        }
         $matches = glob($root.'/NativePHP/Bridge/Plugins/*/PushNotificationFunctions.swift') ?: [];
         if (count($matches) !== 1) {
             throw new RuntimeException('Expected one generated Firebase bridge. Review the plugin layout before building.');

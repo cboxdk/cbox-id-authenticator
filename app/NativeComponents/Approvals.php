@@ -8,12 +8,12 @@ use App\Accounts\AccountContext;
 use App\Concerns\NavigatesScreens;
 use App\Events\PushReceived;
 use App\Services\ApprovalInbox;
+use App\Services\DevicePush;
 use App\Services\DeviceSecurity;
 use Illuminate\View\View;
 use Native\Mobile\Attributes\On;
 use Native\Mobile\Attributes\Poll;
 use Native\Mobile\Edge\NativeComponent;
-use Native\Mobile\Facades\PushNotifications;
 use Throwable;
 
 /**
@@ -50,6 +50,8 @@ class Approvals extends NativeComponent
     /** @var list<array{id: string, label: string, error: string}> */
     public array $connectionErrors = [];
 
+    public bool $hasAccounts = false;
+
     private int $retryAt = 0;
 
     private int $failures = 0;
@@ -58,12 +60,6 @@ class Approvals extends NativeComponent
 
     public function mount(): void
     {
-        if (app(AccountContext::class)->store()->isEmpty()) {
-            $this->replace('/connect');
-
-            return;
-        }
-
         $this->load();
     }
 
@@ -71,6 +67,11 @@ class Approvals extends NativeComponent
     public function onResume(): void
     {
         $this->load();
+    }
+
+    public function addAccount(): void
+    {
+        $this->navigate('/connect');
     }
 
     #[Poll(15000)]
@@ -111,6 +112,7 @@ class Approvals extends NativeComponent
     public function load(): void
     {
         $accounts = app(AccountContext::class)->all();
+        $this->hasAccounts = $accounts !== [];
         $result = app(ApprovalInbox::class)->fetch($accounts);
         $rows = $result['rows'];
         $degraded = [];
@@ -142,7 +144,7 @@ class Approvals extends NativeComponent
         $this->approvals = $rows;
         if (time() - $this->pushCheckedAt >= 60 && app(DeviceSecurity::class)->generation() !== null) {
             $this->pushCheckedAt = time();
-            $token = PushNotifications::getToken();
+            $token = app(DevicePush::class)->token();
             foreach ($accounts as $services) {
                 try {
                     $services->enrolment->syncTokenIfChanged($token);

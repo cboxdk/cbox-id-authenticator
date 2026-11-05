@@ -13,6 +13,7 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
     $root = sys_get_temp_dir().'/cbox-ios-'.bin2hex(random_bytes(8));
     $path = $root.'/NativePHP/Bridge/Plugins/Firebase/PushNotificationFunctions.swift';
     File::ensureDirectoryExists(dirname($path));
+    File::put($root.'/Podfile', "platform :ios, '18.2'\n");
     File::copy(base_path('vendor/nativephp/mobile-firebase/resources/ios/PushNotificationFunctions.swift'), $path);
     $security = $root.'/NativePHP/Bridge/Plugins/AuthenticatorSecurity/AuthenticatorSecurityFunctions.swift';
     File::ensureDirectoryExists(dirname($security));
@@ -24,6 +25,8 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
         expect($first)->toContain('App\\\\Events\\\\PushReceived')->not->toContain('print(')->not->toContain('let event = userInfo["event"]');
         $this->artisan('authenticator:prepare-ios', ['--platform' => 'ios', '--build-path' => $root])->assertSuccessful();
         expect(File::get($path))->toBe($first);
+        expect(substr_count(File::get($root.'/Podfile'), 'post_install do'))->toBe(1);
+        expect(File::get($root.'/Podfile'))->toContain("Gem::Version.new('18.2')");
         expect(File::get($root.'/NativePHP/Bridge/BridgeRouter.swift'))->not->toContain('print(')->toContain('cboxDiscardLog(');
         expect(File::get($security))->not->toContain('#error(')->toContain('// Cbox: source security prepared.');
         $this->artisan('authenticator:check', ['--generated' => $root])->assertSuccessful();

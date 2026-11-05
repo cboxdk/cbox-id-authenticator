@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Add offline TOTP (SHA1/SHA256/SHA512, six/eight digits) with native code lists,
+  QR/manual setup, search, rename, individual deletion and expiring local clipboard.
+- Store up to 500 codes atomically in device-only Keychain, independently of Cbox accounts.
+- Add password-encrypted Argon2id/XChaCha20-Poly1305 file backups, native Files
+  import/export, preview and duplicate-safe merge; no automatic synchronization.
+- Keep three native tabs available without sign-in; protect code and backup state
+  across app lock/background events.
+- Align CocoaPods deployment targets with iOS 18.2 for Xcode 27 and update the
+  embedded PHP runtime to 8.4.27. Signed development builds installed over USB.
+
 - Finish the iOS SuperNative screens, account details, same-phone onboarding, Danish
   and English text, privacy/help and third-party notices.
 - Wait for correlated device-authentication completion before approving; invalidate

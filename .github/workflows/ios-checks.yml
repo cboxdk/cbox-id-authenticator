@@ -36,6 +36,14 @@ jobs:
           protocol BridgeFunction {
               func execute(parameters: [String: Any]) throws -> [String: Any]
           }
+          final class LaravelBridge {
+              static let shared = LaravelBridge()
+              var send: ((String, [String: Any]) -> Void)?
+          }
+          final class FirebaseManager {
+              static let shared = FirebaseManager()
+              var isConfigured = false
+          }
           SWIFT
-          xcrun swiftc -typecheck -D CBOX_AUTHENTICATOR_SOURCE_CHECK -target arm64-apple-ios18.2-simulator -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" /tmp/BridgeFunction.swift plugins/authenticator-security/resources/ios/AuthenticatorSecurityFunctions.swift
+          xcrun swiftc -typecheck -D CBOX_AUTHENTICATOR_SOURCE_CHECK -target arm64-apple-ios18.2-simulator -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" /tmp/BridgeFunction.swift plugins/authenticator-security/resources/ios/*.swift
           plutil -lint plugins/authenticator-security/resources/ios/PrivacyInfo.xcprivacy

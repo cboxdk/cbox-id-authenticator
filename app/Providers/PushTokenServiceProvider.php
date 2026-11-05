@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Accounts\AccountContext;
+use App\Services\DeviceSecurity;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
 use Native\Mobile\Events\PushNotification\TokenGenerated;
@@ -25,6 +26,9 @@ class PushTokenServiceProvider extends ServiceProvider
     public function boot(Dispatcher $events): void
     {
         $events->listen(TokenGenerated::class, function (TokenGenerated $event): void {
+            if (! $this->app->make(DeviceSecurity::class)->pushAvailable()) {
+                return;
+            }
             // Every account, not just one. The token belongs to the handset, but the
             // device row belongs to a host — re-registering with only one of them would
             // leave every other account pushing to a token the OS no longer honours,

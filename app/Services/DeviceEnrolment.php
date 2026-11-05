@@ -7,7 +7,6 @@ namespace App\Services;
 use App\Services\SecureVault as SecureStorage;
 use App\Support\InstallId;
 use Native\Mobile\Facades\Device;
-use Native\Mobile\Facades\PushNotifications;
 use Native\Mobile\Facades\System;
 use Throwable;
 
@@ -51,11 +50,11 @@ final class DeviceEnrolment
     public function enrol(?string $enrolmentToken = null): bool
     {
         // Registration consumes the QR code independently of notification permission.
-        $token = PushNotifications::getToken();
+        $token = app(DevicePush::class)->token();
         $this->post(is_string($token) && $token !== '' ? $token : null, $enrolmentToken);
 
-        if (PushNotifications::checkPermission() === 'not_determined') {
-            PushNotifications::enroll()->enroll();
+        if (app(DevicePush::class)->permission() === 'not_determined') {
+            app(DevicePush::class)->requestPermission();
         }
 
         return true;

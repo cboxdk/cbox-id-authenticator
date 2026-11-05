@@ -29,6 +29,9 @@
     <outlined-text-input native:model="host" keyboard="url" placeholder="your-company.cboxid.com" a11y-label="{{ __('Cbox ID address') }}" class="w-full"></outlined-text-input>
     <button label="{{ __('Open Trusted devices') }}" variant="secondary" @press="openConsole"></button>
     <button label="{{ __('Privacy and help') }}" variant="ghost" @press="about"></button>
+    <divider class="border-theme-outline" />
+    <button label="{{ __('Use verification codes') }}" variant="secondary" @press="codes"></button>
+    <text text-align="center" class="text-sm text-theme-on-surface-variant">{{ __('Keep codes for other services on this phone. No Cbox account required.') }}</text>
 
     {{-- Only when there is somewhere to go. Adding an account is a deliberate push from
          the approvals list or Settings, and the scanner is the sole control here — so

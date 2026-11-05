@@ -103,10 +103,10 @@ it('reserves a separate account for each sign-in it starts', function (): void {
     expect($keys)->toHaveCount(2);
 });
 
-it('sends a cold start to the scanner when nothing is connected', function (): void {
+it('opens codes with navigation available before connecting a Cbox account', function (): void {
     fakeSecureStorage();
 
-    Native::test(Launch::class);
+    Native::test(Launch::class)->assertReplacedWith('/codes');
 
     expect(app(AccountStore::class)->isEmpty())->toBeTrue();
 });

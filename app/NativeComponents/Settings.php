@@ -6,11 +6,11 @@ namespace App\NativeComponents;
 
 use App\Accounts\AccountContext;
 use App\Concerns\NavigatesScreens;
-use App\Services\DeviceSecurity;
+use App\Services\AppSecurity;
+use App\Services\DevicePush;
 use Illuminate\View\View;
 use Native\Mobile\Edge\NativeComponent;
 use Native\Mobile\Facades\Browser;
-use Native\Mobile\Facades\PushNotifications;
 use Native\Mobile\Facades\System;
 use Throwable;
 
@@ -31,7 +31,7 @@ class Settings extends NativeComponent
 
     public function mount(): void
     {
-        $this->permission = PushNotifications::checkPermission();
+        $this->permission = app(DevicePush::class)->permission();
         $this->loadAccounts();
     }
 
@@ -91,10 +91,10 @@ class Settings extends NativeComponent
     {
         $this->working = true;
 
-        if (PushNotifications::checkPermission() === 'not_determined') {
-            PushNotifications::enroll()->enroll();
+        if (app(DevicePush::class)->permission() === 'not_determined') {
+            app(DevicePush::class)->requestPermission();
         }
-        $token = PushNotifications::getToken();
+        $token = app(DevicePush::class)->token();
         $failed = [];
 
         foreach (app(AccountContext::class)->all() as $services) {
@@ -103,7 +103,7 @@ class Settings extends NativeComponent
             }
         }
 
-        $this->permission = PushNotifications::checkPermission();
+        $this->permission = app(DevicePush::class)->permission();
         $this->notice = $failed === []
             ? 'Notifications re-synced.'
             : __('Could not re-sync: :accounts', ['accounts' => implode(', ', $failed)]);
@@ -160,9 +160,9 @@ class Settings extends NativeComponent
         $this->loadAccounts();
         $this->working = false;
 
-        app(DeviceSecurity::class)->configure($this->accounts !== []);
-        if ($this->accounts === []) {
-            $this->replace('/connect');
+        app(AppSecurity::class)->refresh();
+        if (! app(AppSecurity::class)->hasSecrets()) {
+            $this->replace('/codes');
         }
     }
 

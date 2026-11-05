@@ -3,6 +3,10 @@
         {{-- No heading: the nav bar carries "Pending requests" now, and repeating it
              below would be the same words twice on one screen. --}}
         <column class="w-full p-4 gap-3">
+            @if (! $hasAccounts)
+                <text class="text-base text-theme-on-background">{{ __('Connect a Cbox ID account to approve sign-ins and requests.') }}</text>
+                <button label="{{ __('Connect an account') }}" variant="primary" @press="addAccount"></button>
+            @endif
             {{-- Named, not counted. "One account is unreachable" leaves the user
                  guessing which of their tenants is not being watched. --}}
             @foreach ($connectionErrors as $connection)
@@ -43,6 +47,7 @@
                     <text class="text-sm text-theme-on-surface-variant">{{ __("Tap to review") }}</text>
                 </pressable>
             @empty
+                @if ($hasAccounts)
                 <column class="w-full items-center justify-center gap-2 py-16">
                     <icon name="checkmark.circle" :size="40" class="text-theme-on-surface-variant" />
                     <text class="text-base text-theme-on-surface-variant">{{ $degraded !== [] ? __('Could not check all accounts.') : __('Nothing waiting.') }}</text>
@@ -50,6 +55,7 @@
                         {{ $degraded !== [] ? __('Check your connection, then pull to retry.') : __('Requests appear here automatically. Notifications are optional.') }}
                     </text>
                 </column>
+                @endif
             @endforelse
         </column>
     </refreshable>

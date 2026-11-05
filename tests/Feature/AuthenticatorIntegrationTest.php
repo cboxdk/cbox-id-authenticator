@@ -23,6 +23,28 @@ use Native\Mobile\Testing\Native;
 
 beforeEach(fn () => Http::preventStrayRequests());
 
+it('enrols without Firebase and never passes an APNs fallback token to the FCM host', function (): void {
+    fakeSecureStorage();
+    Native::fakeBridge()
+        ->respondTo('AuthenticatorSecurity.State', ['unlocked' => true, 'generation' => 0, 'foreground' => true, 'pushAvailable' => false])
+        ->respondTo('PushNotification.GetToken', ['token' => 'old-apns-token'])
+        ->respondTo('PushNotification.CheckPermission', ['status' => 'granted']);
+    $context = app(AccountContext::class);
+    $pending = $context->beginSignIn('https://cbox.cboxid.com', 'cid', 'qr-code');
+    Http::fake([
+        '*/oauth/token' => Http::response(['access_token' => 'access', 'refresh_token' => 'refresh', 'expires_in' => 900]),
+        '*/authenticator/me' => Http::response(['data' => ['subject' => 'alice', 'label' => 'alice@cbox.dk']]),
+        '*/devices' => Http::response(['data' => ['id' => 'device-1']], 201),
+    ]);
+    Native::test(OAuthCallback::class, data: ['state' => $pending->state, 'code' => 'code'])->assertReplacedWith('/approvals');
+    Http::assertSent(fn ($request) => str_ends_with($request->url(), '/devices') && $request['push_token'] === null);
+    Native::fakeBridge()->assertNotCalled('PushNotification.GetToken');
+    Native::fakeBridge()->assertNotCalled('PushNotification.Enroll');
+    Native::test(Settings::class)->assertSet('permission', 'unavailable')
+        ->assertSee('Notifications are not configured in this build. Open the app to check requests.')
+        ->assertDontSee('Re-sync notifications');
+});
+
 it('completes sign-in with verified identity before a push token exists', function (): void {
     fakeSecureStorage();
     $context = app(AccountContext::class);

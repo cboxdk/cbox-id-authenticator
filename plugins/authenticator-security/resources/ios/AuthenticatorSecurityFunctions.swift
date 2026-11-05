@@ -71,6 +71,7 @@ final class CboxSecurityGate {
     var state: [String: Any] {
         ["unlocked": !enabled || !locked, "generation": generation,
          "foreground": UIApplication.shared.applicationState == .active,
+         "pushAvailable": FirebaseManager.shared.isConfigured,
          "locale": Locale.preferredLanguages.first ?? "en"]
     }
 
@@ -97,7 +98,7 @@ final class CboxSecurityGate {
             title.adjustsFontForContentSizeCategory = true
             title.textAlignment = .center
             let text = UILabel()
-            text.text = self.localized("Unlock to view your accounts and requests.", "Lås op for at se dine konti og anmodninger.")
+            text.text = self.localized("Unlock to view your codes, accounts and requests.", "Lås op for at se dine koder, konti og anmodninger.")
             text.font = .preferredFont(forTextStyle: .body)
             text.adjustsFontForContentSizeCategory = true
             text.numberOfLines = 0
@@ -136,7 +137,7 @@ final class CboxSecurityGate {
         }
         context = attempt
         let epoch = generation
-        attempt.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: self.localized("Unlock your Cbox ID accounts", "Lås dine Cbox ID-konti op")) { success, _ in
+        attempt.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: self.localized("Unlock your codes and Cbox ID accounts", "Lås dine koder og Cbox ID-konti op")) { success, _ in
             DispatchQueue.main.async {
                 guard self.context === attempt else { return }
                 self.context = nil
