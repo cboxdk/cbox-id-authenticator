@@ -111,19 +111,9 @@ it('opens codes with navigation available before connecting a Cbox account', fun
     expect(app(AccountStore::class)->isEmpty())->toBeTrue();
 });
 
-it('offers a way back only when there is somewhere to go', function (): void {
-    // Adding an account is a deliberate push, and the scanner is the sole control on
-    // this screen — so changing your mind, or cancelling the scan, otherwise strands you
-    // here with no route to the account list.
+it('keeps navigation available before and after adding an account', function (): void {
     fakeSecureStorage();
-
-    Native::test(Connect::class)
-        ->assertSet('canGoBack', false)
-        ->assertDontSee('Back');
-
+    Native::visit('/connect')->assertSee('Codes')->assertSee('Settings');
     app(AccountStore::class)->put(new Account('01A', 'https://cbox.cboxid.com', 'cbox.cboxid.com'));
-
-    Native::test(Connect::class)
-        ->assertSet('canGoBack', true)
-        ->assertSee('Back');
+    Native::visit('/connect')->assertSee('Codes')->assertSee('Settings');
 });

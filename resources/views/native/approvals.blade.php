@@ -4,8 +4,12 @@
              below would be the same words twice on one screen. --}}
         <column class="w-full p-4 gap-3">
             @if (! $hasAccounts)
-                <text class="text-base text-theme-on-background">{{ __('Connect a Cbox ID account to approve sign-ins and requests.') }}</text>
-                <button label="{{ __('Connect an account') }}" variant="primary" @press="addAccount"></button>
+                <column class="w-full items-center py-16 gap-4">
+                    <icon name="checkmark.shield" :size="48" class="text-theme-primary" />
+                    <text text-align="center" class="text-2xl font-semibold text-theme-on-background">{{ __('Approve with your iPhone') }}</text>
+                    <text text-align="center" class="text-base text-theme-on-surface-variant">{{ __('Connect a Cbox ID account to approve sign-ins and requests.') }}</text>
+                    <button label="{{ __('Connect an account') }}" variant="primary" size="lg" class="glass:prominent" @press="addAccount"></button>
+                </column>
             @endif
             {{-- Named, not counted. "One account is unreachable" leaves the user
                  guessing which of their tenants is not being watched. --}}

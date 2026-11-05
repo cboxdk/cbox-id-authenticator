@@ -19,7 +19,7 @@ it('saves and displays codes without a Cbox account', function (): void {
         ->set('issuer', 'Example')->set('account', 'alice')->set('secret', 'JBSWY3DPEHPK3PXP')
         ->call('save')->assertReplacedWith('/codes');
     expect(app(TotpStore::class)->all())->toHaveCount(1);
-    Native::test(Codes::class)->assertSee('Example')->assertSee('alice')->assertSee('Copy code');
+    Native::test(Codes::class)->assertSee('Example')->assertSee('alice')->assertSee('Copy code for alice');
     Native::test(Launch::class)->assertReplacedWith('/codes');
 });
 
@@ -112,7 +112,7 @@ it('discards an import preview when the app backgrounds even if already unlocked
 it('renders all code routes using native chrome', function (string $path): void {
     fakeSecureStorage();
     Native::visit($path);
-    expect(treeTypes(Native::fakeBridge()->lastPublish()))->toContain('top_bar')->toContain('bottom_nav')->not->toContain('web_view');
+    expect(treeTypes(Native::fakeBridge()->lastPublish()))->toContain('native_root_tabs')->not->toContain('web_view');
 })->with(['/codes', '/codes/add', '/codes/backup']);
 
 it('can connect the first Cbox account from the requests tab without losing the code tab', function (): void {

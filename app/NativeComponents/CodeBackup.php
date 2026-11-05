@@ -30,6 +30,20 @@ class CodeBackup extends NativeComponent
 
     public bool $preview = false;
 
+    public bool $creating = false;
+
+    public function createBackup(): void
+    {
+        $this->clearSensitive();
+        $this->creating = true;
+    }
+
+    public function cancelExport(): void
+    {
+        $this->clearSensitive();
+        $this->creating = false;
+    }
+
     public int $added = 0;
 
     public int $duplicates = 0;
@@ -85,6 +99,7 @@ class CodeBackup extends NativeComponent
     {
         $this->guard();
         $this->clearSensitive();
+        $this->creating = false;
         $this->hasFile = false;
         $this->encrypted = '';
         $this->error = $this->notice = null;
@@ -106,6 +121,7 @@ class CodeBackup extends NativeComponent
             $this->hasFile = true;
             $this->notice = 'Backup selected. Enter its password to preview the import.';
         } elseif ($result === 'saved') {
+            $this->creating = false;
             $this->notice = 'Encrypted backup saved. Keep its password somewhere safe.';
         } elseif ($result !== 'cancelled') {
             $this->error = 'Choose a Cbox encrypted backup file smaller than 2 MB.';

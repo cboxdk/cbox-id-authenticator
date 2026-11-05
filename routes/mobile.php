@@ -42,7 +42,7 @@ Route::native('/', Launch::class);
 
 // Add an account. Reached from Settings, from the approvals list, or by an enrolment
 // deep link — never as an implicit redirect, so it still renders with accounts present.
-Route::native('/connect', Connect::class);
+Route::native('/connect', Connect::class)->layout(AppLayout::class);
 
 /*
  * The same screen with a query, for the same reason /oauth/{tail} exists below: the
@@ -54,7 +54,7 @@ Route::native('/connect', Connect::class);
  * it matches `/connect?host=…` and nothing else. A bare /connect still takes the exact
  * route above, and /approvals is untouched.
  */
-Route::native('/connect{tail}', Connect::class);
+Route::native('/connect{tail}', Connect::class)->layout(AppLayout::class);
 
 // The OAuth redirect target. Registered on the client as both this scheme and an
 // HTTPS App Link; multi-account settles the choice on the scheme, since an App Link is
@@ -90,7 +90,7 @@ Route::native('/oauth/{tail}', OAuthCallback::class);
  * the framework frees whichever edges the bars do not own — so none of these three
  * carries a `safe-area` class of its own. Adding one back insets the content twice.
  *
- * Launch, Connect and OAuthCallback stay outside on purpose; see AppLayout.
+ * Launch and OAuthCallback are transient screens without chrome.
  */
 Route::nativeGroup(AppLayout::class, function (): void {
     Route::native('/approvals', Approvals::class);

@@ -3,7 +3,7 @@
         <column class="w-full p-4 gap-4">
 
             @if ($error !== null)
-                <text class="text-sm text-theme-error">{{ __($error) }}</text>
+                <text class="text-sm text-theme-destructive">{{ __($error) }}</text>
                 <button label="{{ __('Refresh') }}" variant="secondary" :disabled="$working" @press="load"></button>
             @endif
 

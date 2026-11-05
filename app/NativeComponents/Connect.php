@@ -46,6 +46,13 @@ class Connect extends NativeComponent
 
     public bool $working = false;
 
+    public bool $showManual = false;
+
+    public function toggleManual(): void
+    {
+        $this->showManual = ! $this->showManual;
+    }
+
     /**
      * Whether there is anywhere to go back to.
      *

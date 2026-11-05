@@ -24,6 +24,17 @@ final class PrepareIosSecurity extends Command
         if (! is_string($root) || ! is_dir($root)) {
             throw new RuntimeException('The iOS build path does not exist.');
         }
+        $tabsPath = $root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift';
+        $tabs = File::get($tabsPath);
+        $tabsMarker = '// Cbox: keep account and code tabs available on pushed screens.';
+        if (! str_contains($tabs, $tabsMarker)) {
+            $original = "if isRoot && !forceHide {\n            content";
+            if (substr_count($tabs, $original) !== 1) {
+                throw new RuntimeException('Review native tab visibility before building: the upstream renderer changed.');
+            }
+            $tabs = str_replace($original, "$tabsMarker\n        if !forceHide {\n            content.toolbar(.visible, for: .tabBar)", $tabs);
+            File::put($tabsPath, $tabs);
+        }
         $podfile = $root.'/Podfile';
         if (is_file($podfile)) {
             $pods = File::get($podfile);

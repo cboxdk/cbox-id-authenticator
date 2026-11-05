@@ -7,11 +7,6 @@ use App\Totp\TotpStore;
 use App\Totp\TotpUri;
 use Native\Mobile\Testing\Native;
 
-function testTotpEntry(string $secret = '12345678901234567890'): TotpEntry
-{
-    return new TotpEntry(str_repeat('a', 32), 'Example', 'alice@example.test', Base32::encode($secret));
-}
-
 it('matches every RFC 6238 SHA1 SHA256 and SHA512 test vector', function (int $time, array $expected): void {
     foreach (['SHA1' => 20, 'SHA256' => 32, 'SHA512' => 64] as $algorithm => $length) {
         $key = substr(str_repeat('1234567890', 7), 0, $length);

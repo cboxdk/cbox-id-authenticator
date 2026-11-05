@@ -2,26 +2,9 @@
 
 declare(strict_types=1);
 
-use App\NativeComponents\Connect;
 use App\NativeComponents\Launch;
 use App\NativeComponents\OAuthCallback;
 use Native\Mobile\Testing\Native;
-
-/**
- * Two kinds of screen, and the difference decides who owns the safe areas.
- *
- * Under AppLayout the framework builds a chrome root — nav bar, content, tab bar — and
- * frees whichever edges the bars do not own. A screen there must NOT carry a `safe-area`
- * class, or the content is inset twice.
- *
- * Outside it (Launch, Connect, OAuthCallback) nothing applies the insets, so those
- * screens carry their own.
- *
- * Asserted on the published tree, which for chrome IS the render path — the wrapper the
- * renderer draws is the thing being inspected. That was not true of the hand-rolled
- * `<native:bottom-bar>` this replaced: the node sat in the tree and was never drawn,
- * and a spec asserting its presence passed while the device showed no navigation at all.
- */
 
 /**
  * @return list<string> every element type in the tree, depth-first
@@ -45,12 +28,16 @@ it('gives every signed-in screen the same chrome', function (string $uri): void 
     Native::visit($uri);
 
     expect(treeTypes(Native::fakeBridge()->lastPublish()))
-        ->toContain('bottom_nav')
-        ->toContain('top_bar');
+        ->toContain('native_root_tabs')
+        ->not->toContain('bottom_nav')
+        ->not->toContain('top_bar');
 })->with([
     '/approvals',
     '/approvals/01A/01B',
     '/settings',
+    '/connect',
+    '/connect?host=untrusted.example',
+    '/about',
 ]);
 
 it('names all three tabs', function (): void {
@@ -74,6 +61,11 @@ it('names all three tabs', function (): void {
     expect($labels)->toBe(['Codes', 'Requests', 'Settings']);
 });
 
+it('keeps account deep links in the settings tab', function (string $uri): void {
+    fakeSecureStorage();
+    Native::visit($uri)->assertElement('bottom_nav_item', fn (array $node): bool => ($node['props']['url'] ?? '') === '/settings' && ($node['props']['active'] ?? false));
+})->with(['/connect', '/connect?host=untrusted.example', '/account/missing', '/about', '/licenses']);
+
 it('leaves the safe areas to the layout on the screens it wraps', function (string $uri): void {
     // buildChromeColumn() applies neither edge when both bars exist — each handles its
     // own — so a `safe-area` class on the screen would be inset on top of that.
@@ -85,6 +77,9 @@ it('leaves the safe areas to the layout on the screens it wraps', function (stri
 })->with([
     '/approvals',
     '/settings',
+    '/connect',
+    '/connect?host=untrusted.example',
+    '/about',
 ]);
 
 it('keeps the insets on the screens with no chrome at all', function (string $component): void {
@@ -96,7 +91,6 @@ it('keeps the insets on the screens with no chrome at all', function (string $co
     expect(Native::fakeBridge()->lastPublish()['layout']['safe_area'] ?? null)->toBe(1);
 })->with([
     'launch' => Launch::class,
-    'connect' => Connect::class,
     'oauth callback' => OAuthCallback::class,
 ]);
 

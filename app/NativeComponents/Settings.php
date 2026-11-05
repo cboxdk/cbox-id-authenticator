@@ -50,6 +50,11 @@ class Settings extends NativeComponent
         System::appSettings();
     }
 
+    public function backup(): void
+    {
+        $this->navigate('/codes/backup');
+    }
+
     public function about(): void
     {
         $this->navigate('/about');

@@ -41,7 +41,7 @@ it('enrols without Firebase and never passes an APNs fallback token to the FCM h
     Native::fakeBridge()->assertNotCalled('PushNotification.GetToken');
     Native::fakeBridge()->assertNotCalled('PushNotification.Enroll');
     Native::test(Settings::class)->assertSet('permission', 'unavailable')
-        ->assertSee('Notifications are not configured in this build. Open the app to check requests.')
+        ->assertSee('Push notifications are not available yet.')
         ->assertDontSee('Re-sync notifications');
 });
 
@@ -148,13 +148,13 @@ it('renders privacy and account removal as native screens', function (): void {
     fakeSecureStorage();
     Native::test(About::class)->assertSee('Your accounts and privacy')->assertSee('Contact Cbox');
     app(AccountStore::class)->put(new Account('alice', 'https://cbox.cboxid.com', 'Alice'));
-    Native::test(Settings::class)->call('requestRemoval', 'alice')->assertSee('Keep account')->assertSee('Remove account');
+    Native::visit('/account/alice')->call('requestRemoval', 'alice')->assertSee('Keep account')->assertSee('Remove account');
 });
 
 it('renders a usable native host field and Danish account screens', function (): void {
     fakeSecureStorage();
     app()->setLocale('da');
-    Native::test(Connect::class)
+    Native::test(Connect::class)->call('toggleManual')
         ->assertElement('outlined_text_input', fn ($node) => ($node['props']['keyboard'] ?? null) === 'url')
         ->assertSee('Scan koden')->assertAccessible();
     Native::test(About::class)->assertSee('Dine konti og dit privatliv')->assertAccessible();

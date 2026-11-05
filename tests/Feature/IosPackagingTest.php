@@ -19,8 +19,14 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
     File::ensureDirectoryExists(dirname($security));
     File::copy(base_path('plugins/authenticator-security/resources/ios/AuthenticatorSecurityFunctions.swift'), $security);
     File::copy(base_path('vendor/nativephp/mobile/resources/xcode/NativePHP/Bridge/BridgeRouter.swift'), $root.'/NativePHP/Bridge/BridgeRouter.swift');
+    File::ensureDirectoryExists($root.'/NativePHP/NativeRender');
+    File::copy(base_path('vendor/nativephp/mobile/resources/xcode/NativePHP/NativeRender/NativeRootTabsRenderer.swift'), $root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift');
     try {
         $this->artisan('authenticator:prepare-ios', ['--platform' => 'ios', '--build-path' => $root])->assertSuccessful();
+        expect(File::get($root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift'))
+            ->toContain('if !forceHide {')
+            ->toContain('content.toolbar(.visible, for: .tabBar)')
+            ->not->toContain('if isRoot && !forceHide {');
         $first = File::get($path);
         expect($first)->toContain('App\\\\Events\\\\PushReceived')->not->toContain('print(')->not->toContain('let event = userInfo["event"]');
         $this->artisan('authenticator:prepare-ios', ['--platform' => 'ios', '--build-path' => $root])->assertSuccessful();

@@ -1,17 +1,14 @@
 # iPhone-test af Cbox ID Authenticator
 
-Koden ligger på `sd/ios-release`. Backendændringerne ligger separat på
-`sd/authenticator-ios-api` i `/Users/sylvester/.codex/worktrees/authenticator-ios-server/cbox-id`.
+Koden ligger på `sd/ios-release`. Backendændringerne fra `sd/authenticator-ios-api` er merged og udrullet via PR108.
 De eksisterende ændringer i de oprindelige `cbox-id`- og `laravel-id`-checkouts er bevaret.
-Signerede udviklingsbuilds 1.0.0 (2 og 3) er installeret på Sylvesters iPhone 16 Pro
-med iOS 27.0.1 via USB. Build 3 indeholder TOTP og krypteret backup.
+Mål for den aktuelle telefontest: 1.0.0 (8) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Indeholder TOTP, krypteret backup og native glasnavigation.
 Serverrettelserne følges i https://github.com/cboxdk/cbox-id/pull/108.
 Firebaseprojekt findes endnu ikke; første test er udtrykkeligt uden push.
 
 ## 1. Server før telefon
 
-Deploy backendbranchen til testmiljøet med den normale Cbox-procedure, og kør den nye
-migration for `id_approval_reports`. Brug testkonti, som kan modtage CIBA/action requests.
+Serveren `cbox.cboxid.com` kører nu API v2, verificeret 2026-11-05 kl. 14:46 UTC. Den normale release-controller har kørt migrationen og udrullet web2/2 samt worker1/1. Brug en frisk QR-kode fra Betroede enheder; tidligere enrollment-koder er udløbet. Brug testkonti, som kan modtage CIBA/action requests.
 
 Kontrollér:
 

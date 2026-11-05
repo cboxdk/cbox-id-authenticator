@@ -4,6 +4,8 @@ declare(strict_types=1);
 use App\Accounts\Account;
 use App\Accounts\AccountContext;
 use App\Accounts\AccountStore;
+use App\Totp\Base32;
+use App\Totp\TotpEntry;
 use Native\Mobile\Testing\Native;
 use Tests\TestCase;
 
@@ -58,4 +60,9 @@ function anAccount(): Account
     $services->tokens->put('access', 'refresh', 900);
 
     return $account;
+}
+
+function testTotpEntry(string $secret = '12345678901234567890'): TotpEntry
+{
+    return new TotpEntry(str_repeat('a', 32), 'Example', 'alice@example.test', Base32::encode($secret));
 }
