@@ -1,12 +1,13 @@
 # Cbox ID Authenticator — analyse og plan for iOS-release
 
-Status 6. november 2026: **Koden klargøres til Bifrost. Push/Firebase er udskudt.**
+Status 6. november 2026: **Koden er klargjort til Bifrost. Push/Firebase er udskudt.**
 Det endelige distributionsbuild og TestFlight-accept er endnu ikke udført.
 
 Appen bruger NativePHP 4 / SuperNative med SwiftUI. Arbejdet ligger på `sd/ios-release`.
 App Store-kladden er [6831374770](https://appstoreconnect.apple.com/apps/6831374770/distribution):
 iOS 1.0.0, Utilities, manuel frigivelse, ti lokaliserede navne/undertitler/beskrivelser/nøgleord,
-support- og privacy-links. Ingen indsendelse eller offentlig frigivelse er foretaget.
+support- og privacy-links samt 60 uploadede screenshots. Apples billedbehandling er endnu
+ikke færdig for alle billeder. Ingen indsendelse eller offentlig frigivelse er foretaget.
 
 Verifikation i denne runde: 252 PHP-tests / 10204 assertions, Larastan, Pint,
 Composer-audit og det native simulatorbuild består. GitHub PHP- og Swift-CI er grøn

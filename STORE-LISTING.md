@@ -241,6 +241,13 @@ Billederne bruger den aktuelle native rendering og fiktive visningsdata i en iso
 simulatorcontainer. Det er produktbilleder, ikke dokumentation for en ægte loginbeslutning.
 De oprindelige build-13-billeder er historiske og skal ikke bruges til denne kladde.
 
+Alle 60 billeder er uploadet til de ti App Store-lokaliseringer og sorteret som ovenfor.
+Filstørrelser, uploadkvitteringer og tilgængelige serverchecksums er kontrolleret mod
+originalerne. Ved afslutningen er 14 færdigbehandlet og 46 i Apples billedbehandling
+uden rapporterede fejl. Kontrollér, at alle er færdigbehandlet før reviewindsendelse.
+`resources/store/screenshots.json` fastholder kildekoderevision og SHA-256 for hvert billede;
+`app-store-upload.json` ved billederne indeholder Apples asset-ID'er og verificeret status.
+
 ## App Review — TOTP og backup, klar til brug
 
 These features do not require an account or network connection:
