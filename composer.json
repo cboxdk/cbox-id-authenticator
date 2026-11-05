@@ -1,28 +1,32 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "cboxdk/cbox-id-authenticator",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Native Cbox ID approval app for iOS",
     "keywords": [
         "laravel",
         "framework"
     ],
-    "license": "MIT",
+    "license": "proprietary",
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
+        "ext-sodium": "*",
         "firebase/php-jwt": "^7.1",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^4.3",
         "nativephp/mobile": "dev-main as 4.0.x-dev",
         "nativephp/mobile-biometrics": "^1.0",
+        "nativephp/mobile-browser": "^1.0",
         "nativephp/mobile-firebase": "^1.1",
         "nativephp/mobile-scanner": "^1.0",
         "nativephp/mobile-secure-storage": "^1.0",
-        "nativephp/mobile-ui": "^0.2"
+        "nativephp/mobile-ui": "^0.2",
+        "cbox/authenticator-security": "0.1.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "larastan/larastan": "^3.0",
         "laravel/boost": "^2.4",
         "laravel/pail": "^1.2.5",
         "laravel/pao": "^1.0.6",
@@ -79,6 +83,13 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=1G",
+        "qa": [
+            "@test",
+            "@analyse",
+            "@php artisan native:plugin:validate plugins/authenticator-security",
+            "@php artisan authenticator:dependencies --check"
         ]
     },
     "extra": {
@@ -93,11 +104,21 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "platform": {
+            "php": "8.4.24"
         }
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
     "repositories": [
+        {
+            "type": "path",
+            "url": "plugins/authenticator-security",
+            "options": {
+                "symlink": false
+            }
+        },
         {
             "name": "mobile",
             "type": "vcs",

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use Native\Mobile\Facades\SecureStorage;
+use App\Services\SecureVault as SecureStorage;
 use RuntimeException;
 
 /**
@@ -35,12 +35,22 @@ use RuntimeException;
  * The key never leaves the device, and `WhenUnlockedThisDeviceOnly` means it is not in
  * iCloud backups and does not restore onto a replacement handset. A restored phone
  * re-enrols from scratch, which is correct — do not try to work around it.
+ *
+ * ONE KEY PER ACCOUNT, NOT ONE PER DEVICE
+ * ---------------------------------------
+ * Namespaced by account rather than shared. Two reasons, and both matter. A shared key
+ * would give every tenant the same `jkt`, so two hosts could compare notes and identify
+ * the same handset — a cross-tenant correlator this app has no business creating. And a
+ * key compromised through one tenant's flow would be the key binding every other
+ * account's tokens.
  */
 final class DpopKey
 {
-    private const STORAGE_KEY = 'cboxid.dpop.privkey';
+    private const STORAGE_KEY = 'dpop.privkey';
 
     private ?string $pem = null;
+
+    public function __construct(private readonly string $prefix) {}
 
     /**
      * The private key PEM, generating and persisting one on first use.
@@ -51,7 +61,7 @@ final class DpopKey
             return $this->pem;
         }
 
-        $stored = SecureStorage::get(self::STORAGE_KEY);
+        $stored = SecureStorage::get($this->prefix.self::STORAGE_KEY);
 
         if (is_string($stored) && $stored !== '') {
             return $this->pem = $stored;
@@ -112,22 +122,49 @@ final class DpopKey
      */
     public function forget(): void
     {
-        SecureStorage::delete(self::STORAGE_KEY);
+        if (! SecureStorage::delete($this->prefix.self::STORAGE_KEY)) {
+            throw new RuntimeException('Could not remove the device key. Try again.');
+        }
         $this->pem = null;
+    }
+
+    /**
+     * The OpenSSL configuration to generate under.
+     *
+     * ext-openssl will not create a key without a configuration to read, and the iOS
+     * runtime ships none — its php.ini sets only the CA bundle. A desktop finds the
+     * system copy and this is invisible; a handset does not, and key generation fails
+     * with nothing to go on. Passing the path explicitly makes both resolve the same
+     * file, so a working development machine cannot hide a broken build.
+     */
+    private static function opensslConfig(): string
+    {
+        return resource_path('openssl.cnf');
     }
 
     private function generate(): string
     {
-        $key = openssl_pkey_new([
+        $config = ['config' => self::opensslConfig()];
+
+        $key = openssl_pkey_new($config + [
             'private_key_type' => OPENSSL_KEYTYPE_EC,
             'curve_name' => 'prime256v1',
         ]);
 
-        if ($key === false || ! openssl_pkey_export($key, $pem)) {
-            throw new RuntimeException('Could not generate a DPoP key on this device.');
+        // openssl_pkey_export() needs the configuration too — it is not inherited from
+        // the key, and omitting it fails at the second step instead of the first.
+        if ($key === false || ! openssl_pkey_export($key, $pem, null, $config)) {
+            // Say what OpenSSL said. "Could not generate a key" sent us looking at the
+            // keychain, at entitlements and at the Secure Enclave, when the answer was a
+            // missing config file the library had already named.
+            throw new RuntimeException(
+                'Could not generate a DPoP key on this device: '
+                .(openssl_error_string() ?: 'openssl gave no reason')
+                .' (config: '.self::opensslConfig().')'
+            );
         }
 
-        if (! SecureStorage::set(self::STORAGE_KEY, $pem)) {
+        if (! SecureStorage::set($this->prefix.self::STORAGE_KEY, $pem)) {
             // Refusing here is deliberate. Carrying on with an in-memory-only key would
             // produce an enrolment that silently stops working on the next app launch,
             // and the user would have no way to tell why their prompts stopped.

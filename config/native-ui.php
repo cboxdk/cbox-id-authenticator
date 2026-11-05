@@ -50,14 +50,14 @@ return [
 
             // Surface = cards, sheets, dialogs. Background = page root.
             'surface' => '#FFFFFF',
-            'on-surface' => '#0F172A',
-            'background' => '#F8FAFC',
-            'on-background' => '#0F172A',
+            'on-surface' => '#27231F',
+            'background' => '#FAF9F6',
+            'on-background' => '#27231F',
 
             // Surface variant = filled text fields, muted tonal surfaces.
             // on-surface-variant = muted label/hint text on those surfaces.
-            'surface-variant' => '#F1F5F9',
-            'on-surface-variant' => '#475569',
+            'surface-variant' => '#F3F1EB',
+            'on-surface-variant' => '#5D6672',
 
             // Outline = neutral borders (text fields, dividers, cards).
             'outline' => '#CBD5E1',
@@ -74,27 +74,27 @@ return [
         'dark' => [
             // Leave empty or partial to auto-derive from `light` (luminance inversion).
             // Specify any token here to override the derived value.
-            'primary' => '#418DFA',
-            'on-primary' => '#FFFFFF',
+            'primary' => '#8AB4F8',
+            'on-primary' => '#17202A',
 
             'secondary' => '#94A3B8',
-            'on-secondary' => '#0F172A',
+            'on-secondary' => '#27231F',
 
-            'surface' => '#1E293B',
-            'on-surface' => '#F8FAFC',
-            'background' => '#0F172A',
-            'on-background' => '#F8FAFC',
+            'surface' => '#232528',
+            'on-surface' => '#FAF9F6',
+            'background' => '#17191C',
+            'on-background' => '#FAF9F6',
 
-            'surface-variant' => '#334155',
-            'on-surface-variant' => '#94A3B8',
+            'surface-variant' => '#2D3035',
+            'on-surface-variant' => '#B1B7C1',
 
             'outline' => '#475569',
 
             'destructive' => '#F87171',
-            'on-destructive' => '#0F172A',
+            'on-destructive' => '#27231F',
 
             'accent' => '#FDBA74',
-            'on-accent' => '#0F172A',
+            'on-accent' => '#27231F',
         ],
 
         // Corner radii (points / dp).

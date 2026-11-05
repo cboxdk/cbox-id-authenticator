@@ -1,6 +1,22 @@
 <?php
 
+use App\Support\AppLanguages;
+
+$permissionKeys = [
+    'NSCameraUsageDescription' => 'Scan Cbox ID connection codes and verification-code setup keys. Camera images are not saved or uploaded.',
+    'NSFaceIDUsageDescription' => 'Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS.',
+];
+$permissionLocalizations = [];
+foreach (array_keys(AppLanguages::NAMES) as $locale) {
+    $path = __DIR__.'/../lang/'.$locale.'.json';
+    $strings = is_file($path) ? json_decode(file_get_contents($path), true, flags: JSON_THROW_ON_ERROR) : [];
+    foreach ($permissionKeys as $key => $english) {
+        $permissionLocalizations[$locale][$key] = $strings[$english] ?? $english;
+    }
+}
+
 return [
+    'supported_locales' => array_keys(AppLanguages::NAMES),
 
     /*
     |--------------------------------------------------------------------------
@@ -109,10 +125,22 @@ return [
     |
     */
 
+    /*
+     * Written for App Store review, not for us.
+     *
+     * The plugins ship generic defaults — "This app uses Face ID for secure
+     * authentication", "This app requires camera access to scan QR codes and barcodes" —
+     * and guideline 5.1.1 asks for the SPECIFIC use, in terms the person tapping Allow
+     * can weigh. Boilerplate purpose strings are among the most common rejections, and
+     * Face ID's is the one reviewers read hardest.
+     *
+     * Each says what the app actually does, and each is checkable against the code:
+     * Camera frames stay on the phone. iOS handles the app lock and confirmation
+     * of approval decisions; no biometric data enters PHP.
+     */
     'permissions' => [
-        // 'NSCameraUsageDescription' => 'Used to take a profile photo.',
-        // 'NSMicrophoneUsageDescription' => 'Used to record audio with your videos.',
-        // 'NSPhotoLibraryUsageDescription' => 'Used to select photos for your post.',
+        'NSCameraUsageDescription' => 'Scan Cbox ID connection codes and verification-code setup keys. Camera images are not saved or uploaded.',
+        'NSFaceIDUsageDescription' => 'Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS.',
     ],
 
     /*
@@ -134,16 +162,7 @@ return [
     |
     */
 
-    'permission_localizations' => [
-        // 'nl' => [
-        //     'NSCameraUsageDescription' => 'Gebruikt om een profielfoto te maken.',
-        //     'NSMicrophoneUsageDescription' => 'Gebruikt om audio op te nemen bij je video\'s.',
-        //     'NSPhotoLibraryUsageDescription' => 'Gebruikt om foto\'s voor je bericht te selecteren.',
-        // ],
-        // 'fr' => [
-        //     'NSCameraUsageDescription' => 'Utilisé pour prendre une photo de profil.',
-        // ],
-    ],
+    'permission_localizations' => $permissionLocalizations,
 
     /*
     |--------------------------------------------------------------------------
@@ -184,6 +203,16 @@ return [
         '*_SECRET',
         'DB_PASSWORD',
         'DB_USERNAME',
+        'NATIVEPHP_APP_STORE_*',
+        'FCM_*',
+        'FIREBASE_*',
+        'GOOGLE_APPLICATION_CREDENTIALS',
+        'COMPOSER_AUTH',
+        'BIFROST_*',
+        '*_PASSWORD',
+        '*_PRIVATE_KEY',
+        '*_API_KEY',
+        '*_TOKEN',
     ],
 
     /*
@@ -201,43 +230,28 @@ return [
         'storage/framework/sessions',
         'storage/framework/cache',
         'storage/framework/testing',
-        'storage/logs/laravel.log',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Runtime Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Controls the persistent PHP runtime behavior. In 'persistent' mode,
-    | Laravel boots once and the kernel is reused across requests (~5-30ms
-    | per dispatch instead of ~200-300ms). Falls back to 'classic' mode
-    | (full init/shutdown per request) if persistent boot fails.
-    |
-    */
-
-    'runtime' => [
-        'mode' => 'persistent', // 'classic' or 'persistent'
-        'reset_instances' => true,
-        'gc_between_dispatches' => false,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Runtime Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Controls the persistent PHP runtime behavior. In 'persistent' mode,
-    | Laravel boots once and the kernel is reused across requests (~5-30ms
-    | per dispatch instead of ~200-300ms). Falls back to 'classic' mode
-    | (full init/shutdown per request) if persistent boot fails.
-    |
-    */
-
-    'runtime' => [
-        'mode' => env('NATIVEPHP_RUNTIME_MODE', 'persistent'),
-        'reset_instances' => true,
-        'gc_between_dispatches' => false,
+        'storage/logs',
+        'storage/app/private',
+        'storage/app/native-build',
+        'database/database.sqlite',
+        'database/database.sqlite-*',
+        '.env.*',
+        'auth.json',
+        '*.p8',
+        '*.p12',
+        '*service-account*.json',
+        'credentials',
+        'tests',
+        '.github',
+        '.agents',
+        '.claude',
+        '.git',
+        'node_modules',
+        'AGENTS.md',
+        'IOS-RELEASE-PLAN.md',
+        'IPHONE-TEST.md',
+        'STORE-LISTING.md',
+        'CHANGELOG.md',
     ],
 
     /*

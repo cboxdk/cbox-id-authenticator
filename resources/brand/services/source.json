@@ -1,0 +1,15 @@
+{
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.0.0/",
+    "license": "CC0-1.0",
+    "colors": {
+        "github": "181717",
+        "google": "4285F4",
+        "discord": "5865F2",
+        "1password": "3B66BC",
+        "gitlab": "FC6D26",
+        "dropbox": "0061FF",
+        "proton": "6D4AFF",
+        "cloudflare": "F38020",
+        "paypal": "003087"
+    }
+}

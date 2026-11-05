@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Services\DeviceEnrolment;
-use App\Services\TokenStore;
+use App\Accounts\AccountContext;
+use App\Services\DeviceSecurity;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
 use Native\Mobile\Events\PushNotification\TokenGenerated;
+use Throwable;
 
 /**
  * Keeps the server's copy of the push token current.
@@ -25,13 +26,31 @@ class PushTokenServiceProvider extends ServiceProvider
     public function boot(Dispatcher $events): void
     {
         $events->listen(TokenGenerated::class, function (TokenGenerated $event): void {
-            // Nothing to register against until the user has signed in; the callback
-            // screen enrols explicitly once they have.
-            if (! $this->app->make(TokenStore::class)->isSignedIn()) {
+            if (! $this->app->make(DeviceSecurity::class)->pushAvailable()) {
                 return;
             }
-
-            $this->app->make(DeviceEnrolment::class)->register($event->token);
+            // Every account, not just one. The token belongs to the handset, but the
+            // device row belongs to a host — re-registering with only one of them would
+            // leave every other account pushing to a token the OS no longer honours,
+            // and the user would simply stop getting prompts from those tenants with
+            // nothing on screen to explain it.
+            try {
+                $accounts = $this->app->make(AccountContext::class)->all();
+            } catch (Throwable) {
+                // Keychain may be locked during delivery. Foreground re-sync retries.
+                return;
+            }
+            foreach ($accounts as $services) {
+                // Nothing to register against until this account has signed in; the
+                // callback screen enrols explicitly once it has.
+                try {
+                    if ($services->isSignedIn()) {
+                        $services->enrolment->register($event->token);
+                    }
+                } catch (Throwable) {
+                    // A single unavailable account must not prevent other rotations.
+                }
+            }
         });
     }
 }

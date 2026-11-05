@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!--
+    The mark on its own, transparent, for compositing onto a splash background.
+    Same geometry as icon.svg with the fills inverted — blue shield rather than white,
+    because the splash sits on a light background while the icon is full-bleed blue.
+  -->
+  <path d="M256 96 L400 148 V270 C400 344 334 396 256 424 C178 396 112 344 112 270 V148 Z"
+        fill="#0850AB"/>
+
+  <path d="M222 250 V226 C222 207 237 192 256 192 C275 192 290 207 290 226 V250"
+        fill="none" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round"/>
+
+  <rect x="206" y="248" width="100" height="86" rx="14" fill="#FFFFFF"/>
+</svg>
