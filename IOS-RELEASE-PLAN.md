@@ -28,8 +28,14 @@ form-encoded query-parametre (`Cbox+ID`) som Cbox ID-serveren udsender dem, uden
 ændre literal plus i labels eller acceptere reelle issuer-konflikter. 233 PHP-tests /
 9762 assertions og Larastan består. Scanning på den fysiske telefon afventer brugerens test.
 
-Separate, navngivne TOTP-tilmeldinger udvikles i serveren og ID-pakken; de kræver en
-selvstændig serveropdatering og er ikke gjort tilgængelige af telefonbuildet alene.
+Separate, navngivne TOTP-tilmeldinger er implementeret i
+[server-PR109](https://github.com/cboxdk/cbox-id/pull/109) og
+[ID-pakke-PR31](https://github.com/cboxdk/laravel-id/pull/31). Hver app får sin egen
+nøgle, som kan omdøbes og fjernes uden at påvirke andre apps eller gendannelseskoder.
+Eksisterende nøgler bevares. Tilføj, kodefejl, bekræftelse, omdøb, fjern og annullér
+er kontrolleret i browseren, med layoutkontrol på alle ti sprog. De kræver en
+selvstændig serveropdatering efter godkendt pakkeudgivelse og er endnu ikke i drift.
+Telefonbuildet alene aktiverer derfor ikke flere tilmeldinger.
 
 ## UI/UX-runde — build 12–14
 
