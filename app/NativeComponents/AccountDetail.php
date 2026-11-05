@@ -19,7 +19,7 @@ class AccountDetail extends Settings
 
     public function reconnect(): void
     {
-        $this->navigate('/connect', ['reconnect' => (string) $this->param('id')]);
+        $this->navigate('/settings/connect', ['reconnect' => (string) $this->param('id')]);
     }
 
     public function notificationSettings(): void
@@ -31,7 +31,7 @@ class AccountDetail extends Settings
     {
         parent::signOut($accountId);
         if (app(AccountContext::class)->store()->find($accountId) === null) {
-            $this->replace('/');
+            $this->replace('/settings');
         }
     }
 

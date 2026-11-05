@@ -1,16 +1,6 @@
 <column class="w-full h-full bg-theme-background">
     <refreshable @refresh="load" class="flex-1">
         <column class="w-full px-5 py-4 gap-4">
-            @if ($connected !== null)
-                <column class="w-full p-4 gap-2 rounded-2xl bg-theme-surface">
-                    <row class="w-full gap-3 items-center">
-                        <icon name="checkmark.circle.fill" :size="24" class="text-theme-primary" />
-                        <text class="flex-1 text-base font-semibold text-theme-on-background">{{ __('Account connected') }}</text>
-                    </row>
-                    <text class="text-sm text-theme-on-surface-variant">{{ $connected }}</text>
-                    <button label="{{ __('Got it') }}" variant="ghost" @press="dismissConnected"></button>
-                </column>
-            @endif
             @if (! $hasAccounts)
                 <column class="w-full gap-4 pt-4 pb-2">
                     <icon name="checkmark.shield.fill" :size="44" class="text-theme-primary" />
@@ -76,6 +66,7 @@
                 @if ($hasAccounts)
                 <column class="w-full items-center gap-3 px-4 py-8">
                     <icon name="checkmark.circle" :size="40" class="text-theme-on-surface-variant" />
+                    <text text-align="center" class="text-sm text-theme-on-surface-variant">{{ implode(' · ', $accountLabels) }}</text>
                     <text class="text-xl font-semibold text-theme-on-background">{{ $degraded !== [] ? __('Could not check all accounts.') : __('You are all set') }}</text>
                     <text text-align="center" class="text-sm text-theme-on-surface-variant">
                         {{ $degraded !== [] ? __('Check your connection, then pull to retry.') : __('When you sign in or need to approve an action, the request appears here.') }}

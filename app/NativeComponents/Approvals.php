@@ -52,7 +52,8 @@ class Approvals extends NativeComponent
 
     public bool $hasAccounts = false;
 
-    public ?string $connected = null;
+    /** @var list<string> */
+    public array $accountLabels = [];
 
     private int $retryAt = 0;
 
@@ -62,7 +63,6 @@ class Approvals extends NativeComponent
 
     public function mount(): void
     {
-        $this->connected = is_string($this->data('connected')) ? $this->data('connected') : null;
         $this->load();
     }
 
@@ -80,11 +80,6 @@ class Approvals extends NativeComponent
     public function addCode(): void
     {
         $this->navigate('/codes/add');
-    }
-
-    public function dismissConnected(): void
-    {
-        $this->connected = null;
     }
 
     #[Poll(15000)]
@@ -126,6 +121,7 @@ class Approvals extends NativeComponent
     {
         $accounts = app(AccountContext::class)->all();
         $this->hasAccounts = $accounts !== [];
+        $this->accountLabels = array_map(fn ($services): string => $services->account->label, $accounts);
         $result = app(ApprovalInbox::class)->fetch($accounts);
         $rows = $result['rows'];
         $degraded = [];

@@ -116,6 +116,59 @@ final class AuthenticationLifecycleTests {
         check(!(state.canAccessSecrets))
         check(state.shouldAutomaticallyUnlock)
     }
+
+    func testFirstSuccessfulConnectionDoesNotAskForAnotherLogin() {
+        var state = CboxAuthenticationLifecycle(enabled: false)
+        state.becomeActive()
+        check(state.beginBrowser())
+        state.resignActive()
+        state.enterBackground()
+        state.becomeActive()
+        state.endBrowser(completed: true)
+        state.configure(true, afterSignIn: true)
+        check(state.canAccessSecrets)
+        check(!state.needsCover)
+        state.enterBackground()
+        state.becomeActive()
+        check(!state.canAccessSecrets)
+        check(state.shouldAutomaticallyUnlock)
+    }
+
+    func testBrowserSuccessNeverUnlocksAnExistingVault() {
+        var state = unlocked()
+        check(state.beginBrowser())
+        state.enterBackground()
+        state.becomeActive()
+        state.endBrowser(completed: true)
+        state.configure(true, afterSignIn: true)
+        check(!state.canAccessSecrets)
+        check(state.needsCover)
+    }
+
+    func testCancelledOrBackgroundedSetupStillRequiresAuthentication() {
+        for completed in [false, true] {
+            var state = CboxAuthenticationLifecycle(enabled: false)
+            state.becomeActive()
+            check(state.beginBrowser())
+            state.endBrowser(completed: completed)
+            if completed {
+                state.enterBackground()
+                state.becomeActive()
+            }
+            state.configure(true, afterSignIn: true)
+            check(!state.canAccessSecrets)
+            check(state.needsCover)
+        }
+    }
+
+    func testBrowserReturnDoesNotBypassCodeVaultSetup() {
+        var state = CboxAuthenticationLifecycle(enabled: false)
+        state.becomeActive()
+        check(state.beginBrowser())
+        state.endBrowser(completed: true)
+        state.configure(true)
+        check(!state.canAccessSecrets)
+    }
 }
 
 @main
@@ -130,6 +183,10 @@ struct AuthenticationLifecycleTestRunner {
             ("first connection", tests.testFirstConnectionProtectsNewAccountWithoutInterruptingBrowser),
             ("failed browser and resume", tests.testFailedBrowserStartAndNormalResume),
             ("reenabling lock", tests.testDisableAndReenableRequiresAuthentication),
+            ("first completed sign-in", tests.testFirstSuccessfulConnectionDoesNotAskForAnotherLogin),
+            ("existing vault stays locked", tests.testBrowserSuccessNeverUnlocksAnExistingVault),
+            ("cancelled or backgrounded setup", tests.testCancelledOrBackgroundedSetupStillRequiresAuthentication),
+            ("code setup still authenticates", tests.testBrowserReturnDoesNotBypassCodeVaultSetup),
         ]
         for (name, run) in cases {
             run()

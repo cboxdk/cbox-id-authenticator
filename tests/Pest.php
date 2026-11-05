@@ -66,3 +66,26 @@ function testTotpEntry(string $secret = '12345678901234567890'): TotpEntry
 {
     return new TotpEntry(str_repeat('a', 32), 'Example', 'alice@example.test', Base32::encode($secret));
 }
+
+/**
+ * @return list<string> every element type in the tree, depth-first
+ */
+function treeTypes(array $node, array $carry = []): array
+{
+    $carry[] = $node['type'] ?? '';
+
+    foreach ($node['children'] ?? [] as $child) {
+        if (is_array($child)) {
+            $carry = treeTypes($child, $carry);
+        }
+    }
+
+    return $carry;
+}
+
+function lastRemovalDialogId(): string
+{
+    $calls = array_values(array_filter(Native::fakeBridge()->calls, fn (array $call): bool => $call['method'] === 'Dialog.Alert'));
+
+    return $calls[array_key_last($calls)]['params']['id'];
+}

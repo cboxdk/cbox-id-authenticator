@@ -2,10 +2,18 @@
 
 ## Unreleased
 
+- Fix clipped account-removal controls with an inset destructive row and correlated
+  native confirmation; cancellation preserves the account, removal returns to Settings.
+- Remove the extra post-login acknowledgment and skip the redundant unlock only after
+  the first verified browser sign-in. Existing accounts and code vaults remain protected.
+- Fix delayed native input echoes overwriting newly typed characters; dismiss the
+  keyboard on Done and clear pending secure input on backgrounding.
+- Align form fields and action buttons with native list insets; keep backup and account
+  connection opened from Settings within that tab and its back stack.
 - Coordinate system browser login with the native app lock; prevent competing Face ID
   prompts during Google/password-manager handoffs and automatic retry after cancellation.
 - Finish scanner dismissal before opening login; clean up cancelled OAuth reservations.
-- Start new users on Cbox ID, show connection confirmation, and clarify the onboarding
+- Start new users on Cbox ID, show connected account context, and clarify the onboarding
   steps with consistent native spacing. Code-only users still start in their vault.
 
 - Add offline TOTP (SHA1/SHA256/SHA512, six/eight digits) with native code lists,

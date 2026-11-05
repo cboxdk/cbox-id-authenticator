@@ -61,8 +61,8 @@ final class CboxSecurityGate {
         updatePresentation()
     }
 
-    func configure(_ enabled: Bool) {
-        lifecycle.configure(enabled)
+    func configure(_ enabled: Bool, afterSignIn: Bool = false) {
+        lifecycle.configure(enabled, afterSignIn: afterSignIn)
         UserDefaults.standard.set(enabled, forKey: "cbox.security.enabled")
         if !enabled {
             let old = context
@@ -85,8 +85,8 @@ final class CboxSecurityGate {
         return true
     }
 
-    func endBrowserAuthentication() {
-        lifecycle.endBrowser()
+    func endBrowserAuthentication(completed: Bool = false) {
+        lifecycle.endBrowser(completed: completed)
         updatePresentation()
     }
 
@@ -173,7 +173,8 @@ enum AuthenticatorSecurityFunctions {
     class Configure: BridgeFunction {
         func execute(parameters: [String: Any]) throws -> [String: Any] {
             AuthenticatorSecurityFunctions.onMain {
-                CboxSecurityGate.shared.configure(parameters["enabled"] as? Bool ?? true)
+                CboxSecurityGate.shared.configure(parameters["enabled"] as? Bool ?? true,
+                    afterSignIn: parameters["afterSignIn"] as? Bool ?? false)
                 return CboxSecurityGate.shared.state
             }
         }

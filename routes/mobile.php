@@ -99,6 +99,9 @@ Route::nativeGroup(AppLayout::class, function (): void {
     Route::native('/approvals/{account}/{id}', ApprovalDetail::class);
 
     Route::native('/settings', Settings::class);
+    // Shared flows stay in the tab that opened them, including its back stack.
+    Route::native('/settings/backup', CodeBackup::class);
+    Route::native('/settings/connect', Connect::class);
 });
 
 // Version 2 push route: installation maps locally to exactly one account.

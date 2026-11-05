@@ -9,10 +9,10 @@ use Native\Mobile\Events\Biometric\Completed;
 /** The native gate fails closed if its plugin is unavailable. */
 final class DeviceSecurity
 {
-    public function configure(bool $enabled): void
+    public function configure(bool $enabled, bool $afterSignIn = false): void
     {
         if (function_exists('nativephp_call')) {
-            nativephp_call('AuthenticatorSecurity.Configure', json_encode(['enabled' => $enabled], JSON_THROW_ON_ERROR));
+            nativephp_call('AuthenticatorSecurity.Configure', json_encode(['enabled' => $enabled, 'afterSignIn' => $afterSignIn], JSON_THROW_ON_ERROR));
         }
     }
 

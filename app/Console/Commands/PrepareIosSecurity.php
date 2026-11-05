@@ -62,6 +62,43 @@ final class PrepareIosSecurity extends Command
 SWIFT;
             File::put($scanners[0], substr($scanner, 0, $start).$completion.substr($scanner, $end));
         }
+        $inputs = glob($root.'/NativePHP/Bridge/Plugins/*/NativeUITextInputCore.swift') ?: [];
+        if (count($inputs) !== 1) {
+            throw new RuntimeException('Expected one native text input core. Review the plugin layout before building.');
+        }
+        $input = File::get($inputs[0]);
+        $inputMarker = '// Cbox: acknowledge every in-flight edit, not only the latest one.';
+        if (! str_contains($input, $inputMarker)) {
+            $replacements = [
+                '.submitLabel(onSubmitCb != 0 ? .done : .return)' => '.submitLabel(multiline ? .return : .done)',
+                '            // Submit also acts as a commit point — flush pending, then dispatch.' => "            if !keepFocus { isFocused = false }\n            // Submit also acts as a commit point — flush pending, then dispatch.",
+                '    @State private var lastSentValue: String = ""' => "    $inputMarker\n    @State private var echoes = CboxTextInputEchoes()\n    @State private var lastSentValue: String = \"\"",
+                '        .onChange(of: serverValue) { _, newServerValue in' => <<<'SWIFT'
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
+            debounceTask?.cancel()
+            debounceTask = nil
+            echoes.reset()
+            if secure {
+                text = ""
+                lastSentValue = ""
+                isFocused = false
+            }
+        }
+        .onChange(of: serverValue) { _, newServerValue in
+            if echoes.acknowledge(newServerValue) { return }
+SWIFT,
+                '            if newServerValue != lastSentValue {' => "            if newServerValue != lastSentValue {\n                echoes.reset()",
+                '    private func commit(_ value: String, onChangeCb: Int) {' => "    private func commit(_ value: String, onChangeCb: Int) {\n        guard value != lastSentValue else { return }",
+                '            NativeElementBridge.sendTextChangeEvent(onChangeCb, nodeId: node.id, text: value)' => "            echoes.sent(value)\n            NativeElementBridge.sendTextChangeEvent(onChangeCb, nodeId: node.id, text: value)",
+            ];
+            foreach ($replacements as $original => $replacement) {
+                if (substr_count($input, $original) !== 1) {
+                    throw new RuntimeException('Review native input synchronization before building: upstream changed.');
+                }
+                $input = str_replace($original, $replacement, $input);
+            }
+            File::put($inputs[0], $input);
+        }
         $podfile = $root.'/Podfile';
         if (is_file($podfile)) {
             $pods = File::get($podfile);

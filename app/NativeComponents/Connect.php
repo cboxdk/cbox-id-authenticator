@@ -58,6 +58,11 @@ class Connect extends NativeComponent
 
     private ?string $pendingState = null;
 
+    public function openedFromSettings(): bool
+    {
+        return str_starts_with($this->nativeRouter?->currentUri() ?? '', '/settings/');
+    }
+
     public function toggleManual(): void
     {
         $this->showManual = ! $this->showManual;

@@ -2,9 +2,18 @@
 
 Koden ligger på `sd/ios-release`. Backendændringerne fra `sd/authenticator-ios-api` er merged og udrullet via PR108.
 De eksisterende ændringer i de oprindelige `cbox-id`- og `laravel-id`-checkouts er bevaret.
-Mål for den aktuelle telefontest: 1.0.0 (9) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret og verificeret. Indeholder TOTP, krypteret backup, native glasnavigation og rettet login/låseforløb.
+Mål for den aktuelle telefontest: 1.0.0 (10) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret, versionskontrolleret og åbnet. Indeholder TOTP, krypteret backup, native glasnavigation samt rettelser til login, kontofjernelse, input og layout.
 Serverrettelserne følges i https://github.com/cboxdk/cbox-id/pull/108.
 Firebaseprojekt findes endnu ikke; første test er udtrykkeligt uden push.
+
+Build 10 er kontrolleret med 203 PHP-tests / 818 assertions, Larastan, 11 Swift-
+livscyklusscenarier, input-echo-tests og native kilde-/pakningskontrol. To XCUITest-
+forløb på iPhone 17e / iOS27 består: kontofjernelse (annullér og bekræft) samt
+indtastning, tastaturlukning og Indstillinger → backup → opret/annullér → tilbage.
+Screenshots viser korrekt placering af sletterække, inputfelter og backupknapper.
+Simulatoren brugte en opfundet konto og tomme formularer uden lokal oplåsning;
+disse midlertidige fixtures er fjernet og indgår ikke i telefonbuildet. Testene
+verificerer derfor UI og navigation, ikke fysisk Face ID, Google-login eller Filer.
 
 ## 1. Server før telefon
 
@@ -83,7 +92,7 @@ Gem screenshots uden rigtige personoplysninger eller QR-/tilslutningskoder.
 | Annullér systemlogin, scan igen | Tilslutningsskærmen bliver klar igen; eksisterende konti og koder bevares. |
 | Baggrund under browserlogin → retur | Login kan afsluttes. Eventuel applås åbnes med ét bevidst tryk på Lås op efter browseren. |
 | Annullér Face ID ved appstart | Låseskærmen bliver stående uden automatisk nyt prompt; Lås op kan forsøge igen. |
-| Frisk installation → QR → systemlogin | Kontoen er tilsluttet-bekræftelse og Cbox ID-fanen vises; ingen webview-skærme. |
+| Første konto → QR → systemlogin | Direkte til Cbox ID med kontonavn; ingen ekstra applås eller kvittering, hvis ingen beskyttet konto/kode fandtes før login. Eksisterende låst indhold kræver fortsat oplåsning. |
 | Kun telefonen | Indtast host → Betroede enheder → tilslutningslink → samme loginforløb. |
 | Afvis kamera eller annullér scanner | Linkvejen er stadig tilgængelig. |
 | Afvis notifikationer / forsinket push-token | Kontoen tilmeldes; anmodninger vises ved polling. |
@@ -95,7 +104,9 @@ Gem screenshots uden rigtige personoplysninger eller QR-/tilslutningskoder.
 | To brugere på samme host + en anden host | Kontonavne og push-links åbner altid den rigtige konto. |
 | Push i forgrund, baggrund og kold start | Rigtig anmodning/konto; ingen følsomme detaljer på låseskærmen. |
 | Fjern telefonen via web, mens appen stadig har tokens | Appen får afslag på både læsning og godkendelse; ny nøgle/tilmelding kræves. |
-| Fjern én konto lokalt | Andre konti fungerer fortsat. |
+| Fjern én konto lokalt | Rød sletterække flugter med øvrige rækker. Native dialog: Behold kontoen ændrer intet; Fjern konto vender tilbage til Indstillinger. Andre konti fungerer fortsat. |
+| Backup / tilføj konto fra Indstillinger | Bliver på Indstillinger-fanen; tilbage fører til den foregående skærm. |
+| Hurtig indtastning og rettelser | Alle tegn bevares i kontonavne, tjeneste og adgangskoder; Færdig lukker tastaturet. |
 | Genlogin med samme konto / forkert konto | Samme identitet erstattes uden dublet; forkert identitet accepteres ikke som genlogin. |
 | Baggrund og appskifter | Konto- og requestoplysninger dækkes; retur kræver oplåsning. |
 | Dansk/engelsk, lys/mørk, stor tekst, VoiceOver | Labels, knapper, scroll, safe areas og tilbage-navigation fungerer. |

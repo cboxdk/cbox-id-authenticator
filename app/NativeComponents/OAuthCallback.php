@@ -130,9 +130,9 @@ class OAuthCallback extends NativeComponent
                 }
                 $context->remove($old);
             }
-            app(DeviceSecurity::class)->configure(true);
+            app(DeviceSecurity::class)->configure(true, afterSignIn: true);
 
-            $this->replace('/approvals', ['connected' => Account::labelFor($pending->issuer, $label)]);
+            $this->replace('/approvals');
         } catch (Throwable $e) {
             // Nothing was added to the index, so the reserved namespace is unreachable
             // through it. Wipe it rather than leave a DPoP key and a half-set of tokens

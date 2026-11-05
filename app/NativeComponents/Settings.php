@@ -9,8 +9,11 @@ use App\Concerns\NavigatesScreens;
 use App\Services\AppSecurity;
 use App\Services\DevicePush;
 use Illuminate\View\View;
+use Native\Mobile\Attributes\On;
 use Native\Mobile\Edge\NativeComponent;
+use Native\Mobile\Events\Alert\ButtonPressed;
 use Native\Mobile\Facades\Browser;
+use Native\Mobile\Facades\Dialog;
 use Native\Mobile\Facades\System;
 use Throwable;
 
@@ -26,6 +29,10 @@ class Settings extends NativeComponent
 
     public ?string $removing = null;
 
+    private ?string $removalDialog = null;
+
+    private bool $removalConfirmed = false;
+
     /** @var list<array{id: string, label: string, issuer: string}> */
     public array $accounts = [];
 
@@ -37,6 +44,7 @@ class Settings extends NativeComponent
 
     public function onResume(): void
     {
+        $this->cancelRemoval();
         $this->mount();
     }
 
@@ -52,7 +60,7 @@ class Settings extends NativeComponent
 
     public function backup(): void
     {
-        $this->navigate('/codes/backup');
+        $this->navigate('/settings/backup');
     }
 
     public function about(): void
@@ -70,17 +78,46 @@ class Settings extends NativeComponent
 
     public function requestRemoval(string $id): void
     {
+        if ($this->working || $this->removalDialog !== null) {
+            return;
+        }
+        $account = app(AccountContext::class)->store()->find($id);
+        if ($account === null) {
+            return;
+        }
         $this->removing = $id;
+        $this->removalDialog = bin2hex(random_bytes(16));
+        Dialog::alert(__('Remove from this phone'), $account->label."\n\n".__('Remove this account from this phone? You can connect it again with a new code from Trusted devices.'), [
+            ['label' => __('Keep account'), 'style' => 'cancel'],
+            ['label' => __('Remove account'), 'style' => 'destructive'],
+        ])->id($this->removalDialog)->show();
+    }
+
+    #[On(ButtonPressed::class)]
+    public function removalAnswered(int $index, ?string $id = null): void
+    {
+        if ($id === null || $this->removalDialog === null || ! hash_equals($this->removalDialog, $id)) {
+            return;
+        }
+        $accountId = $this->removing;
+        $this->removalDialog = null;
+        if ($index === 1 && $accountId !== null) {
+            $this->removalConfirmed = true;
+            $this->signOut($accountId);
+        }
+        $this->cancelRemoval();
     }
 
     public function cancelRemoval(): void
     {
         $this->removing = null;
+        $this->removalDialog = null;
+        $this->removalConfirmed = false;
     }
 
     public function goAddAccount(): void
     {
-        $this->navigate('/connect');
+        $this->navigate('/settings/connect');
     }
 
     /**
@@ -125,10 +162,10 @@ class Settings extends NativeComponent
      */
     public function signOut(string $accountId): void
     {
-        if ($this->working) {
+        if ($this->working || ! $this->removalConfirmed || $this->removing !== $accountId) {
             return;
         }
-
+        $this->removalConfirmed = false;
         $this->working = true;
 
         $context = app(AccountContext::class);
@@ -166,9 +203,6 @@ class Settings extends NativeComponent
         $this->working = false;
 
         app(AppSecurity::class)->refresh();
-        if (! app(AppSecurity::class)->hasSecrets()) {
-            $this->replace('/codes');
-        }
     }
 
     private function loadAccounts(): void

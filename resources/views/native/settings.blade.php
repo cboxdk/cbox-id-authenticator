@@ -13,7 +13,7 @@
             <list-item headline="{{ __('Re-sync notifications') }}" leadingIcon="arrow.clockwise" @press="resync" />
         @endif
         @if ($notice !== null)
-            <text class="text-sm text-theme-on-surface-variant">{{ __($notice) }}</text>
+            <text class="px-4 py-3 text-sm text-theme-on-surface-variant">{{ __($notice) }}</text>
         @endif
     </list-section>
     <list-section header="{{ __('Your data') }}">

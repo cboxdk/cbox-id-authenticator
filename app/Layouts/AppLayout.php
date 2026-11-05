@@ -36,7 +36,7 @@ class AppLayout extends NativeLayout
     {
         $bar = TabBar::make()
             ->add(Tab::link('Cbox ID', '/approvals', ios: Ios::CheckmarkShield, android: Android::Shield)
-                ->active($screen instanceof Connect))
+                ->active($screen instanceof Connect && ! $screen->openedFromSettings()))
             ->add(Tab::link(__('Codes'), '/codes', ios: Ios::Key, android: Android::Lock))
             ->add(Tab::link(__('Settings'), '/settings', ios: Ios::Gearshape, android: Android::Settings)
                 ->active($screen instanceof AccountDetail || $screen instanceof About || $screen instanceof Licenses));

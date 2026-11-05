@@ -19,13 +19,14 @@ final class CboxAuthenticationBrowser: NSObject, ASWebAuthenticationPresentation
                 guard let self = self, self.session != nil else { return }
                 self.session = nil
                 self.anchor = nil
-                CboxSecurityGate.shared.endBrowserAuthentication()
                 if let callback = callback, error == nil,
                    callback.scheme == "com.cboxid.authenticator", callback.host == nil,
                    callback.path == "/oauth/callback", callback.fragment == nil {
+                    CboxSecurityGate.shared.endBrowserAuthentication(completed: true)
                     self.emit(id: id, result: "completed")
                     DeepLinkRouter.shared.handle(url: callback)
                 } else {
+                    CboxSecurityGate.shared.endBrowserAuthentication()
                     let cancelled = (error as? ASWebAuthenticationSessionError)?.code == .canceledLogin
                     self.emit(id: id, result: cancelled ? "cancelled" : "failed")
                 }

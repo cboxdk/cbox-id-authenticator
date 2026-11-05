@@ -3,7 +3,7 @@
         <list-section>
             <list-item headline="{{ $account['label'] }}" supporting="{{ $account['issuer'] }}" leadingIcon="person.crop.circle" />
             @if ($notice !== null)
-                <text class="text-sm text-theme-on-surface-variant">{{ __($notice) }}</text>
+                <text class="px-4 py-3 text-sm text-theme-on-surface-variant">{{ __($notice) }}</text>
             @endif
         </list-section>
         <list-section header="{{ __('Connection') }}" footer="{{ __('To reconnect, scan a new code from My account → Trusted devices for this account.') }}">
@@ -17,15 +17,14 @@
             </list-section>
         @endif
         <list-section footer="{{ __('Signing out of an account stops approval requests from that host only.') }}">
-            @if ($removing === $account['id'])
-                <text class="text-base text-theme-on-background">{{ __('Remove this account from this phone? You can connect it again with a new code from Trusted devices.') }}</text>
-                <button label="{{ __('Remove account') }}" variant="destructive" class="glass:prominent" :disabled="$working" @press="signOut('{{ $account['id'] }}')"></button>
-                <button label="{{ __('Keep account') }}" variant="ghost" @press="cancelRemoval"></button>
-            @else
-                <button label="{{ __('Remove from this phone') }}" variant="ghost" class="text-theme-destructive" @press="requestRemoval('{{ $account['id'] }}')"></button>
-            @endif
+            <pressable class="w-full px-4 py-4" a11y-label="{{ __('Remove from this phone') }}" @press="requestRemoval('{{ $account['id'] }}')">
+                <row class="w-full items-center gap-4">
+                    <icon name="trash" :size="24" class="text-theme-destructive" />
+                    <text class="flex-1 text-base text-theme-destructive">{{ __('Remove from this phone') }}</text>
+                </row>
+            </pressable>
         </list-section>
     @empty
-        <list-section><text class="text-base text-theme-on-background">{{ __('This account has been removed from this phone.') }}</text></list-section>
+        <list-section><text class="p-4 text-base text-theme-on-background">{{ __('This account has been removed from this phone.') }}</text></list-section>
     @endforelse
 </list>

@@ -1,6 +1,6 @@
 <column class="w-full h-full bg-theme-background">
     <scroll-view class="flex-1">
-        <column class="w-full p-4 gap-4">
+        <column class="w-full px-5 py-4 gap-4">
             <text class="text-2xl font-bold text-theme-on-background">{{ __("Cbox ID Authenticator") }}</text>
             <text class="text-sm text-theme-on-surface-variant">{{ __('Version :version · Build :build', ['version' => config('nativephp.version'), 'build' => config('nativephp.version_code')]) }}</text>
             <text class="text-lg font-semibold text-theme-on-background">{{ __("Your accounts and privacy") }}</text>
@@ -17,8 +17,8 @@
             @if ($error !== null)
                 <text class="text-sm text-theme-destructive">{{ __($error) }}</text>
             @endif
-            <button label="{{ __('Licenses') }}" variant="secondary" @press="licenses"></button>
-            <button label="{{ __('Contact Cbox') }}" variant="secondary" @press="support"></button>
+            <button label="{{ __('Licenses') }}" variant="secondary" class="w-full" @press="licenses"></button>
+            <button label="{{ __('Contact Cbox') }}" variant="secondary" class="w-full" @press="support"></button>
         </column>
     </scroll-view>
 </column>

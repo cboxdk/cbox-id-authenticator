@@ -148,7 +148,8 @@ it('renders privacy and account removal as native screens', function (): void {
     fakeSecureStorage();
     Native::test(About::class)->assertSee('Your accounts and privacy')->assertSee('Contact Cbox');
     app(AccountStore::class)->put(new Account('alice', 'https://cbox.cboxid.com', 'Alice'));
-    Native::visit('/account/alice')->call('requestRemoval', 'alice')->assertSee('Keep account')->assertSee('Remove account');
+    Native::visit('/account/alice')->call('requestRemoval', 'alice')->assertSee('Remove from this phone');
+    Native::fakeBridge()->assertCalled('Dialog.Alert', fn (array $p): bool => $p['buttons'][0]['style'] === 'cancel' && $p['buttons'][1]['style'] === 'destructive');
 });
 
 it('renders a usable native host field and Danish account screens', function (): void {

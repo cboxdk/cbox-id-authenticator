@@ -11,6 +11,7 @@ use App\Services\AppSecurity;
 use App\Totp\EncryptedBackup;
 use App\Totp\TotpStore;
 use Illuminate\Support\Facades\Http;
+use Native\Mobile\Events\Alert\ButtonPressed;
 use Native\Mobile\Testing\Native;
 
 it('saves and displays codes without a Cbox account', function (): void {
@@ -52,7 +53,8 @@ it('keeps the TOTP vault and app lock when the last Cbox account is removed', fu
     app(TotpStore::class)->merge([testTotpEntry()]);
     $before = $storage[TotpStore::KEY];
     Http::fake(['*' => Http::response([], 200)]);
-    Native::test(Settings::class)->call('signOut', $account->id);
+    $screen = Native::test(Settings::class)->call('requestRemoval', $account->id);
+    $screen->emitNative(ButtonPressed::class, ['id' => lastRemovalDialogId(), 'index' => 1, 'label' => 'Remove account']);
     expect($storage[TotpStore::KEY])->toBe($before)->and(app(AppSecurity::class)->hasSecrets())->toBeTrue();
     Native::fakeBridge()->assertCalled('AuthenticatorSecurity.Configure', fn (array $p): bool => $p['enabled'] === true);
 });

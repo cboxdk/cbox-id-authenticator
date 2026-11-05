@@ -11,6 +11,7 @@ struct CboxAuthenticationLifecycle {
     private(set) var authenticationGeneration: Int?
     private var attemptedUnlock = false
     private var automaticUnlockAllowed = true
+    private var mayFinishFirstConnection = false
 
     init(enabled: Bool) {
         self.enabled = enabled
@@ -30,11 +31,15 @@ struct CboxAuthenticationLifecycle {
             && authenticationGeneration == nil && !attemptedUnlock && automaticUnlockAllowed
     }
 
-    mutating func configure(_ value: Bool) {
+    mutating func configure(_ value: Bool, afterSignIn: Bool = false) {
         if value && !enabled {
-            locked = true
+            // A first successful web sign-in has just authenticated the account.
+            // Start protecting it now, without asking for a second authentication
+            // before the user has even seen it. Existing locked vaults never use this.
+            locked = !(afterSignIn && mayFinishFirstConnection)
             attemptedUnlock = false
         }
+        mayFinishFirstConnection = false
         enabled = value
         if !value {
             locked = false
@@ -45,6 +50,7 @@ struct CboxAuthenticationLifecycle {
     mutating func resignActive() { foreground = false }
 
     mutating func enterBackground() {
+        mayFinishFirstConnection = false
         foreground = false
         backgrounded = true
         generation += 1
@@ -61,13 +67,15 @@ struct CboxAuthenticationLifecycle {
 
     mutating func beginBrowser() -> Bool {
         guard canAccessSecrets, authenticationGeneration == nil else { return false }
+        mayFinishFirstConnection = false
         browserActive = true
         automaticUnlockAllowed = false
         generation += 1
         return true
     }
 
-    mutating func endBrowser() {
+    mutating func endBrowser(completed: Bool = false) {
+        mayFinishFirstConnection = browserActive && completed && !enabled && !backgrounded
         browserActive = false
         // A deliberate unlock after returning prevents Face ID from competing with
         // the authentication sheet's dismissal or a password-manager handoff.

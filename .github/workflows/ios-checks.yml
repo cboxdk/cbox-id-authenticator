@@ -55,3 +55,5 @@ jobs:
         run: |
           xcrun swiftc plugins/authenticator-security/resources/ios/AuthenticationLifecycle.swift tests/Unit/AuthenticationLifecycleTests.swift -o /tmp/cbox-authentication-tests
           /tmp/cbox-authentication-tests
+          xcrun swiftc plugins/authenticator-security/resources/ios/TextInputEchoes.swift tests/Unit/TextInputEchoTests.swift -o /tmp/cbox-input-tests
+          /tmp/cbox-input-tests

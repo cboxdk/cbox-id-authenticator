@@ -21,6 +21,9 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
     $scanner = $root.'/NativePHP/Bridge/Plugins/Scanner/ScannerViewController.swift';
     File::ensureDirectoryExists(dirname($scanner));
     File::copy(base_path('vendor/nativephp/mobile-scanner/resources/ios/ScannerViewController.swift'), $scanner);
+    $input = $root.'/NativePHP/Bridge/Plugins/UI/NativeUITextInputCore.swift';
+    File::ensureDirectoryExists(dirname($input));
+    File::copy(base_path('vendor/nativephp/mobile-ui/resources/ios/NativeUITextInputCore.swift'), $input);
     File::copy(base_path('vendor/nativephp/mobile/resources/xcode/NativePHP/Bridge/BridgeRouter.swift'), $root.'/NativePHP/Bridge/BridgeRouter.swift');
     File::ensureDirectoryExists($root.'/NativePHP/NativeRender');
     File::copy(base_path('vendor/nativephp/mobile/resources/xcode/NativePHP/NativeRender/NativeRootTabsRenderer.swift'), $root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift');
@@ -32,11 +35,14 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
             ->not->toContain('if isRoot && !forceHide {');
         $first = File::get($path);
         $firstScanner = File::get($scanner);
+        $firstInput = File::get($input);
+        expect($firstInput)->toContain('echoes.acknowledge(newServerValue)')->toContain('echoes.sent(value)');
         expect($firstScanner)->toContain("dismiss(animated: true) {\n                self.dispatchScannedEvent");
         expect($first)->toContain('App\\\\Events\\\\PushReceived')->not->toContain('print(')->not->toContain('let event = userInfo["event"]');
         $this->artisan('authenticator:prepare-ios', ['--platform' => 'ios', '--build-path' => $root])->assertSuccessful();
         expect(File::get($path))->toBe($first);
         expect(File::get($scanner))->toBe($firstScanner);
+        expect(File::get($input))->toBe($firstInput);
         expect(substr_count(File::get($root.'/Podfile'), 'post_install do'))->toBe(1);
         expect(File::get($root.'/Podfile'))->toContain("Gem::Version.new('18.2')");
         expect(File::get($root.'/NativePHP/Bridge/BridgeRouter.swift'))->not->toContain('print(')->toContain('cboxDiscardLog(');

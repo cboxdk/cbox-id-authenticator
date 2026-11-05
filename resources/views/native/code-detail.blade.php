@@ -1,6 +1,6 @@
 <column class="w-full h-full bg-theme-background">
     <scroll-view class="flex-1">
-        <column class="w-full p-4 gap-4">
+        <column class="w-full px-5 py-4 gap-4">
             @if ($error !== null)
                 <text class="text-sm text-theme-destructive">{{ __($error) }}</text>
             @endif
@@ -11,10 +11,10 @@
             <divider class="border-theme-outline" />
             @if ($confirmRemoval)
                 <text class="text-base text-theme-on-background">{{ __('Remove this code from this phone? Make sure you have a backup or another way to sign in. Removing it does not turn off two-factor authentication at the service.') }}</text>
-                <button label="{{ __('Remove code') }}" variant="destructive" @press="remove"></button>
-                <button label="{{ __('Keep code') }}" variant="secondary" @press="cancelRemoval"></button>
+                <button label="{{ __('Remove code') }}" variant="destructive" class="w-full" @press="remove"></button>
+                <button label="{{ __('Keep code') }}" variant="secondary" class="w-full" @press="cancelRemoval"></button>
             @else
-                <button label="{{ __('Remove code') }}" variant="destructive" @press="requestRemoval"></button>
+                <button label="{{ __('Remove code') }}" variant="destructive" class="w-full" @press="requestRemoval"></button>
             @endif
         </column>
     </scroll-view>

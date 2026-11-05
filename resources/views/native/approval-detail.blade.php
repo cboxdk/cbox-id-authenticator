@@ -1,6 +1,6 @@
 <column class="w-full h-full bg-theme-background">
     <scroll-view class="flex-1">
-        <column class="w-full p-4 gap-4">
+        <column class="w-full px-5 py-4 gap-4">
 
             @if ($error !== null)
                 <text class="text-sm text-theme-destructive">{{ __($error) }}</text>
@@ -33,14 +33,14 @@
                         <text text-align="center" class="text-sm text-theme-on-surface-variant">{{ __("If you didn't start this, change your password.") }}</text>
                     @endif
 
-                    <button label="{{ __('Done') }}" variant="secondary" @press="goApprovals"></button>
+                    <button label="{{ __('Done') }}" variant="secondary" class="w-full" @press="goApprovals"></button>
                 </column>
 
             @elseif ($missing)
                 <column class="w-full items-center gap-3 py-12">
                     <icon name="questionmark.circle" :size="40" class="text-theme-on-surface-variant" />
                     <text class="text-base text-theme-on-background">{{ __("This request is no longer available.") }}</text>
-                    <button label="{{ __('Back') }}" variant="secondary" @press="goBack"></button>
+                    <button label="{{ __('Back') }}" variant="secondary" class="w-full" @press="goBack"></button>
                 </column>
 
             @elseif ($approval !== null)
@@ -97,16 +97,17 @@
                     <button
                         label="{{ __('Approve') }}"
                         variant="primary"
+                        class="w-full glass:prominent"
                         size="lg"
                         :loading="$working || $biometricAttempt !== null"
                         :disabled="$this->secondsLeft <= 0 || $working || $biometricAttempt !== null"
                         @press="approve"
                     ></button>
-                    <button label="{{ __('Deny') }}" variant="secondary" size="lg" :disabled="$working" @press="deny"></button>
+                    <button label="{{ __('Deny') }}" variant="secondary" class="w-full" size="lg" :disabled="$working" @press="deny"></button>
 
                     {{-- Deliberately distinct from Deny: a user who did not start this
                          is reporting an attack, not declining a request. --}}
-                    <button label="{{ __('This wasn\'t me') }}" variant="destructive" size="md" :disabled="$working" @press="wasNotMe"></button>
+                    <button label="{{ __('This wasn\'t me') }}" variant="destructive" class="w-full" size="md" :disabled="$working" @press="wasNotMe"></button>
                 </column>
             @endif
 
