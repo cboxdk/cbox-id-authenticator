@@ -33,9 +33,12 @@ Separate, navngivne TOTP-tilmeldinger er implementeret i
 [ID-pakke-PR31](https://github.com/cboxdk/laravel-id/pull/31). Hver app får sin egen
 nøgle, som kan omdøbes og fjernes uden at påvirke andre apps eller gendannelseskoder.
 Eksisterende nøgler bevares. Tilføj, kodefejl, bekræftelse, omdøb, fjern og annullér
-er kontrolleret i browseren, med layoutkontrol på alle ti sprog. De kræver en
-selvstændig serveropdatering efter godkendt pakkeudgivelse og er endnu ikke i drift.
-Telefonbuildet alene aktiverer derfor ikke flere tilmeldinger.
+er kontrolleret i browseren, med layoutkontrol på alle ti sprog. `laravel-id v1.28.0`
+er udgivet, og serverrettelsen er udrullet og verificeret 2026-11-05 kl. 21:50 UTC:
+revision `6788b6473f32f246382e7c6339b849d60f7d32d5`, web 2/2 og worker 1/1,
+alle med readiness HTTP 200. Opgraderingen skete i to trin, så alle pods fik
+beskyttelse mod overskrivning af eksisterende nøgler, før den nye menu blev åbnet.
+Build 15 kan bruges direkte til telefonaccept af separate tilmeldinger.
 
 ## UI/UX-runde — build 12–14
 

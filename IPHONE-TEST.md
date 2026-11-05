@@ -2,8 +2,11 @@
 
 Koden ligger på `sd/ios-release`. Backendændringerne fra `sd/authenticator-ios-api` er merged og udrullet via PR108.
 De eksisterende ændringer i de oprindelige `cbox-id`- og `laravel-id`-checkouts er bevaret.
-Mål for den aktuelle telefontest: 1.0.0 (14) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret og versionskontrolleret. Åbn appen på telefonen. Indeholder TOTP, krypteret backup, native glasnavigation og ni redesignede skærme med tydeligere handlinger, formularer, kodekort og mørk tilstand.
+Mål for den aktuelle telefontest: 1.0.0 (15) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret og versionskontrolleret. Åbn appen på telefonen. Indeholder TOTP, krypteret backup, native glasnavigation og ni redesignede skærme med tydeligere handlinger, formularer, kodekort og mørk tilstand.
 Serverrettelserne følges i https://github.com/cboxdk/cbox-id/pull/108.
+Separate TOTP-tilmeldinger fra PR109 er også udrullet: serverrevision
+`6788b6473f32f246382e7c6339b849d60f7d32d5`, verificeret 2026-11-05 kl. 21:50 UTC
+med web 2/2, worker 1/1, laravel-id v1.28.0 og sunde readiness-tjek.
 Firebaseprojekt findes endnu ikke; første test er udtrykkeligt uden push.
 
 Build 15 er installeret og verificeret via devicectl. Automatisk åbning fejlede,
@@ -140,6 +143,23 @@ Brug kun opfundne testkonti og testnøgler til første gennemløb.
    Afbryd importoversigten med baggrund/lås; en gammel bekræftelse må ikke importere.
 9. Installér næste build oveni, og kontrollér at Keychain-koderne stadig findes.
    Test gendannelse på en anden enhed inden App Store-release.
+
+### Separate TOTP-apps til Cbox ID
+
+Serverudrulningen af PR110 og PR109 er verificeret. Denne fysiske accepttest mangler:
+
+1. Åbn **Min konto → Godkendelsesapps** i Cbox ID. Den eksisterende tilmelding skal
+   stadig være der og kunne omdøbes til navnet på den app, der har nøglen.
+2. Vælg **Tilføj godkendelsesapp**, navngiv den, og vis QR-koden. Scan den fra
+   **Koder → Tilføj kode** på iPhone. Tjenesten skal hedde Cbox ID, kontoen skal
+   stemme, og der må ikke komme en fejl om forskellige tjenestenavne.
+3. Bekræft med koden fra iPhone. Gentag med en ny tilmelding og ny QR-kode til hver
+   anden app, eksempelvis 1Password. Hver app skal få sin egen række på serveren.
+4. Kontrollér login med hver app; brug en ny kode til hvert forsøg. Fjern derefter
+   én tilmelding på serveren. De øvrige apps skal stadig virke, mens den fjernedes
+   koder afvises. Gendannelseskoderne må ikke være blevet udskiftet.
+5. Start telefonappen i lys og mørk tilstand. Splash-skjoldet skal stå på den fælles
+   baggrund uden en hvid firkant.
 
 ## 5. Efter godkendt telefontest
 
