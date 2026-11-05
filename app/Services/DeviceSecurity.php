@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\AppLanguages;
 use Native\Mobile\Events\Biometric\Completed;
 
 /** The native gate fails closed if its plugin is unavailable. */
@@ -41,9 +42,7 @@ final class DeviceSecurity
 
     public function locale(): string
     {
-        $locale = $this->state()['locale'] ?? 'en';
-
-        return is_string($locale) && str_starts_with(strtolower($locale), 'da') ? 'da' : 'en';
+        return AppLanguages::resolve($this->state()['locale'] ?? 'en');
     }
 
     public function pushAvailable(): bool

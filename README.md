@@ -13,15 +13,19 @@ Android is not release-ready: the security plugin currently supports iOS only.
 
 The iOS implementation and matching Cbox ID API changes are ready for the physical
 phone test described in [IPHONE-TEST.md](IPHONE-TEST.md). Signed development build
-1.0.0 (11) is installed on an iPhone 16 Pro (iOS 27.0.1) over USB. The matching
+1.0.0 (14) is installed on an iPhone 16 Pro (iOS 27.0.1) over USB. The matching
 server API v2 is deployed, and the user has confirmed successful connection.
-Build 11 redesigns the inbox, connection, account, code and backup screens with
-consistent native cards, readable forms, countdown bars and inline copy feedback.
-Simulator UI flows pass in light/dark mode and with larger accessibility text.
-Earlier fixes cover account removal, input races and backup navigation. First
-connection finishes without a second unlock or acknowledgment.
-Physical acceptance of these refinements, TOTP/backup,
-TestFlight and App Store acceptance are pending.
+The latest polish adds all ten Cbox ID languages (English, Danish, German, Swedish,
+Norwegian Bokmål, French, Finnish, Spanish, Italian and Dutch), native permission and
+lock copy, shorter help topics, language settings and consistent light/dark launch assets.
+The native cards, forms, countdowns and glass navigation from build 11 are preserved.
+230 PHP tests, Larastan, eleven Swift lifecycle scenarios and input-echo checks pass.
+Simulator flows cover all ten languages, large text, forms and multi-account presentation.
+First connection finishes without a second unlock or acknowledgment.
+
+Physical acceptance of Google/Face ID and TOTP/Files, Firebase/APNs configuration,
+TestFlight and App Store submission are still pending. The strict store check currently
+stops on the missing Firebase plist. No store upload or release tag has been made.
 
 - App branch: `sd/ios-release`, preserving the earlier multi-account work.
 - Server branch: `sd/authenticator-ios-api` in the separate Cbox ID worktree.
@@ -46,15 +50,19 @@ php artisan authenticator:check
 `composer qa` runs the PHP suite, Larastan, plugin validation and the locked production
 dependency/license inventory check. After an intentional dependency update, regenerate
 that inventory with `php artisan authenticator:dependencies` and review the diff.
-The native app exposes its PHP library notices under Privacy and help → Licenses.
-The inventory covers Composer packages; native SDKs must also be inventoried from the
-archive before release.
+The native app exposes 97 Composer and 9 resolved iOS dependency notices under
+Privacy and help → Licenses. After an iOS dependency update, run
+`php artisan authenticator:ios-notices`, review the licenses, then verify them with
+`php artisan authenticator:ios-notices --check`. The command reads CocoaPods notices
+and the pinned ZIPFoundation checkout. Check the final archive against this inventory.
 
 The iOS preparation hook runs on every native project generation. It restricts push
 links to existing local installations, fixes foreground refresh delivery, disables
 native credential logging and Bifrost OTA updates. It keeps native tabs visible and
 waits for scanner dismissal before delivering a scanned code, and acknowledges queued
-input echoes without replacing newer text. A Swift compile guard prevents a
+input echoes without replacing newer text. It generates ten Localizable.strings files,
+localizes scanner and authentication dialogs, and exposes action-row labels and hints
+to VoiceOver. A Swift compile guard prevents a
 build if preparation did not complete. Source-only CI defines
 `CBOX_AUTHENTICATOR_SOURCE_CHECK`; never set this flag on an app build.
 

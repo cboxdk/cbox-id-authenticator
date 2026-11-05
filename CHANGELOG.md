@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Support all ten Cbox ID languages, including native scanner, permission and lock
+  screens; follow the iOS app language and expose its system setting from the app.
+- Replace the long help page with expandable topics for codes, scanning, privacy,
+  account removal, a lost phone and unexpected requests.
+- Match light/dark splash and lock-screen styling to the app; shorten German and
+  Finnish headings for large accessibility text and expose action-row button traits,
+  labels and hints consistently to VoiceOver.
+- Include resolved CocoaPods and Swift Package licenses in the native notices screen;
+  check native lockfile fingerprints and localization resources before store packaging.
+- Prepare store descriptions for ten locales and Danish/English 6.9-inch screenshots
+  using fictitious simulator presentation data, excluded from device builds.
+
 - Redesign nine native iOS screens with a blue brand treatment, consistent account
   and action rows, persistent field labels, clear primary actions and dark-mode surfaces.
 - Shorten connection onboarding, show connected accounts directly in the inbox, and

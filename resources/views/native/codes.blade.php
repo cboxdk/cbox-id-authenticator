@@ -11,7 +11,7 @@
             @if ($notice !== null && $copiedId === null)<text class="text-sm text-theme-on-surface-variant">{{ __($notice) }}</text>@endif
             @forelse ($codes as $code)
                 <column class="w-full p-5 gap-4 rounded-2xl bg-theme-surface border border-theme-outline/50">
-                    <pressable class="w-full" a11y-label="{{ __('Code details').', '.$code['account'] }}" @press="detail('{{ $code['id'] }}')">
+                    <pressable class="w-full" a11y-label="{{ __('Code details').', '.$code['issuer'].', '.$code['account'] }}" @press="detail('{{ $code['id'] }}')">
                         <row class="w-full items-center gap-3">
                             <column class="w-10 h-10 rounded-xl bg-theme-primary/10 items-center justify-center">
                                 <text class="text-lg font-semibold text-theme-primary">{{ mb_strtoupper(mb_substr($code['issuer'] ?: $code['account'], 0, 1)) }}</text>
@@ -23,7 +23,7 @@
                             <icon name="ellipsis" :size="18" class="text-theme-on-surface-variant" />
                         </row>
                     </pressable>
-                    <pressable class="w-full py-1" a11y-label="{{ __('Copy code for :account', ['account' => $code['account']]) }}" @press="copy('{{ $code['id'] }}')">
+                    <pressable class="w-full py-1" a11y-label="{{ $code['issuer'].', '.__('Copy code for :account', ['account' => $code['account']]).', '.implode(' ', str_split(str_replace(' ', '', $code['code']))) }}" @press="copy('{{ $code['id'] }}')">
                         <row class="w-full items-center gap-2">
                             <text class="flex-1 text-3xl font-mono font-semibold tracking-wide text-theme-primary">{{ $code['code'] }}</text>
                             <column class="w-10 h-10 items-center justify-center rounded-full bg-theme-primary/10">

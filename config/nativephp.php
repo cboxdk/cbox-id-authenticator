@@ -1,6 +1,22 @@
 <?php
 
+use App\Support\AppLanguages;
+
+$permissionKeys = [
+    'NSCameraUsageDescription' => 'Scan Cbox ID connection codes and verification-code setup keys. Camera images are not saved or uploaded.',
+    'NSFaceIDUsageDescription' => 'Unlock your verification codes and Cbox ID accounts, and confirm approvals. Your biometric data stays with iOS.',
+];
+$permissionLocalizations = [];
+foreach (array_keys(AppLanguages::NAMES) as $locale) {
+    $path = __DIR__.'/../lang/'.$locale.'.json';
+    $strings = is_file($path) ? json_decode(file_get_contents($path), true, flags: JSON_THROW_ON_ERROR) : [];
+    foreach ($permissionKeys as $key => $english) {
+        $permissionLocalizations[$locale][$key] = $strings[$english] ?? $english;
+    }
+}
+
 return [
+    'supported_locales' => array_keys(AppLanguages::NAMES),
 
     /*
     |--------------------------------------------------------------------------
@@ -146,12 +162,7 @@ return [
     |
     */
 
-    'permission_localizations' => [
-        'da' => [
-            'NSCameraUsageDescription' => 'Scan Cbox ID-tilslutningskoder og opsætningsnøgler til bekræftelseskoder. Kamerabilleder gemmes eller uploades ikke.',
-            'NSFaceIDUsageDescription' => 'Lås dine bekræftelseskoder og Cbox ID-konti op, og bekræft godkendelser. Dine biometriske data bliver i iOS.',
-        ],
-    ],
+    'permission_localizations' => $permissionLocalizations,
 
     /*
     |--------------------------------------------------------------------------

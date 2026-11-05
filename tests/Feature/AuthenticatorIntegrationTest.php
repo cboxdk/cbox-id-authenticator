@@ -209,7 +209,7 @@ it('explains that an old host needs updating before attempting sign-in', functio
 
 it('shows the bundled third-party notices in a native screen', function (): void {
     fakeSecureStorage();
-    $screen = Native::test(Licenses::class)->assertSee('laravel/framework')->assertAccessible();
+    $screen = Native::test(Licenses::class)->assertSee('laravel/framework')->assertSee('FirebaseMessaging')->assertSee('ZIPFoundation')->assertAccessible();
     $packages = $screen->get('packages');
     $index = array_search('laravel/framework', array_column($packages, 'name'), true);
     $screen->call('select', $index)->assertSee('MIT')->assertSee('Permission is hereby granted');

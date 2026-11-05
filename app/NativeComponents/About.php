@@ -15,6 +15,15 @@ class About extends NativeComponent
 
     public ?string $error = null;
 
+    public ?string $expanded = null;
+
+    public function toggle(string $topic): void
+    {
+        if (in_array($topic, ['codes', 'camera', 'privacy', 'remove', 'lost', 'unexpected'], true)) {
+            $this->expanded = $this->expanded === $topic ? null : $topic;
+        }
+    }
+
     public function licenses(): void
     {
         $this->navigate('/licenses');

@@ -25,6 +25,10 @@ func cboxNotificationURL(_ value: String) -> URL? {
     }
 }
 
+func cboxLocalized(_ key: String) -> String {
+    NSLocalizedString(key, bundle: .main, value: key, comment: "Cbox Authenticator")
+}
+
 // Lives on the main queue. PHP reads the generation before and after a decision
 // prompt, so an event queued before backgrounding can never approve on return.
 final class CboxSecurityGate {
@@ -76,7 +80,7 @@ final class CboxSecurityGate {
         ["unlocked": lifecycle.canAccessSecrets, "generation": lifecycle.generation,
          "foreground": lifecycle.foreground,
          "pushAvailable": FirebaseManager.shared.isConfigured,
-         "locale": Locale.preferredLanguages.first ?? "en"]
+         "locale": Bundle.main.preferredLocalizations.first ?? "en"]
     }
 
     func beginBrowserAuthentication() -> Bool {
@@ -95,36 +99,46 @@ final class CboxSecurityGate {
         if lifecycle.shouldAutomaticallyUnlock { unlock(manual: false) }
     }
 
-    private func localized(_ english: String, _ danish: String) -> String {
-        (Locale.preferredLanguages.first ?? "en").lowercased().hasPrefix("da") ? danish : english
-    }
-
     private func cover() {
         if window == nil {
             guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }
             let shield = UIWindow(windowScene: scene)
             shield.windowLevel = .alert + 1
             let controller = UIViewController()
-            controller.view.backgroundColor = .systemBackground
+            controller.view.backgroundColor = UIColor { traits in
+                traits.userInterfaceStyle == .dark
+                    ? UIColor(red: 23/255, green: 25/255, blue: 28/255, alpha: 1)
+                    : UIColor(red: 250/255, green: 249/255, blue: 246/255, alpha: 1)
+            }
+            let mark = UIImageView(image: UIImage(systemName: "lock.shield.fill"))
+            mark.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 56, weight: .medium)
+            mark.tintColor = UIColor(red: 8/255, green: 80/255, blue: 171/255, alpha: 1)
+            mark.contentMode = .scaleAspectFit
+            mark.isAccessibilityElement = false
+            mark.heightAnchor.constraint(equalToConstant: 80).isActive = true
             let title = UILabel()
             title.text = "Cbox ID"
             title.font = .preferredFont(forTextStyle: .largeTitle)
             title.adjustsFontForContentSizeCategory = true
             title.textAlignment = .center
             let text = UILabel()
-            text.text = self.localized("Unlock to view your codes, accounts and requests.", "Lås op for at se dine koder, konti og anmodninger.")
+            text.text = cboxLocalized("Unlock to view your codes, accounts and requests.")
             text.font = .preferredFont(forTextStyle: .body)
             text.adjustsFontForContentSizeCategory = true
             text.numberOfLines = 0
             text.textAlignment = .center
             let button = UIButton(type: .system)
-            button.configuration = .filled()
+            var configuration = UIButton.Configuration.filled()
+            configuration.baseBackgroundColor = UIColor(red: 8/255, green: 80/255, blue: 171/255, alpha: 1)
+            configuration.cornerStyle = .capsule
+            configuration.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
+            button.configuration = configuration
             button.titleLabel?.adjustsFontForContentSizeCategory = true
             button.heightAnchor.constraint(greaterThanOrEqualToConstant: 48).isActive = true
             controller.view.accessibilityViewIsModal = true
-            button.setTitle(self.localized("Unlock", "Lås op"), for: .normal)
+            button.setTitle(cboxLocalized("Unlock"), for: .normal)
             button.addAction(UIAction { _ in self.unlock(manual: true) }, for: .touchUpInside)
-            let stack = UIStackView(arrangedSubviews: [title, text, button])
+            let stack = UIStackView(arrangedSubviews: [mark, title, text, button])
             stack.axis = .vertical
             stack.spacing = 24
             stack.translatesAutoresizingMaskIntoConstraints = false
@@ -147,11 +161,11 @@ final class CboxSecurityGate {
         var error: NSError?
         guard attempt.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
             lifecycle.finishUnlock(success: false, generation: epoch)
-            message?.text = self.localized("Set a device passcode in iPhone Settings to unlock Cbox ID.", "Indstil en adgangskode i iPhone-indstillinger for at låse Cbox ID op.")
+            message?.text = cboxLocalized("Set a device passcode in iPhone Settings to unlock Cbox ID.")
             return
         }
         context = attempt
-        attempt.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: self.localized("Unlock your codes and Cbox ID accounts", "Lås dine koder og Cbox ID-konti op")) { success, _ in
+        attempt.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: cboxLocalized("Unlock your codes and Cbox ID accounts")) { success, _ in
             DispatchQueue.main.async {
                 guard self.context === attempt else { return }
                 self.context = nil

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Providers\NativeServiceProvider;
+use App\Support\AppLanguages;
 use Cbox\AuthenticatorSecurity\SecurityServiceProvider;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -63,6 +64,17 @@ final class CheckRelease extends Command
         }
 
         if ($this->option('store')) {
+            foreach (array_keys(AppLanguages::NAMES) as $locale) {
+                foreach (['InfoPlist.strings', 'Localizable.strings'] as $name) {
+                    $check(is_string($generated) && is_file(rtrim($generated, '/').'/NativePHP/'.$locale.'.lproj/'.$name), 'Missing bundled iOS translation: '.$locale.'/'.$name);
+                }
+            }
+            $inventoryPath = resource_path('ios-third-party.json');
+            $inventory = is_file($inventoryPath) ? json_decode(File::get($inventoryPath), true, flags: JSON_THROW_ON_ERROR) : [];
+            foreach (['pods_lock_sha256' => '/Podfile.lock', 'swift_lock_sha256' => '/NativePHP.xcworkspace/xcshareddata/swiftpm/Package.resolved'] as $key => $file) {
+                $lock = is_string($generated) ? rtrim($generated, '/').$file : '';
+                $check(is_file($lock) && ($inventory[$key] ?? null) === hash_file('sha256', $lock), 'Refresh the bundled iOS dependency notices: '.$file);
+            }
             $check(is_string($generated) && is_file(rtrim($generated, '/').'/NativePHP/Resources/PrivacyInfo.xcprivacy'), 'Pass --generated with the iOS project containing the bundled privacy manifest.');
             $check(app()->environment('production'), 'Use APP_ENV=production for the store archive.');
             $check(config('app.debug') === false, 'Use APP_DEBUG=false for the store archive.');

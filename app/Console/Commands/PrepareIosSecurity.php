@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Support\AppLanguages;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use RuntimeException;
@@ -23,6 +24,34 @@ final class PrepareIosSecurity extends Command
         $root = $this->option('build-path');
         if (! is_string($root) || ! is_dir($root)) {
             throw new RuntimeException('The iOS build path does not exist.');
+        }
+        $this->prepareLocalizations($root);
+        $pressables = glob($root.'/NativePHP/Bridge/Plugins/*/NativeUISimpleRenderers.swift') ?: [];
+        if (count($pressables) !== 1) {
+            throw new RuntimeException('Expected one native pressable renderer.');
+        }
+        $pressable = File::get($pressables[0]);
+        $pressableMarker = '// Cbox: action rows expose their labels and button traits.';
+        if (! str_contains($pressable, $pressableMarker)) {
+            $original = "        } else {\n            NativeUIColumnRenderer(node: node)\n        }";
+            $previous = "        } else {\n            // Cbox: action rows are accessible buttons.\n            NativeUIColumnRenderer(node: node)\n                .accessibilityElement(children: .combine)\n                .accessibilityAddTraits(.isButton)\n        }";
+            $pressable = str_replace($previous, $original, $pressable);
+            if (substr_count($pressable, $original) !== 1) {
+                throw new RuntimeException('Review pressable accessibility: upstream changed.');
+            }
+            $accessible = <<<'SWIFT'
+        } else {
+            // Cbox: action rows expose their labels and button traits.
+            let label = node.props.getString("a11y_label")
+            let hint = node.props.getString("a11y_hint")
+            NativeUIColumnRenderer(node: node)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(Text(label), isEnabled: !label.isEmpty)
+                .accessibilityHint(Text(hint), isEnabled: !hint.isEmpty)
+                .accessibilityAddTraits(.isButton)
+        }
+SWIFT;
+            File::put($pressables[0], str_replace($original, $accessible, $pressable));
         }
         $tabsPath = $root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift';
         $tabs = File::get($tabsPath);
@@ -193,5 +222,67 @@ SWIFT;
         $this->components->info('Native credential logging disabled; fixed push event installed; security build guard satisfied.');
 
         return self::SUCCESS;
+    }
+
+    private function prepareLocalizations(string $root): void
+    {
+        foreach (array_keys(AppLanguages::NAMES) as $locale) {
+            $translations = json_decode(File::get(lang_path($locale.'.json')), true, flags: JSON_THROW_ON_ERROR);
+            $lines = [];
+            foreach ($translations as $key => $value) {
+                $lines[] = json_encode($key, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES).' = '.json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES).';';
+            }
+            File::ensureDirectoryExists($root.'/NativePHP/'.$locale.'.lproj');
+            File::put($root.'/NativePHP/'.$locale.'.lproj/Localizable.strings', implode("\n", $lines)."\n");
+        }
+
+        foreach (['ScannerViewController.swift', 'BiometricFunctions.swift'] as $filename) {
+            $paths = glob($root.'/NativePHP/Bridge/Plugins/*/'.$filename) ?: [];
+            if (count($paths) !== 1) {
+                throw new RuntimeException('Expected one native source for '.$filename);
+            }
+            $source = File::get($paths[0]);
+            $marker = '// Cbox: localized native permission and authentication flows.';
+            if (str_contains($source, $marker)) {
+                continue;
+            }
+            if ($filename === 'BiometricFunctions.swift') {
+                $original = 'localizedReason: "Authenticate"';
+                if (substr_count($source, $original) !== 1) {
+                    throw new RuntimeException('Review the native authentication reason: upstream changed.');
+                }
+                $source = str_replace($original, 'localizedReason: cboxLocalized("Confirm this Cbox ID request")', $source);
+            } else {
+                $strings = [
+                    'Camera not available', 'Could not access camera', 'Could not add camera input',
+                    'Could not add metadata output', 'Camera Permission Required',
+                    'Please enable camera access in Settings to scan QR codes.', 'OK', 'Error', 'Recent Scans',
+                ];
+                foreach ($strings as $string) {
+                    if (! str_contains($source, '"'.$string.'"')) {
+                        throw new RuntimeException('Review scanner localization: missing '.$string);
+                    }
+                    $source = str_replace('"'.$string.'"', 'cboxLocalized("'.$string.'")', $source);
+                }
+                $source = str_replace('closeBtn.tintColor = .white', 'closeBtn.accessibilityLabel = cboxLocalized("Close scanner")'."\n        closeBtn.tintColor = .white", $source);
+                $source = str_replace('clearBtn.tintColor = .white', 'clearBtn.accessibilityLabel = cboxLocalized("Clear scans")'."\n        clearBtn.tintColor = .white", $source);
+                $original = 'message: cboxLocalized("Please enable camera access in Settings to scan QR codes."),';
+                $start = strpos($source, $original);
+                $insertion = $start === false ? false : strpos($source, '        present(alert, animated: true)', $start);
+                if ($insertion === false) {
+                    throw new RuntimeException('Review camera permission recovery: upstream changed.');
+                }
+                $action = <<<'SWIFT'
+        alert.addAction(UIAlertAction(title: cboxLocalized("Open Settings"), style: .default) { [weak self] _ in
+            self?.dismiss(animated: true) {
+                if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+            }
+        })
+
+SWIFT;
+                $source = substr_replace($source, $action, $insertion, 0);
+            }
+            File::put($paths[0], $marker."\n".$source);
+        }
     }
 }

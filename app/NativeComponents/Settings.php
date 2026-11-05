@@ -58,6 +58,11 @@ class Settings extends NativeComponent
         System::appSettings();
     }
 
+    public function languageSettings(): void
+    {
+        System::appSettings();
+    }
+
     public function backup(): void
     {
         $this->navigate('/settings/backup');

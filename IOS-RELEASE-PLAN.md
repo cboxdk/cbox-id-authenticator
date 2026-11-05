@@ -12,15 +12,75 @@ Appen bruger NativePHP 4 / SuperNative med native SwiftUI-rendering. Kodearbejde
 | A03, A04 | Push v2 mapper installation til lokal konto; notification-routing er begrænset i Swift. Tilmelding sker før push-tilladelse; tokenrotation genforsøges. | APNs/FCM i forgrund, baggrund og kold start, samt permission afvist/senere tilladt. |
 | A05–A09 | Verificeret identitet, genlogin/deduplikering, rapporter/audit, API-statusser, trust/discovery, atomisk credential-lagring og beskyttet oprydning. | Samlet brugerforløb, netværksskift og opgradering/geninstallation. |
 | TOTP | RFC 6238-vektorer for SHA1/256/512, 6/8 cifre, QR/manuelt input, Keychain-vault, søgning, kopiering med udløb og sletning. Argon2id/XChaCha20-Poly1305-backup med native Filer, importoversigt og atomisk dubletfri sammenfletning. | Face ID, QR, kopiering, eksport/import og opgradering på fysisk telefon. |
-| Native UI | Kontodetaljer, dansk/engelsk, samme-telefon-input, native hjælp/privatliv/licenser, iOS Settings, mørk/lys og labels. | Faktiske screenshots, VoiceOver, stor tekst og små skærme. |
-| A10 | Dependencies opdateret uden kendte Composer-advisories; PHP 8.4-platform låst; CI, Larastan, pakningscheck og versioneret produktionsinventar/licenscheck. Swift-plugin og transformerede SDK-kilder kontrolleres. | Ren signeret archive; native SDK-inventar og marketplace-distributionsrettigheder. |
-| A11 | Offentlig policy-side på backendbranchen, native hjælp, metadataudkast og konkret telefontestvejledning. | Deploy, Firebase-plist/APNs, signing, reviewer-konto, App Store Connect og export compliance. |
+| Native UI | Kontodetaljer, alle 10 ID-sprog, native permission/applås, emneopdelt hjælp, sprogindstilling og mørk/lys. Screenshots og store skrifter er kontrolleret. | Fysisk VoiceOver, kameratilladelse og telefonaccept. |
+| A10 | Dependencies opdateret uden kendte Composer-advisories; PHP 8.4-platform låst; CI, Larastan, pakningscheck og versioneret produktionsinventar/licenscheck. Swift-plugin og transformerede SDK-kilder kontrolleres. | Ren signeret archive og marketplace-distributionsrettigheder. Native SDK-inventar er nu genereret og kontrolleret. |
+| A11 | Offentlig policy-side på backendbranchen, native hjælp, metadataudkast og konkret telefontestvejledning. | Firebase/APNs, distribution/TestFlight, reviewer-konto, App Store Connect og export compliance. Policy er deployed og verificeret. |
 
-Verifikation efter implementeringen: **203 app-tests / 823 assertions på PHP 8.4.27**, Larastan uden fejl, Composer-audit uden advisories, valideret plugin/privacy-plist og native iOS-kompilering. Server-PR108 er merged; main-CI, SQLite/PostgreSQL/MySQL-tests, browser og begge image-arkitekturer er grønne. Revision `d1ffbaaa40cf0aae791e063495b0b47d1877f457` blev automatisk udrullet 2026-11-05 kl. 14:45 UTC. `cbox.cboxid.com` annoncerer nu API v2, og privacy-siden svarer HTTP200. iOS-runtime er PHP8.4.27. Native TabView/NavigationStack og glasmenu er visuelt kontrolleret i iOS27-simulatoren, herunder tilslutning. Appens Swift-CI er grøn; PHP-CI mangler `COMPOSER_AUTH` til NativePHP-marketplace (HTTP401), så lokale kontroller er endnu ikke reproduceret på GitHub. Brugeren har bekræftet, at Cbox-tilslutning virker. Build 10 er installeret og åbnet over USB. Den retter klippet sletterække med native bekræftelse, input der mistede tegn, formularafstande og backup-navigation fra Indstillinger. Første verificerede login afsluttes uden ekstra oplåsning eller konto-kvittering; eksisterende beskyttede data forbliver låst. 11 Swift-livscyklustests og input-echo-tests består. To XCUITest-forløb består med simulator-fixtures: kontofjernelse samt formularer/tastatur/backup-navigation; disse verificerer ikke fysisk biometri eller filimport. Dansk tilslutning er tidligere visuelt kontrolleret i lys/mørk og med større tekst. Google/Face ID-forløbet på telefonen samt TOTP og krypteret backup afventer fysisk accept. Firebaseprojekt er endnu ikke oprettet; første test sker efter aftale uden push.
+Verifikation efter implementeringen: **230 app-tests / 9746 assertions på PHP 8.4.27**, Larastan uden fejl, Composer-audit uden advisories, valideret plugin/privacy-plist og native iOS-kompilering. Server-PR108 er merged; main-CI, SQLite/PostgreSQL/MySQL-tests, browser og begge image-arkitekturer er grønne. Revision `d1ffbaaa40cf0aae791e063495b0b47d1877f457` blev automatisk udrullet 2026-11-05 kl. 14:45 UTC. `cbox.cboxid.com` annoncerer nu API v2, og privacy-siden svarer HTTP200. iOS-runtime er PHP8.4.27. Native TabView/NavigationStack og glasmenu er visuelt kontrolleret i iOS27-simulatoren, herunder tilslutning. Appens Swift-CI er grøn; PHP-CI mangler `COMPOSER_AUTH` til NativePHP-marketplace (HTTP401), så lokale kontroller er endnu ikke reproduceret på GitHub. Brugeren har bekræftet, at Cbox-tilslutning virker. Build 10 er installeret og åbnet over USB. Den retter klippet sletterække med native bekræftelse, input der mistede tegn, formularafstande og backup-navigation fra Indstillinger. Første verificerede login afsluttes uden ekstra oplåsning eller konto-kvittering; eksisterende beskyttede data forbliver låst. 11 Swift-livscyklustests og input-echo-tests består. To XCUITest-forløb består med simulator-fixtures: kontofjernelse samt formularer/tastatur/backup-navigation; disse verificerer ikke fysisk biometri eller filimport. Dansk tilslutning er tidligere visuelt kontrolleret i lys/mørk og med større tekst. Google/Face ID-forløbet på telefonen samt TOTP og krypteret backup afventer fysisk accept. Firebaseprojekt er endnu ikke oprettet; første test sker efter aftale uden push.
 
 Build 11 er installeret over USB og har en samlet designrunde på ni native skærme: fælles kort, ikoner, farver, typografi og vedvarende feltlabels. Kontooversigten kan åbnes direkte fra forsiden; TOTP viser nedtælling og lokal kopieringsfeedback. UI-forløb består i lys/mørk og med stor tilgængelighedstekst. Eksempelkonti og anmodninger er visuelt kontrolleret separat med simulator-fixtures, som ikke indgår i buildet.
 
-Se [IPHONE-TEST.md](IPHONE-TEST.md) for næste trin og [STORE-LISTING.md](STORE-LISTING.md) for metadata. Afsnittene nedenfor bevarer analysens oprindelige fund og prioritering; de beskriver udgangspunktet før rettelserne. Dagsestimaterne var det oprindelige planlægningsestimat og er ikke et nyt estimat for det resterende arbejde.
+## UI/UX-runde — build 12–14
+
+**Status:** implementeret og installeret som 1.0.0 (14) over USB; automatisk åbning
+var blokeret af telefonlåsen. Ingen App Store-upload. Det godkendte design fra build
+11 er bevaret. Denne runde retter sprog, hjælp, native dialoger og tilgængelighed.
+
+1. **Forside → tilslutning → faner.** XCUITest har gennemløbet flowet på alle ti ID-sprog.
+   Ingen engelske fallbackoverskrifter i de kontrollerede skærme. Google-login og
+   fysisk Face ID er ikke simuleret som en bestået accepttest.
+2. **Indstillinger → hjælp → åbne/lukke emne.** Den tidligere lange tekstside er
+   erstattet af seks emner med korte forklaringer. Hjælp til forkert tid på TOTP og
+   kameratilladelse er kommet til. Native knaprækker eksponerer nu deres label,
+   forklaring og knaprolle. Kodekort inkluderer tjenesten og cifre enkeltvis; dette rettede også en faktisk manglende accessibility-label
+   på backup-rækken. Kontakt og licenser er fortsat tilgængelige ved scroll.
+3. **Koder → tilføj → tastatur → backup → annullér → tilbage.** Tysk med mørk
+   tilstand og accessibility-large består. Lange tyske/finske hero-tekster blev
+   forkortet efter visuel gennemgang; brugerens skriftstørrelse begrænses ikke.
+4. **Systemdialoger og genopretning.** Kamera, Face ID-begrundelse og applås bruger
+   samme ti sprog som PHP-skærmene. Ved afvist kamera kan brugeren åbne Indstillinger.
+   Kamera-/Settings-handoff og faktisk VoiceOver-oplæsning skal accepteres på telefonen.
+5. **Ikoner, splash og releasegrundlag.** Eksisterende Cbox-appikon er verificeret
+   som 1024×1024 RGB uden alpha. Lys/mørk splash og applås følger appens farver.
+   97 Composer- og 9 native afhængigheder har notices; native lockfile-fingerprints og
+   alle sprogresurser kontrolleres ved store-preflight.
+
+Sproglisten matcher `cbox-id/config/cbox-id.php`: en, da, de, sv, nb, fr, fi, es, it,
+nl. Alle kataloger har 289 ikke-tomme tekster og matchende interpolationsparametre.
+Sprog vælges via iOS, også pr. app. Oversættelserne er implementeret og UI-testet;
+modersmålsreview af alle tekster er endnu ikke udført.
+
+**Evidens:** 60 skærmbilleder fra ti sprog i build 12; mørk/stor tekst på dansk,
+tysk og finsk; fem tyske formularbilleder og tolv danske/engelske billeder i build 13.
+Udvalgte screenshots er visuelt gennemgået, ikke samtlige mulige tilstande.
+6,9-tommers screenshots er 1320×2868 og bruger fiktive konti/koder i simulatorens
+visningslag. De er udkast; skærmen uden push skal genoptages med den endelige opsætning.
+Ingen fixture-data eller ændret applås er med i telefonbuildet.
+
+Lokale billeder: `/Users/sylvester/.codex/visualizations/2026/11/05/01a1ab2a-d676-78c2-998e-72dc010d27f3/build13/`.
+Testresultater: `/tmp/cbox-native-ui-tests/polish-languages12-final.xcresult`,
+`polish-forms13.xcresult`, `polish-dark-large13.xcresult`, `a11y-codes14.xcresult` og `store13.xcresult`. Simulatorbilleder dokumenterer
+præsentation/navigation, ikke krypterings-, kamera-, push- eller biometriaccept.
+
+Accepterede visuelle eksempler fra denne runde:
+
+- Trin 2, hjælp: korte emner med genkendelige ikoner; resten kan nås ved scroll.
+  [Screenshot](/Users/sylvester/.codex/visualizations/2026/11/05/01a1ab2a-d676-78c2-998e-72dc010d27f3/build13/store/da-06-help.png).
+- Trin 3, tysk formular: felter og begge knapper kan nås med stor skrift; teksten brydes
+  uden at begrænse Dynamic Type.
+  [Screenshot](/Users/sylvester/.codex/visualizations/2026/11/05/01a1ab2a-d676-78c2-998e-72dc010d27f3/build13/de-large-backup-bottom.png).
+- Trin 3, TOTP: tydelige koder, kopieringshandling og udløb pr. konto.
+  [Screenshot](/Users/sylvester/.codex/visualizations/2026/11/05/01a1ab2a-d676-78c2-998e-72dc010d27f3/build13/store/da-03-codes.png).
+
+**Før submission:** Firebaseprojekt + APNs/FCM; fysisk Google/Face ID/TOTP/Files-test;
+signeret Release-archive og intern TestFlight med produktionspush; reviewer-konto,
+App Store-privacy/export compliance og publiceringsbeslutning. Strict store-preflight
+rapporterer i øjeblikket den manglende `GoogleService-Info.plist`. PHP-CI mangler
+fortsat marketplace-COMPOSER_AUTH; lokale QA-kontroller er grønne.
+
+Se [IPHONE-TEST.md](IPHONE-TEST.md) for telefonaccept og [STORE-LISTING.md](STORE-LISTING.md)
+for metadata på ti sprog. Analysen nedenfor bevarer de oprindelige fund og estimater;
+den beskriver udgangspunktet før rettelserne, ikke resterende uimplementerede fejl.
 
 ## 1. Afgrænsning og evidens
 

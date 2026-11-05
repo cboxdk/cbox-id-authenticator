@@ -37,3 +37,10 @@ The preparation hook also fixes delayed input echoes in the generated native UI 
 `TextInputEchoes.swift` tracks in-flight edits; older PHP values cannot overwrite newer
 keystrokes. Secure local text and pending echoes are cleared on backgrounding. The
 pure helper is covered by `tests/Unit/TextInputEchoTests.swift`.
+
+The native lock and scanner use generated `Localizable.strings` for the ten Cbox ID
+languages. The bridge reports `Bundle.main.preferredLocalizations` so PHP follows the
+language selected for this app in iPhone Settings, with English fallback. Camera-denial
+alerts can open Settings; the scanner close control has a translated accessibility label.
+The generated pressable renderer combines child elements into a button and applies
+explicit labels/hints only when present, preserving default descriptions otherwise.

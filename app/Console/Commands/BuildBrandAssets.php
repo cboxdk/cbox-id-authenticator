@@ -66,9 +66,9 @@ class BuildBrandAssets extends Command
     {
         try {
             $this->buildIcon();
-            $this->buildSplash('splash.png', '#FFFFFF');
+            $this->buildSplash('splash.png', '#FAF9F6');
             // The dark variant the asset catalog picks up under a dark appearance.
-            $this->buildSplash('splash-dark.png', '#0B1220');
+            $this->buildSplash('splash-dark.png', '#17191C');
         } catch (RuntimeException $e) {
             $this->components->error($e->getMessage());
 

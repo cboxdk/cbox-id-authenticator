@@ -24,6 +24,10 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
     $input = $root.'/NativePHP/Bridge/Plugins/UI/NativeUITextInputCore.swift';
     File::ensureDirectoryExists(dirname($input));
     File::copy(base_path('vendor/nativephp/mobile-ui/resources/ios/NativeUITextInputCore.swift'), $input);
+    File::copy(base_path('vendor/nativephp/mobile-ui/resources/ios/NativeUISimpleRenderers.swift'), dirname($input).'/NativeUISimpleRenderers.swift');
+    $biometric = $root.'/NativePHP/Bridge/Plugins/Biometric/BiometricFunctions.swift';
+    File::ensureDirectoryExists(dirname($biometric));
+    File::copy(base_path('vendor/nativephp/mobile-biometrics/resources/ios/BiometricFunctions.swift'), $biometric);
     File::copy(base_path('vendor/nativephp/mobile/resources/xcode/NativePHP/Bridge/BridgeRouter.swift'), $root.'/NativePHP/Bridge/BridgeRouter.swift');
     File::ensureDirectoryExists($root.'/NativePHP/NativeRender');
     File::copy(base_path('vendor/nativephp/mobile/resources/xcode/NativePHP/NativeRender/NativeRootTabsRenderer.swift'), $root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift');
@@ -33,6 +37,13 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
             ->toContain('if !forceHide {')
             ->toContain('content.toolbar(.visible, for: .tabBar)')
             ->not->toContain('if isRoot && !forceHide {');
+        expect(File::get($root.'/NativePHP/de.lproj/Localizable.strings'))->toContain('Kamera nicht verfügbar');
+        expect(File::get($biometric))->toContain('cboxLocalized("Confirm this Cbox ID request")');
+        expect(File::get($scanner))->toContain('UIApplication.openSettingsURLString')->toContain('accessibilityLabel');
+        $firstPressable = File::get(dirname($input).'/NativeUISimpleRenderers.swift');
+        expect($firstPressable)->toContain('.accessibilityLabel(Text(label), isEnabled: !label.isEmpty)')
+            ->toContain('.accessibilityHint(Text(hint), isEnabled: !hint.isEmpty)')
+            ->toContain('.accessibilityAddTraits(.isButton)');
         $first = File::get($path);
         $firstScanner = File::get($scanner);
         $firstInput = File::get($input);
@@ -43,6 +54,7 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
         expect(File::get($path))->toBe($first);
         expect(File::get($scanner))->toBe($firstScanner);
         expect(File::get($input))->toBe($firstInput);
+        expect(File::get(dirname($input).'/NativeUISimpleRenderers.swift'))->toBe($firstPressable);
         expect(substr_count(File::get($root.'/Podfile'), 'post_install do'))->toBe(1);
         expect(File::get($root.'/Podfile'))->toContain("Gem::Version.new('18.2')");
         expect(File::get($root.'/NativePHP/Bridge/BridgeRouter.swift'))->not->toContain('print(')->toContain('cboxDiscardLog(');
@@ -96,6 +108,9 @@ it('prepares the complete locked iOS source tree without logging credentials', f
         if (PHP_OS_FAMILY === 'Darwin') {
             $command = ['xcrun', 'swiftc', '-frontend', '-parse'];
             foreach ($files as $file) {
+                if ($file->getExtension() !== 'swift') {
+                    continue;
+                }
                 $command[] = $file->getPathname();
             }
             $process = new Process($command);

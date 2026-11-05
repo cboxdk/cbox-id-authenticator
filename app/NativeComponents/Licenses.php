@@ -21,7 +21,8 @@ class Licenses extends NativeComponent
     public function mount(): void
     {
         $data = json_decode(File::get(resource_path('third-party.json')), true, 512, JSON_THROW_ON_ERROR);
-        $this->packages = $data['components'];
+        $native = json_decode(File::get(resource_path('ios-third-party.json')), true, 512, JSON_THROW_ON_ERROR);
+        $this->packages = array_merge($native['components'], $data['components']);
     }
 
     public function select(int $index): void

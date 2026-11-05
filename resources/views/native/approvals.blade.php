@@ -61,7 +61,7 @@
                     <text class="px-1 text-sm font-semibold text-theme-on-surface-variant">{{ __('Connected accounts') }}</text>
                     <column class="w-full rounded-2xl bg-theme-surface border border-theme-outline/50">
                         @foreach ($connectedAccounts as $account)
-                            <pressable class="w-full p-4" a11y-label="{{ $account['label'] }}" @press="account('{{ $account['id'] }}')">
+                            <pressable class="w-full p-4" a11y-label="{{ $account['label'] }}" a11y-hint="{{ parse_url($account['issuer'], PHP_URL_HOST) }}" @press="account('{{ $account['id'] }}')">
                                 @include('native.partials.action-content', ['symbol' => 'person.crop.circle', 'title' => $account['label'], 'subtitle' => parse_url($account['issuer'], PHP_URL_HOST)])
                             </pressable>
                             @if (! $loop->last)<column class="w-full px-4"><column class="w-full h-[1] bg-theme-outline/40"></column></column>@endif

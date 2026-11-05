@@ -2,25 +2,24 @@
 
 Koden ligger på `sd/ios-release`. Backendændringerne fra `sd/authenticator-ios-api` er merged og udrullet via PR108.
 De eksisterende ændringer i de oprindelige `cbox-id`- og `laravel-id`-checkouts er bevaret.
-Mål for den aktuelle telefontest: 1.0.0 (11) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret og versionskontrolleret. Åbn appen på telefonen. Indeholder TOTP, krypteret backup, native glasnavigation og ni redesignede skærme med tydeligere handlinger, formularer, kodekort og mørk tilstand.
+Mål for den aktuelle telefontest: 1.0.0 (14) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret og versionskontrolleret. Åbn appen på telefonen. Indeholder TOTP, krypteret backup, native glasnavigation og ni redesignede skærme med tydeligere handlinger, formularer, kodekort og mørk tilstand.
 Serverrettelserne følges i https://github.com/cboxdk/cbox-id/pull/108.
 Firebaseprojekt findes endnu ikke; første test er udtrykkeligt uden push.
 
-Build 10 er kontrolleret med 203 PHP-tests / 818 assertions, Larastan, 11 Swift-
-livscyklusscenarier, input-echo-tests og native kilde-/pakningskontrol. To XCUITest-
-forløb på iPhone 17e / iOS27 består: kontofjernelse (annullér og bekræft) samt
-indtastning, tastaturlukning og Indstillinger → backup → opret/annullér → tilbage.
-Screenshots viser korrekt placering af sletterække, inputfelter og backupknapper.
-Simulatoren brugte en opfundet konto og tomme formularer uden lokal oplåsning;
-disse midlertidige fixtures er fjernet og indgår ikke i telefonbuildet. Testene
-verificerer derfor UI og navigation, ikke fysisk Face ID, Google-login eller Filer.
+Build 14 er installeret og verificeret via devicectl. Automatisk åbning fejlede,
+fordi telefonen var låst; appen skal åbnes på telefonen. Buildet har alle ti ID-sprog,
+lokaliseret kamera/applås, korte hjælperubrikker, sprogindstilling og opdateret splash.
 
-Build 11: 203 PHP-tests / 823 assertions, Larastan og pakningskontrol består.
-Fire XCUITest-kørsler består: hele tilslutning/koder/backup-navigationen i lys,
-mørk og accessibility-large samt præsentation med flere opfundne konti, kodekort
-og en anmodning. 29 screenshots er optaget; udvalgte skærme er visuelt gennemgået.
-Fixtures ligger kun i simulatorens data og er gendannet til produktionskoden efter
-testen. Telefonbuildet indeholder ingen demo-konti eller omgåelse af applåsen.
+230 PHP-tests / 9746 assertions, Larastan, 11 Swift-livscyklusscenarier,
+input-echo-tests og native kilde-/pakningskontrol består. Simulatorforløb gennem
+forside → tilslutning → Indstillinger → hjælp → Koder består på alle ti sprog.
+Tyske formularer med accessibility-large består, inklusive indtastning, Færdig,
+backup, annullering og tilbage til Indstillinger. Dansk/engelsk præsentation af
+anmodning, flere konti, kodekort og backup består på en 6,9-tommers simulator.
+
+Simulatoren bruger opfundne visningsdata og tomme formularer uden lokal oplåsning.
+Disse fixtures indgår aldrig i telefonbuildet og gendannes efter billederne. Testene
+verificerer UI og navigation, ikke fysisk Face ID, Google-login, kamera, push eller Filer.
 
 ## 1. Server før telefon
 
@@ -37,8 +36,7 @@ Kontrollér:
   service-account-fil. Serverens private Firebase-nøgle skal aldrig ind i apprepoet.
 - Køworker og scheduler kører. Tidsfølsomme retries bliver samlet op af sweepet;
   en kort `next_retry_at` er ikke et løfte om levering på samme sekund.
-- Den nye offentlige `/authenticator/privacy` kan åbnes uden login. Den er først en
-  brugbar App Store-policy-URL, når denne deployment er gennemført.
+- Den nye offentlige `/authenticator/privacy` kan åbnes uden login. HTTP200 og policyindhold er verificeret efter deployment.
 
 Fjernede telefoner beholdes som tilbagekaldte nøglebindinger. Rul ikke revocation-
 kontrollen tilbage som en løsning på en klientfejl. Ved problemer kan device-featuret
@@ -116,7 +114,10 @@ Gem screenshots uden rigtige personoplysninger eller QR-/tilslutningskoder.
 | Hurtig indtastning og rettelser | Alle tegn bevares i kontonavne, tjeneste og adgangskoder; Færdig lukker tastaturet. |
 | Genlogin med samme konto / forkert konto | Samme identitet erstattes uden dublet; forkert identitet accepteres ikke som genlogin. |
 | Baggrund og appskifter | Konto- og requestoplysninger dækkes; retur kræver oplåsning. |
-| Dansk/engelsk, lys/mørk, stor tekst, VoiceOver | Labels, knapper, scroll, safe areas og tilbage-navigation fungerer. |
+| Alle ti ID-sprog, lys/mørk, stor tekst, VoiceOver | Labels, knapper, scroll, safe areas og tilbage-navigation fungerer. Dansk, engelsk, tysk, svensk, norsk bokmål, fransk, finsk, spansk, italiensk og nederlandsk. |
+| Indstillinger → Sprog | Åbner appens iPhone-indstillinger. Skift sprog og åbn appen igen; native dialoger og skærme følger samme sprog. |
+| Kamera afvist | Forklaring og Åbn indstillinger er oversat; link/manual input er fortsat muligt. |
+| Hjælp | Emner åbner og lukker; kontakt/licenser kan nås ved scroll, også med stor tekst. |
 | Opgradering / geninstallation | Gemte Keychain-konti håndteres uden utilsigtet nulstilling; antag ikke, at afinstallation sletter Keychain. |
 
 ## TOTP og krypteret backup på telefonen
@@ -146,8 +147,9 @@ Byg et **Release**-archive med produktionsmiljø, APNs og stigende buildnummer.
 Kør `php artisan authenticator:check --store --generated=nativephp/ios` før archivering.
 Inspicér også det færdige archive: ingen credentials, udviklerserver, OTA-adgang eller
 følsomme logs; korrekt privacy manifest, SDK-notices, entitlements og signering.
-PHP-inventaret i `resources/third-party.json` skal suppleres med de native SDK-versioner
-og licenser fra archive/Package.resolved/Podfile.lock.
+PHP-inventaret i `resources/third-party.json` og native inventar i
+`resources/ios-third-party.json` skal matche det færdige archive. Kør
+`php artisan authenticator:ios-notices --check` efter native dependency resolution.
 
 Verificér produktionspush gennem intern TestFlight. Lav faktiske iPhone-screenshots og
 et reviewer-forløb med en fungerende testkonto. Kontrollér konto-oprettelse og sletning
