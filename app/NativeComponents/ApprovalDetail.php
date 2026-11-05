@@ -116,9 +116,15 @@ class ApprovalDetail extends NativeComponent
         $this->biometricAttempt = bin2hex(random_bytes(24));
         $this->attemptRequest = (string) $this->param('account').'/'.$this->approvalId();
 
-        // This return value only acknowledges dispatch. The asynchronous Completed
-        // event below is the sole path from local authentication to approval.
         try {
+            if (app(DeviceSecurity::class)->canReuseAuthentication($this->attemptGeneration)) {
+                $this->biometricSucceeded = true;
+                $this->finishAuthentication();
+
+                return;
+            }
+            // Dispatch only acknowledges the prompt. Completed confirms a fresh
+            // authentication when the native gate has no recent one to reuse.
             if (! app(DeviceSecurity::class)->authenticate($this->biometricAttempt)) {
                 $this->cancelAuthentication();
                 $this->error = 'Could not start device authentication. Try again.';

@@ -10,6 +10,10 @@
             "ios": "AuthenticatorSecurityFunctions.State"
         },
         {
+            "name": "AuthenticatorSecurity.Authenticate",
+            "ios": "AuthenticatorSecurityFunctions.Authenticate"
+        },
+        {
             "name": "AuthenticatorSecurity.CopyCode",
             "ios": "AuthenticatorBackupFunctions.CopyCode"
         },

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\NativeComponents\ApprovalDetail;
+use App\Services\DeviceSecurity;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Support\Facades\Http;
 use Native\Mobile\Events\Biometric\Completed;
@@ -11,7 +12,7 @@ use Native\Mobile\Testing\Native;
 beforeEach(function (): void {
     fakeSecureStorage();
     anAccount();
-    Native::fakeBridge()->respondTo('Biometric.Prompt', []);
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.Authenticate', ['started' => true]);
     Http::fake([
         '*/approve' => Http::response(['status' => 'approved']),
         '*/deny' => Http::response(['status' => 'denied']),
@@ -24,6 +25,52 @@ beforeEach(function (): void {
 it('does not approve when the bridge merely acknowledges the prompt', function (): void {
     Native::test(ApprovalDetail::class, ['account' => '01ACC', 'id' => '01REQUEST'])->call('approve');
     Http::assertNotSent(fn ($request) => $request->method() === 'POST');
+});
+
+it('handles native dispatch refusals without waiting forever for a Face ID result', function (array $response): void {
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.Authenticate', $response);
+    Native::test(ApprovalDetail::class, ['account' => '01ACC', 'id' => '01REQUEST'])->call('approve')
+        ->assertSet('biometricAttempt', null)->assertSet('error', 'Could not start device authentication. Try again.');
+    Http::assertNotSent(fn ($request) => $request->method() === 'POST');
+})->with([
+    'direct refusal' => [['started' => false]],
+    'wrapped refusal' => [['status' => 'success', 'data' => ['started' => false]]],
+    'missing bridge' => [['status' => 'error', 'code' => 'FUNCTION_NOT_FOUND']],
+    'missing result' => [[]],
+]);
+
+it('accepts the iOS bridge envelope without treating dispatch as authentication', function (): void {
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.Authenticate', ['status' => 'success', 'data' => ['started' => true]]);
+    Native::test(ApprovalDetail::class, ['account' => '01ACC', 'id' => '01REQUEST'])->call('approve')
+        ->assertSet('error', null);
+    Http::assertNotSent(fn ($request) => $request->method() === 'POST');
+});
+
+it('reuses a recent native authentication only after the user taps approve', function (): void {
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', [
+        'unlocked' => true, 'foreground' => true, 'generation' => 0, 'recentAuthentication' => true,
+    ]);
+    $screen = Native::test(ApprovalDetail::class, ['account' => '01ACC', 'id' => '01REQUEST']);
+    Http::assertNotSent(fn ($request) => $request->method() === 'POST');
+    $screen->call('approve')->assertSet('outcome', 'approved');
+    Native::fakeBridge()->assertNotCalled('AuthenticatorSecurity.Authenticate');
+    $screen->call('approve');
+    expect(Http::recorded(fn ($request) => $request->method() === 'POST'))->toHaveCount(1);
+});
+
+it('does not reuse authentication after a native lock or while inactive', function (bool $unlocked, bool $foreground): void {
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', [
+        'unlocked' => $unlocked, 'foreground' => $foreground, 'generation' => 1, 'recentAuthentication' => true,
+    ]);
+    Native::test(ApprovalDetail::class, ['account' => '01ACC', 'id' => '01REQUEST'])->call('approve');
+    Http::assertNotSent(fn ($request) => $request->method() === 'POST');
+})->with([[false, true], [false, false], [true, false]]);
+
+it('does not reuse a recent authentication from a different generation', function (): void {
+    Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', [
+        'unlocked' => true, 'foreground' => true, 'generation' => 2, 'recentAuthentication' => true,
+    ]);
+    expect(app(DeviceSecurity::class)->canReuseAuthentication(1))->toBeFalse();
 });
 
 it('requires a matching successful event and consumes it once', function (): void {

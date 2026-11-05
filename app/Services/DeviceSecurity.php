@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Support\AppLanguages;
-use Native\Mobile\Events\Biometric\Completed;
 
 /** The native gate fails closed if its plugin is unavailable. */
 final class DeviceSecurity
@@ -22,14 +21,15 @@ final class DeviceSecurity
         if (! function_exists('nativephp_call')) {
             return false;
         }
-        $raw = nativephp_call('Biometric.Prompt', json_encode([
-            'id' => $id, 'event' => Completed::class,
+        $raw = nativephp_call('AuthenticatorSecurity.Authenticate', json_encode([
+            'id' => $id,
         ], JSON_THROW_ON_ERROR));
         $response = is_string($raw) ? json_decode($raw, true) : null;
+        $result = is_array($response) ? ($response['data'] ?? $response) : null;
 
-        // Current iOS returns an empty object; earlier bridges wrap that in success.
-        // Neither represents authentication. Only Completed can authorize a decision.
-        return is_array($response) && ($response['status'] ?? null) !== 'error';
+        // Dispatch is not authentication. Only the native completion event can
+        // confirm the fresh check; a refused or unavailable bridge cannot start it.
+        return is_array($result) && ($result['started'] ?? false) === true;
     }
 
     public function generation(): ?int
@@ -38,6 +38,14 @@ final class DeviceSecurity
 
         return ($state['unlocked'] ?? false) === true && ($state['foreground'] ?? false) === true && is_int($state['generation'] ?? null)
             ? $state['generation'] : null;
+    }
+
+    public function canReuseAuthentication(int $generation): bool
+    {
+        $state = $this->state();
+
+        return ($state['unlocked'] ?? false) === true && ($state['foreground'] ?? false) === true
+            && ($state['generation'] ?? null) === $generation && ($state['recentAuthentication'] ?? false) === true;
     }
 
     public function locale(): string

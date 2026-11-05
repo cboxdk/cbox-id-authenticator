@@ -35,6 +35,8 @@ final class CboxSecurityGate {
     static let shared = CboxSecurityGate()
     private var lifecycle = CboxAuthenticationLifecycle(enabled: UserDefaults.standard.bool(forKey: "cbox.security.enabled"))
     private var context: LAContext?
+    private var decisionContext: LAContext?
+    private var decisionID: String?
     private var window: UIWindow?
     private var observers: [NSObjectProtocol] = []
     private var message: UILabel?
@@ -50,10 +52,27 @@ final class CboxSecurityGate {
             let old = self.context
             self.context = nil
             old?.invalidate()
+            self.cancelDecisionAuthentication()
             self.updatePresentation()
         })
         observers.append(center.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
-            self.lifecycle.becomeActive()
+            if UIApplication.shared.isProtectedDataAvailable {
+                self.lifecycle.becomeActive()
+            } else {
+                self.lifecycle.protectedDataLocked()
+            }
+            self.updatePresentation()
+        })
+        observers.append(center.addObserver(forName: UIApplication.protectedDataWillBecomeUnavailableNotification, object: nil, queue: .main) { _ in
+            self.lifecycle.protectedDataLocked()
+            let old = self.context
+            self.context = nil
+            old?.invalidate()
+            self.cancelDecisionAuthentication()
+            self.updatePresentation()
+        })
+        observers.append(center.addObserver(forName: UIApplication.protectedDataDidBecomeAvailableNotification, object: nil, queue: .main) { _ in
+            if UIApplication.shared.applicationState == .active { self.lifecycle.becomeActive() }
             self.updatePresentation()
         })
         observers.append(center.addObserver(forName: UIWindow.didBecomeVisibleNotification, object: nil, queue: .main) { event in
@@ -61,7 +80,7 @@ final class CboxSecurityGate {
                 self.cover()
             }
         })
-        if UIApplication.shared.applicationState == .active { lifecycle.becomeActive() }
+        if UIApplication.shared.applicationState == .active && UIApplication.shared.isProtectedDataAvailable { lifecycle.becomeActive() }
         updatePresentation()
     }
 
@@ -72,6 +91,7 @@ final class CboxSecurityGate {
             let old = context
             context = nil
             old?.invalidate()
+            cancelDecisionAuthentication()
         }
         updatePresentation()
     }
@@ -79,12 +99,13 @@ final class CboxSecurityGate {
     var state: [String: Any] {
         ["unlocked": lifecycle.canAccessSecrets, "generation": lifecycle.generation,
          "foreground": lifecycle.foreground,
+         "recentAuthentication": lifecycle.hasRecentAuthentication(),
          "pushAvailable": FirebaseManager.shared.isConfigured,
          "locale": Bundle.main.preferredLocalizations.first ?? "en"]
     }
 
     func beginBrowserAuthentication() -> Bool {
-        guard lifecycle.beginBrowser() else { return false }
+        guard decisionContext == nil, lifecycle.beginBrowser() else { return false }
         updatePresentation()
         return true
     }
@@ -92,6 +113,39 @@ final class CboxSecurityGate {
     func endBrowserAuthentication(completed: Bool = false) {
         lifecycle.endBrowser(completed: completed)
         updatePresentation()
+    }
+
+    func authenticateDecision(id: String) -> Bool {
+        guard lifecycle.canAccessSecrets, context == nil, decisionContext == nil else { return false }
+        let epoch = lifecycle.generation
+        let attempt = LAContext()
+        var error: NSError?
+        guard attempt.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else { return false }
+        decisionContext = attempt
+        decisionID = id
+        attempt.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: cboxLocalized("Confirm this Cbox ID request")) { success, _ in
+            DispatchQueue.main.async {
+                guard self.decisionContext === attempt else { return }
+                self.decisionContext = nil
+                self.decisionID = nil
+                let accepted = self.lifecycle.finishDecisionAuthentication(success: success, generation: epoch)
+                self.sendDecisionResult(id: id, success: accepted)
+            }
+        }
+        return true
+    }
+
+    private func cancelDecisionAuthentication() {
+        let old = decisionContext
+        let id = decisionID
+        decisionContext = nil
+        decisionID = nil
+        old?.invalidate()
+        if let id { sendDecisionResult(id: id, success: false) }
+    }
+
+    private func sendDecisionResult(id: String, success: Bool) {
+        LaravelBridge.shared.send?("Native\\Mobile\\Events\\Biometric\\Completed", ["id": id, "success": success])
     }
 
     private func updatePresentation() {
@@ -196,6 +250,17 @@ enum AuthenticatorSecurityFunctions {
     class State: BridgeFunction {
         func execute(parameters: [String: Any]) throws -> [String: Any] {
             AuthenticatorSecurityFunctions.onMain { CboxSecurityGate.shared.state }
+        }
+    }
+    class Authenticate: BridgeFunction {
+        func execute(parameters: [String: Any]) throws -> [String: Any] {
+            AuthenticatorSecurityFunctions.onMain {
+                guard let id = parameters["id"] as? String, !id.isEmpty,
+                      CboxSecurityGate.shared.authenticateDecision(id: id) else {
+                    return ["started": false]
+                }
+                return ["started": true]
+            }
         }
     }
 }

@@ -12,6 +12,8 @@ struct CboxAuthenticationLifecycle {
     private var attemptedUnlock = false
     private var automaticUnlockAllowed = true
     private var mayFinishFirstConnection = false
+    private var backgroundedAt: ContinuousClock.Instant?
+    private var authenticatedAt: ContinuousClock.Instant?
 
     init(enabled: Bool) {
         self.enabled = enabled
@@ -31,8 +33,14 @@ struct CboxAuthenticationLifecycle {
             && authenticationGeneration == nil && !attemptedUnlock && automaticUnlockAllowed
     }
 
+    func hasRecentAuthentication(at now: ContinuousClock.Instant = .now) -> Bool {
+        guard canAccessSecrets, let authenticatedAt, now >= authenticatedAt else { return false }
+        return authenticatedAt.duration(to: now) < .seconds(300)
+    }
+
     mutating func configure(_ value: Bool, afterSignIn: Bool = false) {
         if value && !enabled {
+            authenticatedAt = nil
             // A first successful web sign-in has just authenticated the account.
             // Start protecting it now, without asking for a second authentication
             // before the user has even seen it. Existing locked vaults never use this.
@@ -44,25 +52,44 @@ struct CboxAuthenticationLifecycle {
         if !value {
             locked = false
             authenticationGeneration = nil
+            authenticatedAt = nil
         }
     }
 
     mutating func resignActive() { foreground = false }
 
-    mutating func enterBackground() {
+    mutating func enterBackground(at now: ContinuousClock.Instant = .now) {
         mayFinishFirstConnection = false
         foreground = false
+        if !backgrounded {
+            backgroundedAt = now
+            generation += 1
+        }
         backgrounded = true
-        generation += 1
-        locked = enabled
         authenticationGeneration = nil
         attemptedUnlock = false
         automaticUnlockAllowed = !browserActive
     }
 
-    mutating func becomeActive() {
+    mutating func becomeActive(at now: ContinuousClock.Instant = .now) {
+        if enabled, backgrounded, let backgroundedAt,
+           now < backgroundedAt || backgroundedAt.duration(to: now) >= .seconds(120) {
+            locked = true
+            authenticatedAt = nil
+        }
         foreground = true
         backgrounded = false
+        backgroundedAt = nil
+    }
+
+    mutating func protectedDataLocked() {
+        generation += 1
+        foreground = false
+        locked = enabled
+        authenticatedAt = nil
+        authenticationGeneration = nil
+        attemptedUnlock = false
+        automaticUnlockAllowed = !browserActive
     }
 
     mutating func beginBrowser() -> Bool {
@@ -90,9 +117,18 @@ struct CboxAuthenticationLifecycle {
         return generation
     }
 
-    mutating func finishUnlock(success: Bool, generation epoch: Int) {
+    mutating func finishUnlock(success: Bool, generation epoch: Int, at now: ContinuousClock.Instant = .now) {
         guard authenticationGeneration == epoch else { return }
         authenticationGeneration = nil
-        if success && generation == epoch { locked = false }
+        if success && generation == epoch {
+            locked = false
+            authenticatedAt = now
+        }
+    }
+
+    mutating func finishDecisionAuthentication(success: Bool, generation epoch: Int, at now: ContinuousClock.Instant = .now) -> Bool {
+        guard success, generation == epoch, !locked, !browserActive, !backgrounded else { return false }
+        authenticatedAt = now
+        return true
     }
 }

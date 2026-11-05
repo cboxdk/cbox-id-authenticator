@@ -2,25 +2,32 @@
 
 Koden ligger på `sd/ios-release`. Backendændringerne fra `sd/authenticator-ios-api` er merged og udrullet via PR108.
 De eksisterende ændringer i de oprindelige `cbox-id`- og `laravel-id`-checkouts er bevaret.
-Mål for den aktuelle telefontest: 1.0.0 (17) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret og versionskontrolleret. Åbn appen på telefonen. Indeholder TOTP, krypteret backup, native glasnavigation og ni redesignede skærme med tydeligere handlinger, formularer, kodekort og mørk tilstand.
+Mål for den aktuelle telefontest: 1.0.0 (19) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret og versionskontrolleret. Åbn appen på telefonen. Indeholder TOTP, krypteret backup, native glasnavigation og ni redesignede skærme med tydeligere handlinger, formularer, kodekort og mørk tilstand.
 Serverrettelserne følges i https://github.com/cboxdk/cbox-id/pull/108.
 Separate TOTP-tilmeldinger fra PR109 er også udrullet: serverrevision
 `6788b6473f32f246382e7c6339b849d60f7d32d5`, verificeret 2026-11-05 kl. 21:50 UTC
 med web 2/2, worker 1/1, laravel-id v1.28.0 og sunde readiness-tjek.
 Firebaseprojekt findes endnu ikke; første test er udtrykkeligt uden push.
 
-Build 17 er installeret og verificeret via devicectl; den pakkede rettelse og PHP
+Build 19 er installeret, åbnet og verificeret via devicectl; den pakkede rettelse og PHP
 8.4.27 er kontrolleret. Face ID kunne afslutte, mens iOS stadig meldte appen inaktiv,
 og dermed fejlagtigt udløse beskeden om udløbet autentifikation. Appen afventer nu
 forgrunden før afsendelse og afviser fortsat ved faktisk låsning, navigation eller
-udløb. Godkendelse på den fysiske telefon afventer en ny testanmodning.
+udløb. Fysisk godkendelse er bestået med build 17: TEST 6048 blev godkendt
+2026-11-05 kl. 23.24.47 dansk tid, og klientens tokenudveksling returnerede HTTP 200
+med adgangstoken og ID-token. Testtokenet er tilbagekaldt og testklienten fjernet.
+
+Build 19 giver to minutters frist ved korte appskift. Telefonens datalås og en ny
+appstart kræver oplåsning. En vellykket Face ID/enhedskode genbruges i fem minutter
+til godkendelser, der stadig kræver et tryk på Godkend. Fristerne måles med et
+monotont ur og gemmes kun i hukommelsen. Den nye frist afventer fysisk UX-accept.
 Buildet bevarer rettelsen af hvid firkant i splash og læser Cbox ID’s TOTP-QR med mellemrum korrekt. Det har alle ti ID-sprog,
 lokaliseret kamera/applås, korte hjælperubrikker, sprogindstilling og opdateret splash.
 
-238 PHP-tests / 9794 assertions og Larastan består på PHP 8.4.27, inklusive fem
+248 PHP-tests / 9826 assertions og Larastan består på PHP 8.4.27, inklusive fem
 regressionsscenarier for Face ID før forgrund, låsning, navigation og udløb.
-De tidligere 11 Swift-livscyklusscenarier,
-input-echo-tests og native kilde-/pakningskontrol består. Simulatorforløb gennem
+18 Swift-livscyklusscenarier og native kilde-/pakningskontrol består.
+Tidligere input-echo-tests og simulatorforløb er bevaret. Simulatorforløb gennem
 forside → tilslutning → Indstillinger → hjælp → Koder består på alle ti sprog.
 Tyske formularer med accessibility-large består, inklusive indtastning, Færdig,
 backup, annullering og tilbage til Indstillinger. Dansk/engelsk præsentation af
@@ -111,7 +118,10 @@ Gem screenshots uden rigtige personoplysninger eller QR-/tilslutningskoder.
 | Afvis kamera eller annullér scanner | Linkvejen er stadig tilgængelig. |
 | Afvis notifikationer / forsinket push-token | Kontoen tilmeldes; anmodninger vises ved polling. |
 | Aktivér notifikationer i iOS Settings → retur → synkronisér | Den rigtige konto bliver push-tilsluttet. |
-| Godkend med Face ID eller enhedskode | Præcis én beslutning, først efter lokal bekræftelse. |
+| Godkend med nylig oplåsning | Tryk Godkend sender præcis én beslutning uden en ekstra prompt inden for fem minutter. |
+| Godkend efter fem minutter | Ny Face ID eller enhedskode; præcis én beslutning efter matchende completion-event. |
+| Screenshot / kort appskift | Midlertidig inaktivitet og under to minutter i baggrunden giver ingen ny oplåsning. App-switcheren skjuler stadig indholdet. |
+| To minutter i baggrunden / lås telefonen / ny appstart | Kræver oplåsning igen. |
 | Annullér Face ID / lås telefonen / baggrund under dialog | Ingen godkendelse sendes; gammelt resultat kan ikke bruges efter retur. |
 | Afvis / Det var ikke mig | Afvist; “ikke mig” registrerer desuden rapport og audit på serveren. |
 | Udløb / besvaret på web / offline / POST-timeout | Korrekt status eller mulighed for opdatering, ingen automatisk gentaget beslutning. |

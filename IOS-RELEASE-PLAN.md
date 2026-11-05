@@ -20,6 +20,25 @@ Verifikation efter implementeringen: **230 app-tests / 9746 assertions på PHP 8
 
 Build 11 er installeret over USB og har en samlet designrunde på ni native skærme: fælles kort, ikoner, farver, typografi og vedvarende feltlabels. Kontooversigten kan åbnes direkte fra forsiden; TOTP viser nedtælling og lokal kopieringsfeedback. UI-forløb består i lys/mørk og med stor tilgængelighedstekst. Eksempelkonti og anmodninger er visuelt kontrolleret separat med simulator-fixtures, som ikke indgår i buildet.
 
+## Applås og genbrug af Face ID — build 19
+
+Installeret, åbnet og versionskontrolleret på den fysiske iPhone. Den pakkede PHP-kode,
+native livscyklus, broregistrering og PHP 8.4.27 er verificeret.
+
+På brugerens anmodning er øjeblikkelig låsning ved hvert appskift erstattet af en
+frist på to minutter. Telefonens datalås og en ny appstart kræver fortsat oplåsning.
+En vellykket native Face ID/enhedskode kan genbruges til godkendelser i fem minutter;
+hver beslutning kræver stadig et bevidst tryk. Et igangværende forsøg ugyldiggøres
+ved baggrund/låsning, også under fristen. Begge tidsvinduer måles monotont og
+opbevares kun i hukommelsen. Native auth registrerer kun faktisk succes og håndterer
+afslag fra broen uden at vente på et event, der aldrig kommer.
+
+248 PHP-tests / 9826 assertions, 18 Swift-livscyklusscenarier, Swift-typekontrol,
+Larastan og pakningskontrol består. Fysisk UX-accept af fristen afventer brugeren.
+Den forudgående godkendelsestest på build 17 er verificeret: TEST 6048 godkendt
+2026-11-05 kl. 23.24.47 dansk tid; offentlig tokenudveksling HTTP 200, derefter
+tilbagekaldt testtoken og slettet midlertidig klient. Ingen serverændring er nødvendig.
+
 ## Face ID-godkendelser — build 17
 
 Installeret på Sylvesters iPhone og versionskontrolleret med devicectl. En
@@ -29,7 +48,7 @@ afventer nu en aktiv, oplåst app med uændret låsegeneration. Navigation, rigt
 baggrund/låsning og anmodningens udløb ugyldiggør stadig forsøget; et svar kan kun
 sendes én gang. 238 tests / 9794 assertions, Larastan og pakningskontrol består på
 PHP 8.4.27. Den installerede pakke indeholder rettelsen. Fysisk Face ID-accept
-afventer brugerens svar på en ny CIBA-testanmodning.
+bestod med TEST 6048; serveren registrerede godkendelsen og udstedte testtokens.
 
 ## Rettelser — build 15
 
@@ -165,7 +184,7 @@ Prioritet **P0** betyder sikkerhedsstop før reel brug. **P1** betyder, at probl
 
 **Konsekvens:** Med den indpakkede bro kan approve blive sendt før Face ID eller enhedens kode; med den aktuelle flade bro bliver approve i stedet blokeret. Ingen af varianterne afventede den reelle beslutning. Den nye implementering accepterer kun et matchende, vellykket completion-event. Den præcise gamle adfærd på en distribueret telefon er ikke målt.
 
-**Løsning og accept:** En eksplicit tilstand for afventende autentificering. Et unikt attempt-ID bindes til konto, request og skærm. Kun et matchende, succesfuldt completion-event må udløse approve. Annullering, fejl, låsning, navigation væk, udløb og gamle/duplikerede events skal sende nul godkendelser. Deny skal fortsat kunne bruges uden biometrisk kontrol. UI skal beskrive, at iOS også kan bruge enhedens kode.
+**Løsning og accept:** En eksplicit tilstand for afventende autentificering. Et unikt attempt-ID bindes til konto, request og skærm. Et matchende, succesfuldt completion-event eller en native-verificeret kontrol fra de seneste fem minutter må efter brugerens tryk udløse approve. Annullering, fejl, låsning, navigation væk, udløb og gamle/duplikerede events skal sende nul godkendelser. Deny skal fortsat kunne bruges uden biometrisk kontrol. UI skal beskrive, at iOS også kan bruge enhedens kode.
 
 Kilder: [ApprovalDetail](/Volumes/DockDisk/projects/cbox-id-authenticator/app/NativeComponents/ApprovalDetail.php:136), [PHP-kaldet](/Volumes/DockDisk/projects/cbox-id-authenticator/vendor/nativephp/mobile/src/PendingBiometric.php:85), [iOS-plugin](/Volumes/DockDisk/projects/cbox-id-authenticator/vendor/nativephp/mobile-biometrics/resources/ios/BiometricFunctions.swift:30), [broens svar](/Volumes/DockDisk/projects/cbox-id-authenticator/nativephp/ios/NativePHP/Bridge/BridgeRouter.swift:220).
 
@@ -329,7 +348,7 @@ Release-buildet skal være selvstændigt og uden download af ny eksekverbar PHP-
 | Testgruppe | Minimum før release |
 | --- | --- |
 | Autentificering | Frisk installation; passkey/password efter hostens politik; systembrowser annulleret; callback i varm/kold app; forkert state/issuer; gentaget callback; udløbet tilmeldingskode; forkert bruger; mistet netværk. |
-| Lokal godkendelse | Face ID eller enhedskode lykkes; annulleres; fejler; ikke tilgængelig; skærm forlades; app baggrundes; request udløber under dialogen; gammelt/duplikeret event. Nul approve før matchende succes-event. |
+| Lokal godkendelse | Face ID eller enhedskode lykkes; annulleres; fejler; ikke tilgængelig; skærm forlades; app baggrundes; request udløber under dialogen; gammelt/duplikeret event. Nul approve uden matchende succes-event eller native-verificeret nylig kontrol og brugerens eksplicitte tryk. |
 | Autorisation | Rigtige JWT/DPoP-tokens; forkert subject/issuer/audience/scope/key; replay; fjernet device; ingen tilmelding; tilbagekaldt refresh-grant. En anden konto må aldrig blive påvirket. |
 | Push | Første token kommer sent; permission afvist og senere tilladt; token roterer; payload er ugyldig; tap i foreground/background/kold start; to konti på samme host; manglende/duplikeret push. Polling virker uden push. |
 | Beslutninger | Approve/deny/report; allerede besvaret på web/anden telefon; 404/409/429/5xx; timeout efter POST; tidsdrift; manglende binding message; action kontra login. |
