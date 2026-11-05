@@ -2,7 +2,7 @@
 
 Koden ligger på `sd/ios-release`. Backendændringerne fra `sd/authenticator-ios-api` er merged og udrullet via PR108.
 De eksisterende ændringer i de oprindelige `cbox-id`- og `laravel-id`-checkouts er bevaret.
-Mål for den aktuelle telefontest: 1.0.0 (10) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret, versionskontrolleret og åbnet. Indeholder TOTP, krypteret backup, native glasnavigation samt rettelser til login, kontofjernelse, input og layout.
+Mål for den aktuelle telefontest: 1.0.0 (11) på Sylvesters iPhone 16 Pro med iOS27.0.1 via USB. Installeret og versionskontrolleret. Åbn appen på telefonen. Indeholder TOTP, krypteret backup, native glasnavigation og ni redesignede skærme med tydeligere handlinger, formularer, kodekort og mørk tilstand.
 Serverrettelserne følges i https://github.com/cboxdk/cbox-id/pull/108.
 Firebaseprojekt findes endnu ikke; første test er udtrykkeligt uden push.
 
@@ -14,6 +14,13 @@ Screenshots viser korrekt placering af sletterække, inputfelter og backupknappe
 Simulatoren brugte en opfundet konto og tomme formularer uden lokal oplåsning;
 disse midlertidige fixtures er fjernet og indgår ikke i telefonbuildet. Testene
 verificerer derfor UI og navigation, ikke fysisk Face ID, Google-login eller Filer.
+
+Build 11: 203 PHP-tests / 823 assertions, Larastan og pakningskontrol består.
+Fire XCUITest-kørsler består: hele tilslutning/koder/backup-navigationen i lys,
+mørk og accessibility-large samt præsentation med flere opfundne konti, kodekort
+og en anmodning. 29 screenshots er optaget; udvalgte skærme er visuelt gennemgået.
+Fixtures ligger kun i simulatorens data og er gendannet til produktionskoden efter
+testen. Telefonbuildet indeholder ingen demo-konti eller omgåelse af applåsen.
 
 ## 1. Server før telefon
 

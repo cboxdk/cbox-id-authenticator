@@ -13,10 +13,13 @@ Android is not release-ready: the security plugin currently supports iOS only.
 
 The iOS implementation and matching Cbox ID API changes are ready for the physical
 phone test described in [IPHONE-TEST.md](IPHONE-TEST.md). Signed development build
-1.0.0 (10) is installed on an iPhone 16 Pro (iOS 27.0.1) over USB. The matching
+1.0.0 (11) is installed on an iPhone 16 Pro (iOS 27.0.1) over USB. The matching
 server API v2 is deployed, and the user has confirmed successful connection.
-Build 10 fixes clipped account removal, form insets, lost keystrokes and cross-tab
-backup navigation. First connection finishes without a second unlock or acknowledgment.
+Build 11 redesigns the inbox, connection, account, code and backup screens with
+consistent native cards, readable forms, countdown bars and inline copy feedback.
+Simulator UI flows pass in light/dark mode and with larger accessibility text.
+Earlier fixes cover account removal, input races and backup navigation. First
+connection finishes without a second unlock or acknowledgment.
 Physical acceptance of these refinements, TOTP/backup,
 TestFlight and App Store acceptance are pending.
 

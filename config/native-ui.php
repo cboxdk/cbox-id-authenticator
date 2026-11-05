@@ -57,7 +57,7 @@ return [
             // Surface variant = filled text fields, muted tonal surfaces.
             // on-surface-variant = muted label/hint text on those surfaces.
             'surface-variant' => '#F3F1EB',
-            'on-surface-variant' => '#475569',
+            'on-surface-variant' => '#5D6672',
 
             // Outline = neutral borders (text fields, dividers, cards).
             'outline' => '#CBD5E1',
@@ -80,13 +80,13 @@ return [
             'secondary' => '#94A3B8',
             'on-secondary' => '#27231F',
 
-            'surface' => '#242321',
+            'surface' => '#232528',
             'on-surface' => '#FAF9F6',
-            'background' => '#27231F',
+            'background' => '#17191C',
             'on-background' => '#FAF9F6',
 
-            'surface-variant' => '#34312D',
-            'on-surface-variant' => '#94A3B8',
+            'surface-variant' => '#2D3035',
+            'on-surface-variant' => '#B1B7C1',
 
             'outline' => '#475569',
 

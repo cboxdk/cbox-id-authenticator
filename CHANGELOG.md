@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Redesign nine native iOS screens with a blue brand treatment, consistent account
+  and action rows, persistent field labels, clear primary actions and dark-mode surfaces.
+- Shorten connection onboarding, show connected accounts directly in the inbox, and
+  add per-code countdown bars and inline copy feedback to the TOTP vault.
+
 - Fix clipped account-removal controls with an inset destructive row and correlated
   native confirmation; cancellation preserves the account, removal returns to Settings.
 - Remove the extra post-login acknowledgment and skip the redundant unlock only after

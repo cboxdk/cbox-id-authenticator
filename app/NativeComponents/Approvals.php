@@ -55,6 +55,9 @@ class Approvals extends NativeComponent
     /** @var list<string> */
     public array $accountLabels = [];
 
+    /** @var list<array{id: string, label: string, issuer: string}> */
+    public array $connectedAccounts = [];
+
     private int $retryAt = 0;
 
     private int $failures = 0;
@@ -122,6 +125,11 @@ class Approvals extends NativeComponent
         $accounts = app(AccountContext::class)->all();
         $this->hasAccounts = $accounts !== [];
         $this->accountLabels = array_map(fn ($services): string => $services->account->label, $accounts);
+        $this->connectedAccounts = array_map(fn ($services): array => [
+            'id' => $services->account->id,
+            'label' => $services->account->label,
+            'issuer' => $services->account->issuer,
+        ], $accounts);
         $result = app(ApprovalInbox::class)->fetch($accounts);
         $rows = $result['rows'];
         $degraded = [];

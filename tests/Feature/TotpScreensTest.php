@@ -41,10 +41,10 @@ it('copies a fresh code with its actual expiration and clears displayed codes wh
     app(TotpStore::class)->merge([testTotpEntry()]);
     $id = app(TotpStore::class)->all()[0]->id;
     Native::fakeBridge()->respondTo('AuthenticatorSecurity.CopyCode', ['success' => true]);
-    $screen = Native::test(Codes::class)->call('copy', $id);
+    $screen = Native::test(Codes::class)->call('copy', $id)->assertSet('copiedId', $id)->assertSee('Copied');
     Native::fakeBridge()->assertCalled('AuthenticatorSecurity.CopyCode', fn (array $p): bool => preg_match('/^[0-9]{6}$/D', $p['code']) === 1 && $p['expires'] > time() && $p['expires'] <= time() + 30);
     Native::fakeBridge()->respondTo('AuthenticatorSecurity.State', ['unlocked' => false, 'foreground' => false, 'generation' => 1]);
-    $screen->call('refresh')->assertSet('codes', []);
+    $screen->call('refresh')->assertSet('codes', [])->assertSet('copiedId', null);
 });
 
 it('keeps the TOTP vault and app lock when the last Cbox account is removed', function (): void {

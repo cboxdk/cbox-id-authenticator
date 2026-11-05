@@ -1,6 +1,6 @@
 <column class="w-full h-full bg-theme-background">
     <scroll-view class="flex-1">
-        <column class="w-full px-5 py-4 gap-4">
+        <column class="w-full px-5 pt-4 pb-8 gap-5">
 
             @if ($error !== null)
                 <text class="text-sm text-theme-destructive">{{ __($error) }}</text>
@@ -46,26 +46,23 @@
             @elseif ($approval !== null)
                 <text class="text-2xl font-bold text-theme-on-background">{{ ($approval['purpose'] ?? '') === 'action' ? __('Approve this action?') : __('Approve this request?') }}</text>
 
-                <row class="w-full items-center gap-2">
-                    <icon name="app.badge" :size="20" class="text-theme-primary" />
-                    <text class="text-base font-semibold text-theme-on-background">
-                        {{ $approval['client_name'] ?? __('An application') }}
-                    </text>
+                <row class="w-full p-4 items-center gap-3 rounded-2xl bg-theme-surface border border-theme-outline/50">
+                    <column class="w-12 h-12 items-center justify-center rounded-xl bg-theme-primary/10">
+                        <icon name="app.badge" :size="24" class="text-theme-primary" />
+                    </column>
+                    <column class="flex-1 gap-1">
+                        <text class="text-lg font-semibold text-theme-on-background">{{ $approval['client_name'] ?? __('An application') }}</text>
+                        @if ($accountLabel !== null)<text class="text-sm text-theme-on-surface-variant">{{ $accountLabel }}</text>@endif
+                    </column>
                 </row>
-
-                {{-- Whose account is being approved. With several connected, "approve
-                     this request?" is only half a question without it. --}}
-                @if ($accountLabel !== null)
-                    <text class="text-sm text-theme-primary">{{ $accountLabel }}</text>
-                @endif
 
                 {{-- Above the fold, before the buttons, and visually loudest thing on the
                      screen. This is the anti-phishing primitive: the user compares it
                      against what the requesting app showed them. It is never pushed. --}}
                 @if (! empty($approval['binding_message']))
-                    <column class="w-full gap-2 p-4 rounded-2xl bg-theme-surface-variant">
-                        <text class="text-xs uppercase tracking-wide text-theme-on-surface-variant">{{ __("Check this matches what you were shown") }}</text>
-                        <text class="text-lg font-semibold text-theme-on-background">
+                    <column class="w-full gap-3 p-5 rounded-2xl bg-gradient-to-br from-blue-500/10 to-transparent border border-theme-primary/20">
+                        <text class="text-sm font-medium text-theme-on-surface-variant">{{ __("Check this matches what you were shown") }}</text>
+                        <text class="text-2xl font-semibold text-theme-on-background">
                             {{ $approval['binding_message'] }}
                         </text>
                     </column>
@@ -74,7 +71,7 @@
                 @endif
 
                 @if (! empty($approval['scopes']))
-                    <column class="w-full gap-2 p-4 rounded-2xl bg-theme-surface">
+                    <column class="w-full gap-3 p-4 rounded-2xl bg-theme-surface border border-theme-outline/50">
                         <text class="text-sm font-semibold text-theme-on-background">{{ __("It will be able to") }}</text>
                         @foreach ($approval['scopes'] as $scope)
                             <row class="w-full items-center gap-2">
@@ -103,7 +100,7 @@
                         :disabled="$this->secondsLeft <= 0 || $working || $biometricAttempt !== null"
                         @press="approve"
                     ></button>
-                    <button label="{{ __('Deny') }}" variant="secondary" class="w-full" size="lg" :disabled="$working" @press="deny"></button>
+                    <button label="{{ __('Deny') }}" variant="ghost" class="w-full" size="lg" :disabled="$working" @press="deny"></button>
 
                     {{-- Deliberately distinct from Deny: a user who did not start this
                          is reporting an attack, not declining a request. --}}

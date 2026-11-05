@@ -23,6 +23,10 @@ class Codes extends NativeComponent
 
     public ?string $error = null;
 
+    public ?string $copiedId = null;
+
+    private int $copiedUntil = 0;
+
     /** @var list<array<string, mixed>> */
     public array $codes = [];
 
@@ -40,8 +44,12 @@ class Codes extends NativeComponent
     public function refresh(): void
     {
         $this->codes = [];
+        if (time() >= $this->copiedUntil) {
+            $this->copiedId = null;
+        }
         if (app(DeviceSecurity::class)->generation() === null) {
             $this->notice = null;
+            $this->copiedId = null;
 
             return;
         }
@@ -54,7 +62,7 @@ class Codes extends NativeComponent
                 $code = $entry->code($now);
                 $this->codes[] = ['id' => $entry->id, 'issuer' => $entry->issuer, 'account' => $entry->account,
                     'code' => implode(' ', str_split($code, intdiv($entry->digits, 2))),
-                    'remaining' => $entry->period - ($now % $entry->period)];
+                    'remaining' => $entry->period - ($now % $entry->period), 'period' => $entry->period];
             }
             $this->error = null;
         } catch (Throwable) {
@@ -90,8 +98,11 @@ class Codes extends NativeComponent
             if ($entry === null || ! app(NativeBackupFiles::class)->copyCode($entry->code($now), $now + $entry->period - $now % $entry->period)) {
                 throw new \RuntimeException;
             }
-            $this->notice = 'Code copied. The clipboard expires when the code does.';
+            $this->copiedId = $id;
+            $this->copiedUntil = $now + 2;
+            $this->notice = null;
         } catch (Throwable) {
+            $this->copiedId = null;
             $this->notice = 'Could not copy the code. Unlock the app and try again.';
         }
     }

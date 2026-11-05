@@ -75,7 +75,7 @@ it('cleans up denied consent and provides a direct retry route', function (): vo
 
 it('opens Cbox requests for connected users and offers both workflows for new users', function (): void {
     fakeSecureStorage();
-    Native::visit('/approvals')->assertSee('Start with Cbox ID')->assertSee('Also need verification codes?')
+    Native::visit('/approvals')->assertSee('Start with Cbox ID')->assertSee('Verification codes')
         ->call('addCode')->assertNavigatedTo('/codes/add');
     anAccount();
     Native::test(Launch::class)->assertReplacedWith('/approvals');
