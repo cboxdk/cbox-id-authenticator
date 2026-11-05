@@ -292,5 +292,10 @@
     "Selected": "Geselecteerd",
     "Your services": "Je diensten",
     "Show code for :account": "Code voor :account tonen",
-    "Open the app to retrieve current requests.": "Open de app om actuele verzoeken op te halen."
+    "Open the app to retrieve current requests.": "Open de app om actuele verzoeken op te halen.",
+    "Verify your identity": "Je identiteit verifiëren",
+    "See your basic profile": "Je basisprofiel bekijken",
+    "See your email address": "Je e-mailadres bekijken",
+    "Stay signed in": "Aangemeld blijven",
+    "See your organizations": "Je organisaties bekijken"
 }

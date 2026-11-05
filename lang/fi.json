@@ -292,5 +292,10 @@
     "Selected": "Valittu",
     "Your services": "Palvelusi",
     "Show code for :account": "Näytä tilin :account koodi",
-    "Open the app to retrieve current requests.": "Avaa sovellus hakeaksesi nykyiset pyynnöt."
+    "Open the app to retrieve current requests.": "Avaa sovellus hakeaksesi nykyiset pyynnöt.",
+    "Verify your identity": "Vahvistaa henkilöllisyytesi",
+    "See your basic profile": "Nähdä profiilisi perustiedot",
+    "See your email address": "Nähdä sähköpostiosoitteesi",
+    "Stay signed in": "Pysyä kirjautuneena",
+    "See your organizations": "Nähdä organisaatiosi"
 }

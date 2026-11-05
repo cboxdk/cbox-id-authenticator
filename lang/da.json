@@ -292,5 +292,10 @@
     "Selected": "Valgt",
     "Your services": "Dine tjenester",
     "Show code for :account": "Vis kode for :account",
-    "Open the app to retrieve current requests.": "Åbn appen for at hente aktuelle anmodninger."
+    "Open the app to retrieve current requests.": "Åbn appen for at hente aktuelle anmodninger.",
+    "Verify your identity": "Bekræfte din identitet",
+    "See your basic profile": "Se din grundlæggende profil",
+    "See your email address": "Se din e-mailadresse",
+    "Stay signed in": "Forblive logget ind",
+    "See your organizations": "Se dine organisationer"
 }

@@ -8,6 +8,11 @@ App Store-kladden er [6831374770](https://appstoreconnect.apple.com/apps/6831374
 iOS 1.0.0, Utilities, manuel frigivelse, ti lokaliserede navne/undertitler/beskrivelser/nøgleord,
 support- og privacy-links. Ingen indsendelse eller offentlig frigivelse er foretaget.
 
+Verifikation i denne runde: 252 PHP-tests / 10204 assertions, Larastan, Pint,
+Composer-audit og det native simulatorbuild består. GitHub PHP- og Swift-CI er grøn
+på releaseforberedelsen. Storekontrollen og de ni native dependency-notices består
+uden Firebase. De fem standardrettigheder i Cbox-godkendelser er nu også oversat.
+
 ## Bifrost — næste build
 
 Sylvester bygger gennem Bifrost. Brug repository `cboxdk/cbox-id-authenticator`,
@@ -83,10 +88,12 @@ push-punkter nedenfor gælder en senere version og erstatter ikke denne status.
 
 ## Krypteringsgrundlag til Apple
 
-Appen bruger standardkryptografi: TLS/HTTPS, RSA/SHA-256 til OAuth DPoP,
+Appen bruger TLS/HTTPS, RSA/SHA-256 til OAuth DPoP,
 HMAC SHA-1/256/512 til TOTP og libsodium Argon2id + XChaCha20-Poly1305 til
-brugerinitieret backup. Keychain og Face ID/passcode anvender iOS. Der er ingen
-proprietær krypteringsalgoritme. Backup-krypteringen er ikke alene leveret af iOS.
+brugerinitieret backup. Keychain og Face ID/passcode anvender iOS. Appen implementerer
+ingen egen algoritme; kryptografien kommer fra iOS, OpenSSL og libsodium.
+Backup-krypteringen er ikke alene leveret af iOS. Den juridiske kategorisering af
+XChaCha20-Poly1305 og appens samlede eksportklassifikation er ikke attesteret.
 
 Apples aktuelle tabel skelner mellem standardkryptografi i appen og OS-only;
 Frankrig kan kræve en fransk erklæring. Distributionslandene og den juridiske

@@ -232,16 +232,14 @@ Open de app om actuele verzoeken op te halen.
   og [screenshotkrav](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications).
 
 
-## Screenshotudkast
+## Screenshots af den aktuelle app
 
-12 faktiske simulatorbilleder på dansk/engelsk, 1320×2868 (6,9 tommer), er gemt i
-`/Users/sylvester/.codex/visualizations/2026/11/05/01a1ab2a-d676-78c2-998e-72dc010d27f3/build13/store/`.
-De viser anmodninger, godkendelse, TOTP, flere konti, backup og hjælp. Konti og koder
-på billederne er fiktive visningsdata; ingen rigtige nøgler eller login er brugt.
-Billederne er fra build 13; build 14 ændrer kun accessibility-labels i disse skærme.
-Indstillinger-billedet viser test uden push og skal genoptages efter Firebase-opsætning.
-Brug billederne som udkast; ingen er uploadet til App Store Connect.
-
+60 faktiske simulatorbilleder på alle ti sprog, 1320×2868 (6,9 tommer), er gemt i:
+`/Users/sylvester/.codex/visualizations/2026/11/05/01a1ab2a-d676-78c2-998e-72dc010d27f3/store-ready/`.
+Sættet dækker indbakke, godkendelse, kodegitter, kodeliste, flere konti og backup.
+Billederne bruger den aktuelle native rendering og fiktive visningsdata i en isoleret
+simulatorcontainer. Det er produktbilleder, ikke dokumentation for en ægte loginbeslutning.
+De oprindelige build-13-billeder er historiske og skal ikke bruges til denne kladde.
 
 ## App Review — TOTP og backup, klar til brug
 

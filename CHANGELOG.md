@@ -7,6 +7,7 @@
 - Pin native dependency locks for fresh Bifrost builds and fail the native security
   build guard when production debug/logging settings are unsafe.
 - Declare bundled encryption and prepare localized App Store metadata for iOS 1.0.0.
+- Translate the five standard approval permissions returned by Cbox ID in all ten languages.
 
 - Preserve SVG transparency when generating splash artwork, removing the white box
   around the shield in both light and dark themes.

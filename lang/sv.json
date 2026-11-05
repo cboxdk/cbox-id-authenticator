@@ -292,5 +292,10 @@
     "Selected": "Vald",
     "Your services": "Dina tjänster",
     "Show code for :account": "Visa kod för :account",
-    "Open the app to retrieve current requests.": "Öppna appen för att hämta aktuella förfrågningar."
+    "Open the app to retrieve current requests.": "Öppna appen för att hämta aktuella förfrågningar.",
+    "Verify your identity": "Bekräfta din identitet",
+    "See your basic profile": "Se din grundläggande profil",
+    "See your email address": "Se din e-postadress",
+    "Stay signed in": "Förbli inloggad",
+    "See your organizations": "Se dina organisationer"
 }

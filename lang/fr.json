@@ -292,5 +292,10 @@
     "Selected": "Sélectionné",
     "Your services": "Vos services",
     "Show code for :account": "Afficher le code pour :account",
-    "Open the app to retrieve current requests.": "Ouvrez l’app pour consulter les demandes en cours."
+    "Open the app to retrieve current requests.": "Ouvrez l’app pour consulter les demandes en cours.",
+    "Verify your identity": "Vérifier votre identité",
+    "See your basic profile": "Consulter votre profil de base",
+    "See your email address": "Consulter votre adresse e-mail",
+    "Stay signed in": "Rester connecté",
+    "See your organizations": "Consulter vos organisations"
 }
