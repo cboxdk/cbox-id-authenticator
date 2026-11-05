@@ -21,7 +21,7 @@ Se [IPHONE-TEST.md](IPHONE-TEST.md) for næste trin og [STORE-LISTING.md](STORE-
 
 ## 1. Afgrænsning og evidens
 
-Analysen tager udgangspunkt i den eksisterende companion-app til Cbox ID. Almindelige TOTP-koder til andre tjenester er ikke implementeret og er foreløbig uden for v1. Det er en arbejdsantagelse, indtil produktomfanget er afklaret.
+V1 omfatter kun Cbox ID-godkendelser: login og anmodninger fra apps og agenter. Sylvester har bekræftet denne afgrænsning den 5. november 2026. Almindelige TOTP-koder til andre tjenester samt import og eksport af TOTP-hemmeligheder er uden for v1.
 
 | Område | Grundlag og resultat |
 | --- | --- |
