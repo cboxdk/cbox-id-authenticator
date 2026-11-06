@@ -15,7 +15,7 @@ use Symfony\Component\Process\Process;
 it('preserves the archived encryption declaration through the actual packaging command', function (): void {
     $command = Artisan::all()['native:package'];
     expect($command)->toBeInstanceOf(NativePackageCommand::class);
-    Processes::fake(['*' => Processes::result(output: "true\n")]);
+    Processes::fake(['*' => Processes::result(output: "false\n")]);
 
     $method = new ReflectionMethod($command, 'setExportCompliance');
     expect($method->invoke($command, '/archive/Info.plist'))->toBeTrue();
@@ -31,8 +31,8 @@ it('stops packaging when the archive has a missing or incorrect encryption decla
     $method = new ReflectionMethod($command, 'setExportCompliance');
 
     expect(fn () => $method->invoke($command, '/archive/Info.plist'))
-        ->toThrow(RuntimeException::class, 'must declare its encryption');
-})->with([['false', 0], ['', 1]]);
+        ->toThrow(RuntimeException::class, 'must declare the approved authentication-only');
+})->with([['true', 0], ['', 1]]);
 
 it('rejects dependency drift introduced by a cloud build before preparing native sources', function (): void {
     $path = resource_path('third-party.json');
@@ -84,7 +84,7 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
         expect(File::get($root.'/NativePHP/NativePHP.entitlements'))->not->toContain('aps-environment');
         expect(File::get($root.'/NativePHP/Info.plist'))->not->toContain('remote-notification')
             ->toContain("<key>CboxPushEnabled</key>\n    <false/>")
-            ->toContain('ITSAppUsesNonExemptEncryption');
+            ->toContain("<key>ITSAppUsesNonExemptEncryption</key>\n    <false/>");
         expect(File::get(dirname($path).'/FirebaseManager.swift'))->toContain('as? Bool == true else { return }');
         expect(File::get($root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift'))
             ->toContain('if !forceHide {')

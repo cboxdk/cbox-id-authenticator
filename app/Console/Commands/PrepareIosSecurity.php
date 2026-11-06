@@ -364,7 +364,9 @@ SWIFT;
                 }
             }
             if ($name === 'Info.plist') {
-                foreach (['CboxPushEnabled' => $enabled, 'ITSAppUsesNonExemptEncryption' => true] as $key => $value) {
+                // Owner-approved authentication-only exemption, including backups
+                // of TOTP secrets. Reassess before adding general data encryption.
+                foreach (['CboxPushEnabled' => $enabled, 'ITSAppUsesNonExemptEncryption' => false] as $key => $value) {
                     $dict->appendChild($document->createElement('key', $key));
                     $dict->appendChild($document->createElement($value ? 'true' : 'false'));
                 }
