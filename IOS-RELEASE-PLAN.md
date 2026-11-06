@@ -40,12 +40,19 @@ SDK-diagnostik; denne indsamling må ikke skjules ved blot at beskrive appens eg
 
 ## Resterende før indsendelse
 
-1. Deploy og verificér testsiden fra server-PR121. Den isolerede reviewkonto er oprettet,
-   har nul medlemskaber/roller og er testet med almindeligt login og frisk tilslutningskode.
-   Dens login og vejledning er gemt og genlæst hos Apple.
-2. Ejerens beslutning om at indsende. Apple har valideret de krævede felter og viser
-   **Ready for Review** med **Submit for Review** som sidste handling.
-   Versionen er ikke indsendt eller offentligt frigivet.
+Kun ejerens beslutning om at indsende. Apple har valideret de krævede felter og viser
+**Ready for Review** med **Submit for Review** som sidste handling.
+Versionen er ikke indsendt eller offentligt frigivet.
+
+Den isolerede reviewkonto har nul medlemskaber, roller og operatorrettigheder.
+Login og vejledning er gemt og genlæst hos Apple. Testsiden er udrullet som server-
+revision `9da3d2b70a80f3e594efaff6c3895e15ca0f5dee`, efter alle 16 produktionschecks
+bestod. Almindeligt browserlogin, frisk tilslutningskode og sidens layout er kontrolleret.
+En midlertidig API-testenhed gennemførte PKCE/DPoP-tilslutning, godkendelse og afvisning
+af browseroprettede anmodninger; begge svar blev genlæst på siden. Enheden er fjernet,
+og dens stadig levende token får nu 403. Kontoen har ingen aktive testenheder.
+Denne kontrol dækker browser/API; den fysiske pushaccept er build 5-testen ovenfor.
+Den opdaterede offentlige privacy-side er også verificeret.
 
 ## Historisk implementeringsanalyse
 

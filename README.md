@@ -27,7 +27,9 @@ language. Review contact, age rating, free pricing, build selection and manual
 release are configured. Privacy is published following the owner's confirmation;
 an isolated reviewer account is provisioned, and its credentials and instructions
 are saved in App Store Connect. Apple has validated the required fields and shows
-**Ready for Review**. The self-service approval page awaits server PR121 deployment.
+**Ready for Review**. The self-service approval page is deployed and verified:
+ordinary reviewer sign-in, enrollment, browser-created requests, approval/denial via
+the public DPoP API, and device revocation. The temporary validation device is revoked.
 The app has **not** been submitted for review or publicly released.
 
 - [Release status and remaining gates](IOS-RELEASE-PLAN.md).

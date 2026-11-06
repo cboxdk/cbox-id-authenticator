@@ -30,9 +30,7 @@
   "reviewContactSaved": true,
   "reviewNotesSaved": "Cbox self-service approval, TOTP and encrypted backup; isolated credentials saved",
   "privacy": "Published in App Store Connect after explicit owner confirmation; independently read back",
-  "blockers": [
-    "Deploy and verify the self-service review approval page (cbox-id PR121)"
-  ],
+  "blockers": [],
   "submitted": false,
   "reviewAccount": {
     "host": "cbox.cboxid.com",
@@ -42,8 +40,24 @@
     "administrativeRoles": 0,
     "normalSignInVerified": true,
     "enrollmentPageVerified": true,
-    "workflowDeployment": "Pending server PR121"
+    "workflowDeployment": "Verified in production: 9da3d2b70a80f3e594efaff6c3895e15ca0f5dee",
+    "workflowValidation": {
+      "browserSignIn": true,
+      "publicPkceDpopEnrollment": true,
+      "browserCreatedRequests": true,
+      "apiApprovalAndDenial": true,
+      "resultsReadBackInBrowser": true,
+      "temporaryDeviceRevoked": true,
+      "revokedDeviceTokenHttpStatus": 403,
+      "activeTestDevices": 0
+    }
   },
   "appleRequiredFieldsValidated": true,
-  "reviewCredentialsSavedAndReadBack": true
+  "reviewCredentialsSavedAndReadBack": true,
+  "publicPrivacyPageVerified": true,
+  "physicalPushAcceptance": {
+    "build": "5",
+    "message": "PUSH 7926",
+    "approvedAt": "2026-11-06T14:01:02Z"
+  }
 }

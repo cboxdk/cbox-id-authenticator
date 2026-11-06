@@ -1,8 +1,8 @@
 # Cbox ID — App Store-materiale
 
 App Store Connect **6831374770**, iOS **1.0.0 (5)**. Forberedt 6. november 2026.
-Ingen reviewindsendelse eller offentlig frigivelse. Se `IOS-RELEASE-PLAN.md` for de
-den resterende serverkontrol. Apple viser **Ready for Review** efter validering af alle krævede felter.
+Ingen reviewindsendelse eller offentlig frigivelse. Se `IOS-RELEASE-PLAN.md` for
+acceptgrundlaget. Apple viser **Ready for Review** efter validering af alle krævede felter.
 
 ## Gemte felter
 
@@ -83,8 +83,8 @@ tilslutningskode er verificeret i en separat browsersession. Kun denne kontos lo
 er gemt i Apples reviewfelter. Ingen adgangskoder eller client secrets findes i
 repository eller dette dokument.
 
-Testforløbet er https://cbox.cboxid.com/authenticator/review (afventer deployment
-af server-PR121). Herfra åbner revieweren Betroede enheder, tilslutter sin telefon og
+Testforløbet er https://cbox.cboxid.com/authenticator/review, udrullet og verificeret
+på serverrevision `9da3d2b70a80f3e594efaff6c3895e15ca0f5dee`. Herfra åbner revieweren Betroede enheder, tilslutter sin telefon og
 sender en rigtig godkendelse til sig selv. Svaret kan genlæses på siden. Der udstedes
 ingen access tokens fra testen. En udløbende QR bruges ikke som permanent adgang.
 
@@ -99,6 +99,8 @@ TOTP og backup kan testes uden Cbox-login:
    eksisterende koder dubleres ikke. En forkert adgangskode skal afvises.
 6. Fjern testkoden igen. TOTP-funktionerne kræver ingen abonnementer eller køb.
 
-Cbox-delen skal dokumenteres med fungerende login, frisk QR eller tilslutningslink,
-testrequest, valgfri notifikation, godkendelse/afvisning og verificerbart resultat, før
-versionen indsendes. Kontakt og noter findes under App Review Information.
+Cbox-forløbet er kontrolleret med almindeligt login, frisk tilslutningskode,
+midlertidig PKCE/DPoP-enhed, browseroprettede testanmodninger og godkendelse/afvisning
+gennem appens offentlige API. Begge svar er genlæst på review-siden. Testenheden er
+tilbagekaldt, og dens token afvises med 403. Fysisk pushaccept er ejerens build 5-test
+med PUSH 7926. Kontakt, isoleret login og trinvis vejledning findes under App Review Information.
