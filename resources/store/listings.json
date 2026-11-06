@@ -7,91 +7,101 @@
       "locale": "en-US",
       "name": "Cbox ID",
       "subtitle": "Codes and secure approvals",
-      "description": "Approve sign-ins and requests from apps and agents with your Cbox ID account.\n\nSee which app is asking, which account the request concerns, and the action you are approving. Compare the description with the one shown on your other device, then confirm with Face ID or your iPhone passcode. Deny unwanted requests or choose “This wasn't me” to deny and report an unexpected request.\n\nConnect several Cbox ID accounts and see their pending requests together. Open the app to retrieve current requests from your Cbox ID host.\n\nKeep TOTP verification codes for other services, too. Scan a setup QR code or enter a setup key, then use your codes offline without a Cbox account. Save an encrypted backup with your own password and import it on a new phone. There is no automatic sync. Cbox cannot recover a forgotten backup password.\n\nCbox approvals require an existing account on a supported Cbox ID host. Connect through Trusted devices on your Cbox ID website using its QR code or a link.",
+      "description": "Approve sign-ins and requests from apps and agents with your Cbox ID account.\n\nSee which app is asking, which account the request concerns, and the action you are approving. Compare the description with the one shown on your other device, then confirm with Face ID or your iPhone passcode. Deny unwanted requests or choose “This wasn't me” to deny and report an unexpected request.\n\nConnect several Cbox ID accounts and see their pending requests together. Enable notifications to hear when a request arrives. Open the notification to review it, or open the app to check for requests at any time.\n\nKeep TOTP verification codes for other services, too. Scan a setup QR code or enter a setup key, then use your codes offline without a Cbox account. Save an encrypted backup with your own password and import it on a new phone. There is no automatic sync. Cbox cannot recover a forgotten backup password.\n\nCbox approvals require an existing account on a supported Cbox ID host. Connect through Trusted devices on your Cbox ID website using its QR code or a link.",
       "keywords": "cbox,id,login,approval,account,security,agent,totp,backup",
       "supportUrl": "https://cbox.dk/contact",
-      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy"
+      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy",
+      "promotionalText": "Approve Cbox sign-ins, keep your verification codes offline, and take an encrypted backup with you when you change phones."
     },
     {
       "locale": "da",
       "name": "Cbox ID",
       "subtitle": "Koder og sikre godkendelser",
-      "description": "Godkend login og anmodninger fra apps og agenter med din Cbox ID-konto.\n\nSe, hvilken app der beder om adgang, hvilken konto anmodningen gælder, og hvilken handling du godkender. Sammenlign beskrivelsen med det, du blev vist på din anden enhed. Bekræft med Face ID eller din iPhones adgangskode. Afvis anmodninger, du ikke ønsker, eller vælg “Det var ikke mig” for at afvise og rapportere en uventet anmodning.\n\nTilslut flere Cbox ID-konti, og se deres anmodninger samlet. Åbn appen for at hente aktuelle anmodninger fra din Cbox ID-server.\n\nGem også TOTP-bekræftelseskoder til andre tjenester. Scan en opsætningskode eller indtast en nøgle, og brug koderne offline uden en Cbox-konto. Gem en krypteret backup med din egen adgangskode, og importér den på en ny telefon. Der er ingen automatisk synkronisering. Cbox kan ikke gendanne en glemt adgangskode til backup.\n\nCbox-godkendelser kræver en eksisterende konto hos en understøttet Cbox ID-host. Tilslut telefonen via Betroede enheder på din Cbox ID-side med QR eller et link.",
+      "description": "Godkend login og anmodninger fra apps og agenter med din Cbox ID-konto.\n\nSe, hvilken app der beder om adgang, hvilken konto anmodningen gælder, og hvilken handling du godkender. Sammenlign beskrivelsen med det, du blev vist på din anden enhed. Bekræft med Face ID eller din iPhones adgangskode. Afvis anmodninger, du ikke ønsker, eller vælg “Det var ikke mig” for at afvise og rapportere en uventet anmodning.\n\nTilslut flere Cbox ID-konti, og se deres anmodninger samlet. Slå notifikationer til, så du får besked om nye anmodninger. Åbn notifikationen for at gennemgå den, eller åbn appen for at se, hvad der venter.\n\nGem også TOTP-bekræftelseskoder til andre tjenester. Scan en opsætningskode eller indtast en nøgle, og brug koderne offline uden en Cbox-konto. Gem en krypteret backup med din egen adgangskode, og importér den på en ny telefon. Der er ingen automatisk synkronisering. Cbox kan ikke gendanne en glemt adgangskode til backup.\n\nCbox-godkendelser kræver en eksisterende konto hos en understøttet Cbox ID-host. Tilslut telefonen via Betroede enheder på din Cbox ID-side med QR eller et link.",
       "keywords": "cbox,id,login,godkendelse,konto,sikkerhed,agent,totp,backup",
       "supportUrl": "https://cbox.dk/contact",
-      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy"
+      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy",
+      "promotionalText": "Godkend Cbox-login, hav dine tofaktorkoder klar offline, og tag en krypteret backup med, når du skifter telefon."
     },
     {
       "locale": "de-DE",
       "name": "Cbox ID",
       "subtitle": "Codes und sichere Freigaben",
-      "description": "Bestätige Anmeldungen und Anfragen mit deinen Cbox ID-Konten. Prüfe die App, das Konto und die gewünschte Aktion, bevor du mit Face ID oder deinem iPhone-Code bestätigst. Verbinde mehrere Konten über den QR-Code oder Link unter Vertrauenswürdige Geräte auf deinem Cbox ID-Server.\n\nSpeichere auch TOTP-Bestätigungscodes für andere Dienste. Sie funktionieren offline und ohne Cbox-Konto. Scanne den Einrichtungs-QR-Code oder gib den Schlüssel ein. Erstelle ein verschlüsseltes Backup mit deinem eigenen Passwort und importiere es auf einem neuen Telefon. Es gibt keine automatische Synchronisierung. Cbox kann ein vergessenes Backup-Passwort nicht wiederherstellen.\n\nCbox-Anfragen benötigen ein bestehendes Konto auf einem unterstützten Cbox ID-Server. Öffne die App, um aktuelle Anfragen abzurufen.",
+      "description": "Bestätige Anmeldungen und Anfragen mit deinen Cbox ID-Konten. Prüfe die App, das Konto und die gewünschte Aktion, bevor du mit Face ID oder deinem iPhone-Code bestätigst. Verbinde mehrere Konten über den QR-Code oder Link unter Vertrauenswürdige Geräte auf deinem Cbox ID-Server.\n\nSpeichere auch TOTP-Bestätigungscodes für andere Dienste. Sie funktionieren offline und ohne Cbox-Konto. Scanne den Einrichtungs-QR-Code oder gib den Schlüssel ein. Erstelle ein verschlüsseltes Backup mit deinem eigenen Passwort und importiere es auf einem neuen Telefon. Es gibt keine automatische Synchronisierung. Cbox kann ein vergessenes Backup-Passwort nicht wiederherstellen.\n\nCbox-Anfragen benötigen ein bestehendes Konto auf einem unterstützten Cbox ID-Server. Aktiviere Mitteilungen, um von neuen Anfragen zu erfahren. Öffne die Mitteilung, um die Anfrage zu prüfen, oder sieh jederzeit in der App nach.",
       "keywords": "cbox,id,anmeldung,freigabe,konto,sicherheit,totp,backup",
       "supportUrl": "https://cbox.dk/contact",
-      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy"
+      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy",
+      "promotionalText": "Cbox-Anmeldungen bestätigen, Bestätigungscodes offline nutzen und beim Handywechsel ein verschlüsseltes Backup mitnehmen."
     },
     {
       "locale": "sv",
       "name": "Cbox ID",
       "subtitle": "Koder och säkra godkännanden",
-      "description": "Godkänn inloggningar och förfrågningar med dina Cbox ID-konton. Granska appen, kontot och åtgärden innan du bekräftar med Face ID eller din iPhone-lösenkod. Anslut flera konton via QR-koden eller länken under Betrodda enheter på din Cbox ID-server.\n\nSpara även TOTP-verifieringskoder för andra tjänster. De fungerar offline och utan Cbox-konto. Skanna tjänstens QR-kod eller ange konfigurationsnyckeln. Skapa en krypterad säkerhetskopia med ett eget lösenord och importera den på en ny telefon. Det finns ingen automatisk synkronisering. Cbox kan inte återställa ett glömt lösenord till säkerhetskopian.\n\nCbox-förfrågningar kräver ett befintligt konto på en Cbox ID-server som stöds. Öppna appen för att hämta aktuella förfrågningar.",
+      "description": "Godkänn inloggningar och förfrågningar med dina Cbox ID-konton. Granska appen, kontot och åtgärden innan du bekräftar med Face ID eller din iPhone-lösenkod. Anslut flera konton via QR-koden eller länken under Betrodda enheter på din Cbox ID-server.\n\nSpara även TOTP-verifieringskoder för andra tjänster. De fungerar offline och utan Cbox-konto. Skanna tjänstens QR-kod eller ange konfigurationsnyckeln. Skapa en krypterad säkerhetskopia med ett eget lösenord och importera den på en ny telefon. Det finns ingen automatisk synkronisering. Cbox kan inte återställa ett glömt lösenord till säkerhetskopian.\n\nCbox-förfrågningar kräver ett befintligt konto på en Cbox ID-server som stöds. Aktivera notiser för att få veta när en förfrågan kommer. Öppna notisen för att granska den, eller se väntande förfrågningar direkt i appen.",
       "keywords": "cbox,id,inloggning,godkännande,konto,säkerhet,totp,backup",
       "supportUrl": "https://cbox.dk/contact",
-      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy"
+      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy",
+      "promotionalText": "Godkänn Cbox-inloggningar, använd verifieringskoder offline och ta med en krypterad säkerhetskopia när du byter telefon."
     },
     {
       "locale": "no",
       "name": "Cbox ID",
       "subtitle": "Koder og sikre godkjenninger",
-      "description": "Godkjenn innlogginger og forespørsler med Cbox ID-kontoene dine. Sjekk appen, kontoen og handlingen før du bekrefter med Face ID eller iPhone-koden din. Koble til flere kontoer via QR-koden eller lenken under Klarerte enheter på Cbox ID-serveren.\n\nLagre også TOTP-bekreftelseskoder for andre tjenester. De fungerer uten nett og uten Cbox-konto. Skann tjenestens QR-kode eller oppgi oppsettsnøkkelen. Opprett en kryptert sikkerhetskopi med ditt eget passord og importer den på en ny telefon. Det finnes ingen automatisk synkronisering. Cbox kan ikke gjenopprette et glemt passord til sikkerhetskopien.\n\nCbox-forespørsler krever en eksisterende konto på en støttet Cbox ID-server. Åpne appen for å hente aktuelle forespørsler.",
+      "description": "Godkjenn innlogginger og forespørsler med Cbox ID-kontoene dine. Sjekk appen, kontoen og handlingen før du bekrefter med Face ID eller iPhone-koden din. Koble til flere kontoer via QR-koden eller lenken under Klarerte enheter på Cbox ID-serveren.\n\nLagre også TOTP-bekreftelseskoder for andre tjenester. De fungerer uten nett og uten Cbox-konto. Skann tjenestens QR-kode eller oppgi oppsettsnøkkelen. Opprett en kryptert sikkerhetskopi med ditt eget passord og importer den på en ny telefon. Det finnes ingen automatisk synkronisering. Cbox kan ikke gjenopprette et glemt passord til sikkerhetskopien.\n\nCbox-forespørsler krever en eksisterende konto på en støttet Cbox ID-server. Aktiver varslinger for å få beskjed om nye forespørsler. Åpne varselet for å se detaljene, eller sjekk ventende forespørsler i appen.",
       "keywords": "cbox,id,innlogging,godkjenning,konto,sikkerhet,totp,backup",
       "supportUrl": "https://cbox.dk/contact",
-      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy"
+      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy",
+      "promotionalText": "Godkjenn Cbox-innlogginger, bruk bekreftelseskoder uten nett og ta med en kryptert sikkerhetskopi når du bytter telefon."
     },
     {
       "locale": "fr-FR",
       "name": "Cbox ID",
       "subtitle": "Codes et validations sûres",
-      "description": "Approuvez les connexions et demandes avec vos comptes Cbox ID. Examinez l’app, le compte et l’action demandée avant de confirmer avec Face ID ou le code de votre iPhone. Connectez plusieurs comptes via le QR code ou le lien dans Appareils de confiance sur votre serveur Cbox ID.\n\nConservez aussi les codes de vérification TOTP d’autres services. Ils fonctionnent hors ligne, sans compte Cbox. Scannez le QR code du service ou saisissez sa clé de configuration. Créez une sauvegarde chiffrée avec votre propre mot de passe et importez-la sur un nouveau téléphone. Il n’y a pas de synchronisation automatique. Cbox ne peut pas récupérer un mot de passe de sauvegarde oublié.\n\nLes demandes Cbox nécessitent un compte existant sur un serveur Cbox ID pris en charge. Ouvrez l’app pour consulter les demandes en cours.",
+      "description": "Approuvez les connexions et demandes avec vos comptes Cbox ID. Examinez l’app, le compte et l’action demandée avant de confirmer avec Face ID ou le code de votre iPhone. Connectez plusieurs comptes via le QR code ou le lien dans Appareils de confiance sur votre serveur Cbox ID.\n\nConservez aussi les codes de vérification TOTP d’autres services. Ils fonctionnent hors ligne, sans compte Cbox. Scannez le QR code du service ou saisissez sa clé de configuration. Créez une sauvegarde chiffrée avec votre propre mot de passe et importez-la sur un nouveau téléphone. Il n’y a pas de synchronisation automatique. Cbox ne peut pas récupérer un mot de passe de sauvegarde oublié.\n\nLes demandes Cbox nécessitent un compte existant sur un serveur Cbox ID pris en charge. Activez les notifications pour être averti des nouvelles demandes. Ouvrez la notification pour examiner la demande, ou consultez l’app à tout moment.",
       "keywords": "cbox,id,connexion,validation,compte,sécurité,totp,sauvegarde",
       "supportUrl": "https://cbox.dk/contact",
-      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy"
+      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy",
+      "promotionalText": "Validez vos connexions Cbox, utilisez vos codes hors ligne et emportez une sauvegarde chiffrée lorsque vous changez de téléphone."
     },
     {
       "locale": "fi",
       "name": "Cbox ID",
       "subtitle": "Koodit ja hyväksynnät",
-      "description": "Hyväksy kirjautumiset ja pyynnöt Cbox ID -tileilläsi. Tarkista sovellus, tili ja pyydetty toiminto ennen vahvistamista Face ID:llä tai iPhonen pääsykoodilla. Yhdistä useita tilejä Cbox ID -palvelimen Luotetut laitteet -sivun QR-koodilla tai linkillä.\n\nTallenna myös muiden palvelujen TOTP-vahvistuskoodit. Ne toimivat ilman verkkoyhteyttä ja Cbox-tiliä. Skannaa palvelun QR-koodi tai anna käyttöönottoavain. Luo omalla salasanallasi suojattu, salattu varmuuskopio ja tuo se uuteen puhelimeen. Automaattista synkronointia ei ole. Cbox ei voi palauttaa unohtunutta varmuuskopion salasanaa.\n\nCbox-pyynnöt edellyttävät olemassa olevaa tiliä tuetulla Cbox ID -palvelimella. Avaa sovellus hakeaksesi nykyiset pyynnöt.",
+      "description": "Hyväksy kirjautumiset ja pyynnöt Cbox ID -tileilläsi. Tarkista sovellus, tili ja pyydetty toiminto ennen vahvistamista Face ID:llä tai iPhonen pääsykoodilla. Yhdistä useita tilejä Cbox ID -palvelimen Luotetut laitteet -sivun QR-koodilla tai linkillä.\n\nTallenna myös muiden palvelujen TOTP-vahvistuskoodit. Ne toimivat ilman verkkoyhteyttä ja Cbox-tiliä. Skannaa palvelun QR-koodi tai anna käyttöönottoavain. Luo omalla salasanallasi suojattu, salattu varmuuskopio ja tuo se uuteen puhelimeen. Automaattista synkronointia ei ole. Cbox ei voi palauttaa unohtunutta varmuuskopion salasanaa.\n\nCbox-pyynnöt edellyttävät olemassa olevaa tiliä tuetulla Cbox ID -palvelimella. Ota ilmoitukset käyttöön, niin saat tiedon uusista pyynnöistä. Avaa ilmoitus tarkistaaksesi pyynnön tai katso odottavat pyynnöt sovelluksesta.",
       "keywords": "cbox,id,kirjautuminen,hyväksyntä,tili,turvallisuus,totp,varmuuskopio",
       "supportUrl": "https://cbox.dk/contact",
-      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy"
+      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy",
+      "promotionalText": "Hyväksy Cbox-kirjautumiset, käytä vahvistuskoodeja ilman verkkoyhteyttä ja siirrä koodit uuteen puhelimeen salatulla varmuuskopiolla."
     },
     {
       "locale": "es-ES",
       "name": "Cbox ID",
       "subtitle": "Códigos y aprobaciones seguras",
-      "description": "Aprueba inicios de sesión y solicitudes con tus cuentas de Cbox ID. Revisa la app, la cuenta y la acción solicitada antes de confirmar con Face ID o el código del iPhone. Conecta varias cuentas mediante el QR o enlace de Dispositivos de confianza en tu servidor de Cbox ID.\n\nGuarda también códigos de verificación TOTP de otros servicios. Funcionan sin conexión y sin cuenta de Cbox. Escanea el QR del servicio o introduce su clave de configuración. Crea una copia cifrada con tu propia contraseña e impórtala en un nuevo teléfono. No hay sincronización automática. Cbox no puede recuperar una contraseña de copia olvidada.\n\nLas solicitudes de Cbox requieren una cuenta existente en un servidor compatible. Abre la app para consultar las solicitudes actuales.",
+      "description": "Aprueba inicios de sesión y solicitudes con tus cuentas de Cbox ID. Revisa la app, la cuenta y la acción solicitada antes de confirmar con Face ID o el código del iPhone. Conecta varias cuentas mediante el QR o enlace de Dispositivos de confianza en tu servidor de Cbox ID.\n\nGuarda también códigos de verificación TOTP de otros servicios. Funcionan sin conexión y sin cuenta de Cbox. Escanea el QR del servicio o introduce su clave de configuración. Crea una copia cifrada con tu propia contraseña e impórtala en un nuevo teléfono. No hay sincronización automática. Cbox no puede recuperar una contraseña de copia olvidada.\n\nLas solicitudes de Cbox requieren una cuenta existente en un servidor compatible. Activa las notificaciones para recibir avisos de nuevas solicitudes. Abre la notificación para revisar la solicitud o consulta la app cuando quieras.",
       "keywords": "cbox,id,acceso,aprobación,cuenta,seguridad,totp,copia",
       "supportUrl": "https://cbox.dk/contact",
-      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy"
+      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy",
+      "promotionalText": "Aprueba accesos de Cbox, usa códigos de verificación sin conexión y lleva una copia cifrada cuando cambies de móvil."
     },
     {
       "locale": "it",
       "name": "Cbox ID",
       "subtitle": "Codici e approvazioni sicure",
-      "description": "Approva accessi e richieste con i tuoi account Cbox ID. Controlla l’app, l’account e l’azione richiesta prima di confermare con Face ID o il codice dell’iPhone. Collega più account tramite QR o link in Dispositivi attendibili sul tuo server Cbox ID.\n\nConserva anche i codici di verifica TOTP di altri servizi. Funzionano offline e senza un account Cbox. Scansiona il QR del servizio o inserisci la chiave di configurazione. Crea un backup cifrato con una password scelta da te e importalo su un nuovo telefono. Non è prevista la sincronizzazione automatica. Cbox non può recuperare una password di backup dimenticata.\n\nLe richieste Cbox richiedono un account esistente su un server Cbox ID supportato. Apri l’app per recuperare le richieste in sospeso.",
+      "description": "Approva accessi e richieste con i tuoi account Cbox ID. Controlla l’app, l’account e l’azione richiesta prima di confermare con Face ID o il codice dell’iPhone. Collega più account tramite QR o link in Dispositivi attendibili sul tuo server Cbox ID.\n\nConserva anche i codici di verifica TOTP di altri servizi. Funzionano offline e senza un account Cbox. Scansiona il QR del servizio o inserisci la chiave di configurazione. Crea un backup cifrato con una password scelta da te e importalo su un nuovo telefono. Non è prevista la sincronizzazione automatica. Cbox non può recuperare una password di backup dimenticata.\n\nLe richieste Cbox richiedono un account esistente su un server Cbox ID supportato. Attiva le notifiche per sapere quando arriva una richiesta. Apri la notifica per controllarla oppure consulta le richieste in attesa nell’app.",
       "keywords": "cbox,id,accesso,approvazione,account,sicurezza,totp,backup",
       "supportUrl": "https://cbox.dk/contact",
-      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy"
+      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy",
+      "promotionalText": "Approva gli accessi Cbox, usa i codici di verifica offline e porta con te un backup cifrato quando cambi telefono."
     },
     {
       "locale": "nl-NL",
       "name": "Cbox ID",
       "subtitle": "Codes en veilige goedkeuringen",
-      "description": "Keur aanmeldingen en verzoeken goed met je Cbox ID-accounts. Controleer de app, het account en de gevraagde actie voordat je bevestigt met Face ID of je iPhone-toegangscode. Koppel meerdere accounts via de QR-code of link bij Vertrouwde apparaten op je Cbox ID-server.\n\nBewaar ook TOTP-verificatiecodes voor andere diensten. Ze werken offline en zonder Cbox-account. Scan de QR-code van de dienst of voer de installatiesleutel in. Maak een versleutelde back-up met je eigen wachtwoord en importeer deze op een nieuwe telefoon. Er is geen automatische synchronisatie. Cbox kan een vergeten back-upwachtwoord niet herstellen.\n\nCbox-verzoeken vereisen een bestaand account op een ondersteunde Cbox ID-server. Open de app om actuele verzoeken op te halen.",
+      "description": "Keur aanmeldingen en verzoeken goed met je Cbox ID-accounts. Controleer de app, het account en de gevraagde actie voordat je bevestigt met Face ID of je iPhone-toegangscode. Koppel meerdere accounts via de QR-code of link bij Vertrouwde apparaten op je Cbox ID-server.\n\nBewaar ook TOTP-verificatiecodes voor andere diensten. Ze werken offline en zonder Cbox-account. Scan de QR-code van de dienst of voer de installatiesleutel in. Maak een versleutelde back-up met je eigen wachtwoord en importeer deze op een nieuwe telefoon. Er is geen automatische synchronisatie. Cbox kan een vergeten back-upwachtwoord niet herstellen.\n\nCbox-verzoeken vereisen een bestaand account op een ondersteunde Cbox ID-server. Schakel meldingen in om te horen wanneer er een verzoek binnenkomt. Open de melding om het te controleren, of bekijk openstaande verzoeken in de app.",
       "keywords": "cbox,id,aanmelden,goedkeuring,account,beveiliging,totp,backup",
       "supportUrl": "https://cbox.dk/contact",
-      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy"
+      "privacyPolicyUrl": "https://cbox.cboxid.com/authenticator/privacy",
+      "promotionalText": "Keur Cbox-aanmeldingen goed, gebruik verificatiecodes offline en neem een versleutelde back-up mee als je van telefoon wisselt."
     }
   ]
 }

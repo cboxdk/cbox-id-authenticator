@@ -1,0 +1,501 @@
+{
+  "appId": "6831374770",
+  "version": "1.0.0",
+  "build": "5",
+  "sourceRevision": "931445845227b1fc44f41982e845f6abd5a5b73d",
+  "source": "Actual simulator UI with fictional presentation data, uniformly scaled inside deterministic AppKit artwork. No generated or retouched UI.",
+  "assets": [
+    {
+      "file": "da/01-approvals.jpg",
+      "sha256": "04498ac03bdc4beca76595ce4f0292d2d76ebb9688e852ea9fc057c7211c849b",
+      "width": 1320,
+      "height": 2868,
+      "source": "da-01-requests.png",
+      "sourceSha256": "b01ae4d635fde0c72d016008d106a63f3dadc8e66f66ef3b3364805834e48f14"
+    },
+    {
+      "file": "da/02-codes.jpg",
+      "sha256": "f26daf2b9c37baffe36f2d46c2c02390bb86add6c6d5734e52fb38f52e376661",
+      "width": 1320,
+      "height": 2868,
+      "source": "da-03-codes-grid.png",
+      "sourceSha256": "b46338d3aec0c0baf1285f8e1ab5775204ac090039f8814b37c7f6a0a93fba0e"
+    },
+    {
+      "file": "da/03-control.jpg",
+      "sha256": "0b12d69cd853288b68f530789998a0eb76fd169840daf7ba2909b3de08293bdc",
+      "width": 1320,
+      "height": 2868,
+      "source": "da-02-approval.png",
+      "sourceSha256": "e88db9016e74120eb6a6151f26f1853f0fb1470dee6be9ade196c18735efd593"
+    },
+    {
+      "file": "da/04-backup.jpg",
+      "sha256": "a04f364616630e8dc52a50e40cbdcba69e7d0e7dfe3118ee0465c65d6cbc3565",
+      "width": 1320,
+      "height": 2868,
+      "source": "da-06-backup.png",
+      "sourceSha256": "77a86ebadd47da4a525880ef66d4e2c3a8fda6bafd942f1af3f74b63827da56e"
+    },
+    {
+      "file": "da/05-accounts.jpg",
+      "sha256": "96629c3f75002261878e391ad3806bbd68f1aafb42d3f4e77dd8462517fd9f4e",
+      "width": 1320,
+      "height": 2868,
+      "source": "da-05-accounts.png",
+      "sourceSha256": "986c08c37b27ba7e8bdf163b1f7b5ab9ad577a69f3c1de2607bc76784c59a151"
+    },
+    {
+      "file": "da/06-find.jpg",
+      "sha256": "e99f7ad4c9a43c5e947f2c212fe6f40e64aa6dd7061fbd5708b8cb8c520d8ed7",
+      "width": 1320,
+      "height": 2868,
+      "source": "da-04-codes-list.png",
+      "sourceSha256": "194e67e790979f7310e2826ecbbcc62360fe44386198a50e0bcabf84758ae26d"
+    },
+    {
+      "file": "en/01-approvals.jpg",
+      "sha256": "afb3947866ab8318c396b812559ed37636ad2856c902c1de40ccceb1558eafcc",
+      "width": 1320,
+      "height": 2868,
+      "source": "en-01-requests.png",
+      "sourceSha256": "bd59a3a078317e1b583c5f6158a44093aa334cc4e2b9dd8731870b850f8c64ee"
+    },
+    {
+      "file": "en/02-codes.jpg",
+      "sha256": "6bdc970af75749197d949f9911b0c25702a00c4afc62688492097d62b606620c",
+      "width": 1320,
+      "height": 2868,
+      "source": "en-03-codes-grid.png",
+      "sourceSha256": "8339b233251d371445f40423fdd68f544bda936a46598f6a93f13bd086e66ae5"
+    },
+    {
+      "file": "en/03-control.jpg",
+      "sha256": "92ec83ae3c2b0f2f8d360ebff25e6f5e57593c8b09b6c1a3dde803b4d75c574c",
+      "width": 1320,
+      "height": 2868,
+      "source": "en-02-approval.png",
+      "sourceSha256": "241799ec018c2ca4a531eea1eb24dc7760a4b3821ca5775a89ecfe0cb31b3969"
+    },
+    {
+      "file": "en/04-backup.jpg",
+      "sha256": "85aa25bcdf3d940dbf035163feb53771ea29e704e5534ab98ee29f07352652de",
+      "width": 1320,
+      "height": 2868,
+      "source": "en-06-backup.png",
+      "sourceSha256": "caee9191eee1f3a3888083ecaa5e6d9b8a9fa100f35a04f08a769ea34973e743"
+    },
+    {
+      "file": "en/05-accounts.jpg",
+      "sha256": "d191fd492d50dfce53ae7077d9523c526d4746ab4ba0ae32c1c6861c1e4777fb",
+      "width": 1320,
+      "height": 2868,
+      "source": "en-05-accounts.png",
+      "sourceSha256": "2b19002e9aa89a5f3ae52bc5885fbcd32c582fe4360ed7f2ab4c85bbe2e0207b"
+    },
+    {
+      "file": "en/06-find.jpg",
+      "sha256": "ae5ae9ef37e29fdcab9d2b5de3537e2795dd0e84de7ab2b90552b42d3f384e91",
+      "width": 1320,
+      "height": 2868,
+      "source": "en-04-codes-list.png",
+      "sourceSha256": "ab456c0a696406009c895376bb4fff5d3286b176d3962ae68b5b1d4958367905"
+    },
+    {
+      "file": "de/01-approvals.jpg",
+      "sha256": "6c9df292dcb1c06b9d4e6231cc5a9d1f782313a5f71e25e59727d61dddea0f63",
+      "width": 1320,
+      "height": 2868,
+      "source": "de-01-requests.png",
+      "sourceSha256": "cfbf5d69d7b9e1b3b9a4ab8a14b3f98de6fd10fb17623e620241bdc31df008a9"
+    },
+    {
+      "file": "de/02-codes.jpg",
+      "sha256": "9c237f8c9df342b0517923d895354737119964d9b363362507af0840c6ec5fe0",
+      "width": 1320,
+      "height": 2868,
+      "source": "de-03-codes-grid.png",
+      "sourceSha256": "96f15bd0fdb82a8ae013697ca54a2f6aeab69c454a0986cf0cfead635c9f6c2d"
+    },
+    {
+      "file": "de/03-control.jpg",
+      "sha256": "b2473e35976b47afb92b79fbbeda37dc07bd514ca08d37ebb4276c6cd9c5ea8f",
+      "width": 1320,
+      "height": 2868,
+      "source": "de-02-approval.png",
+      "sourceSha256": "fa041e152262f3d670ab5359b57953354adf7f7a26dedd4bd00d8a33b68bdeba"
+    },
+    {
+      "file": "de/04-backup.jpg",
+      "sha256": "840cc793c25f0ba25781fc43a7b30a90eaa22b2ec1f5c7bf34a2e8a4d86d8e3e",
+      "width": 1320,
+      "height": 2868,
+      "source": "de-06-backup.png",
+      "sourceSha256": "5def00b11016a942def01a92223823813309fcd5ec74cf5bc3c48883937bd8be"
+    },
+    {
+      "file": "de/05-accounts.jpg",
+      "sha256": "e512e7ec999974695a46f0b5bf03f52aaddaca016e1180fd60ca820b275e103b",
+      "width": 1320,
+      "height": 2868,
+      "source": "de-05-accounts.png",
+      "sourceSha256": "ce2bc4ca58fb0a9632947dfd90912d27f0ee813b5181ecf9a9ca0d2bfb4d47e9"
+    },
+    {
+      "file": "de/06-find.jpg",
+      "sha256": "08bf8e3ebca712d7f4612566250b73de6515d6f5ff7d6b459d305fb71d49719e",
+      "width": 1320,
+      "height": 2868,
+      "source": "de-04-codes-list.png",
+      "sourceSha256": "9a0f3d44f9dd8efa499031e1eab6771d0f93f99766aa2b5e859f578731ccf54f"
+    },
+    {
+      "file": "sv/01-approvals.jpg",
+      "sha256": "2317a72ab80cb0141c2e31a397063f5de7f4e55307b848609e00d3c03893d0cc",
+      "width": 1320,
+      "height": 2868,
+      "source": "sv-01-requests.png",
+      "sourceSha256": "b33fa41e2e65ce3ea3771fd6f58721448f96090dd44ef5135f567dd929c8aec5"
+    },
+    {
+      "file": "sv/02-codes.jpg",
+      "sha256": "dbc627e7783af52cd08fff9b207fa3b40fd8c48146cdb8aab8f8d5ce889ebb1a",
+      "width": 1320,
+      "height": 2868,
+      "source": "sv-03-codes-grid.png",
+      "sourceSha256": "f0fa3670bca0595ef8715382b46fbb80515816b3695935b0f2b6cf79f7084b35"
+    },
+    {
+      "file": "sv/03-control.jpg",
+      "sha256": "cfb93ac736ff0fd8555022d395b9979ab55c5b5749136a205e4d3bff2f7f6d39",
+      "width": 1320,
+      "height": 2868,
+      "source": "sv-02-approval.png",
+      "sourceSha256": "b1843f5414a40b772c945ccf4c4b9ae0c7606c5941187e592685ae7148153ebd"
+    },
+    {
+      "file": "sv/04-backup.jpg",
+      "sha256": "0d23958f8d4bcc48eb89b1b30a77c98685394cd6c80f900d631d37371090856d",
+      "width": 1320,
+      "height": 2868,
+      "source": "sv-06-backup.png",
+      "sourceSha256": "83e36e362b90392a9f6b3d21b3a608443c0c5b25785f19e52ff51039c9971947"
+    },
+    {
+      "file": "sv/05-accounts.jpg",
+      "sha256": "e2184f6c84a871b400de8d2990a13fba4f7b46a25c27e86672cb29cf7804c072",
+      "width": 1320,
+      "height": 2868,
+      "source": "sv-05-accounts.png",
+      "sourceSha256": "732d4131a94d2ce6da5fe399048f095b9ab16ca8a9b57d788ee7448ecdb0f67b"
+    },
+    {
+      "file": "sv/06-find.jpg",
+      "sha256": "4ae8f4bf0fa15536ab045f130db877a6ab4a73a70c40ae0c6ae5bc7025645159",
+      "width": 1320,
+      "height": 2868,
+      "source": "sv-04-codes-list.png",
+      "sourceSha256": "246d91cb4cafa21b4406cc6cddef4b7e7fa762a26858ee7109e61a714b88d023"
+    },
+    {
+      "file": "nb/01-approvals.jpg",
+      "sha256": "b0f05716b8edf86e074bf8aedc352baf3dd66d92c70cafb4a7ad71fe83d72ae1",
+      "width": 1320,
+      "height": 2868,
+      "source": "nb-01-requests.png",
+      "sourceSha256": "19c6b86b3c1b3ac2fcc60be5205aaeddcc099442ed41f6ce4f93a9b28e2e6cfd"
+    },
+    {
+      "file": "nb/02-codes.jpg",
+      "sha256": "52dadb26d1a9186501dc0f879d85aff59a4e26c8491e0e4b1fc09726995e3f6f",
+      "width": 1320,
+      "height": 2868,
+      "source": "nb-03-codes-grid.png",
+      "sourceSha256": "a5638a6d845d02200f0e285225468c08e07076bf9aa950fda5ea63be79c36dcb"
+    },
+    {
+      "file": "nb/03-control.jpg",
+      "sha256": "a643cd519246a0a468ef5fecea0a3dd6abc97f4eba7cb3936acad5ccb58e5615",
+      "width": 1320,
+      "height": 2868,
+      "source": "nb-02-approval.png",
+      "sourceSha256": "ab11f99803cf9cbc5ca53c36cefe0864ae6b5d15f130f854738ab51da3303d3f"
+    },
+    {
+      "file": "nb/04-backup.jpg",
+      "sha256": "317585a903b4ff53dac85aa315574d521b991a17b01a1875da5e61527b6fd60f",
+      "width": 1320,
+      "height": 2868,
+      "source": "nb-06-backup.png",
+      "sourceSha256": "1da0013121206867c0465c9ad03f3aa361998c8dc63e6807988b20f423d4685d"
+    },
+    {
+      "file": "nb/05-accounts.jpg",
+      "sha256": "d02dc0c58c5f161b7e8e4eadcbef30b3d90564db1771333b0012936b3b1fc4a6",
+      "width": 1320,
+      "height": 2868,
+      "source": "nb-05-accounts.png",
+      "sourceSha256": "446946404be3a3a6f7aff8d6249a0a12f4a9d9a643c7f7b32e8e1606e4f27f5d"
+    },
+    {
+      "file": "nb/06-find.jpg",
+      "sha256": "c88dc67dbccfba01c109a6953afaebc7a41f2afe416ea74e92dd3fc4278abcf0",
+      "width": 1320,
+      "height": 2868,
+      "source": "nb-04-codes-list.png",
+      "sourceSha256": "4c6b3912a2a141034e8f4df67eb63354969e8b91b44123f5f678eface42333bd"
+    },
+    {
+      "file": "fr/01-approvals.jpg",
+      "sha256": "87e7b3ad2511ea4987b67733dae30ecd1dfd0935649daa2353694d295d35c81d",
+      "width": 1320,
+      "height": 2868,
+      "source": "fr-01-requests.png",
+      "sourceSha256": "fba691106fca4aec92bbb6d6e21fa31e35c36f5e77c635b77a61356745ac5094"
+    },
+    {
+      "file": "fr/02-codes.jpg",
+      "sha256": "50e312aa716eb543540bf2cc445de434021983dda6261eea5374ad99102f1de6",
+      "width": 1320,
+      "height": 2868,
+      "source": "fr-03-codes-grid.png",
+      "sourceSha256": "5a9e51ad0c551f482d292d794925e21a00bd93915ba7ae14480019339488f1a8"
+    },
+    {
+      "file": "fr/03-control.jpg",
+      "sha256": "5674b203f608b9c6e497a03e713fee736eda5f7fa05b2730697e0eadb1f13d9b",
+      "width": 1320,
+      "height": 2868,
+      "source": "fr-02-approval.png",
+      "sourceSha256": "c82f9e071b7696ab94f4f12873f484d28e69ca0325ee231b79bc750ccfb22899"
+    },
+    {
+      "file": "fr/04-backup.jpg",
+      "sha256": "49343c3e819e73c68e350d90d4878ebd334853f13b9d5a12ebbe1065487ccac9",
+      "width": 1320,
+      "height": 2868,
+      "source": "fr-06-backup.png",
+      "sourceSha256": "a98adf34d2b92d12c4c01d5cff57e262d7c5a8bcb299971e0fd11d4ca89ae8e8"
+    },
+    {
+      "file": "fr/05-accounts.jpg",
+      "sha256": "d96c78795a1112daecf795bc36b6c96a6b4ae7caa168e4cda62ab6e777dcc0c9",
+      "width": 1320,
+      "height": 2868,
+      "source": "fr-05-accounts.png",
+      "sourceSha256": "1b23732791b20bb5f673c3ce318f53858032972788079b890a419d6593bfad72"
+    },
+    {
+      "file": "fr/06-find.jpg",
+      "sha256": "d50df5accfec988cc94aaa7cee27219c45353c72d72ebeb18e68cc4bb0e05d91",
+      "width": 1320,
+      "height": 2868,
+      "source": "fr-04-codes-list.png",
+      "sourceSha256": "25113fa6c01483fcf81d75971451b57e07c330ffd2ba26a18313c9def50e60f6"
+    },
+    {
+      "file": "fi/01-approvals.jpg",
+      "sha256": "25da015c323b16bc95b84e3223679688a0709a7696407715312bb2d11c73d33f",
+      "width": 1320,
+      "height": 2868,
+      "source": "fi-01-requests.png",
+      "sourceSha256": "36a48d3bca4a9c9b5e0e42235d61f13fc0006002ac58f7f92e01a2966c92ad4d"
+    },
+    {
+      "file": "fi/02-codes.jpg",
+      "sha256": "c2c65fde9e6d9c99403989b41315995956e3b96a2e5d4d9951747b79b8bb302d",
+      "width": 1320,
+      "height": 2868,
+      "source": "fi-03-codes-grid.png",
+      "sourceSha256": "7ebfb632ffb379fa1f8148dae0620fe26aa91c5a51b90afb64d923d44e87ff4e"
+    },
+    {
+      "file": "fi/03-control.jpg",
+      "sha256": "a657420af41d889574f78fa85e8cdce7d4657831a19b65faeb63eba43f9ad535",
+      "width": 1320,
+      "height": 2868,
+      "source": "fi-02-approval.png",
+      "sourceSha256": "cffc5fba7a0ed1b3ab9c7a02702e613f0afa72d881c43203050aa64425427d9d"
+    },
+    {
+      "file": "fi/04-backup.jpg",
+      "sha256": "f2b6ca8eb313278ff8500fe334b718a9c8f4a3cfa0f159cb0eb008a7191dde7c",
+      "width": 1320,
+      "height": 2868,
+      "source": "fi-06-backup.png",
+      "sourceSha256": "b8c8ae8469e7de0ea4d0f3ae851e275960df9cc1e32acae92048aba4bd169642"
+    },
+    {
+      "file": "fi/05-accounts.jpg",
+      "sha256": "7bffd86974a24298cb13ac54d2c9707bdd485acd54d35a7a74c923b7f9c6ed9f",
+      "width": 1320,
+      "height": 2868,
+      "source": "fi-05-accounts.png",
+      "sourceSha256": "c6ef2d1d58e62bdf56353b04beff46cdd632041c2d38421078ba8aeb1d11ebfb"
+    },
+    {
+      "file": "fi/06-find.jpg",
+      "sha256": "e013ae10fe88213a9a1b81f1d2fe2100a76da1085b1ba761c340818b7783d27d",
+      "width": 1320,
+      "height": 2868,
+      "source": "fi-04-codes-list.png",
+      "sourceSha256": "c51d65d4f76696f60fa551533f6f3deb15cfd47c9f67f69b6221ffb182c895b1"
+    },
+    {
+      "file": "es/01-approvals.jpg",
+      "sha256": "61d2d7f924a87148304c9a90903d20be558a939bf8c4c9cce7b8a09e5c27e751",
+      "width": 1320,
+      "height": 2868,
+      "source": "es-01-requests.png",
+      "sourceSha256": "7a5c8ca1f240044bda2641ab6c223dadc1704e858e74a3202807ee036e5464d5"
+    },
+    {
+      "file": "es/02-codes.jpg",
+      "sha256": "5bc4da1a197ea0ec983ceee98479cfef922a7aaac464701dc5ab6807fc19ff7b",
+      "width": 1320,
+      "height": 2868,
+      "source": "es-03-codes-grid.png",
+      "sourceSha256": "4b45b64169336f7f2671ec30b41e403f6a89d05b1ac758be4921bc404333b0d2"
+    },
+    {
+      "file": "es/03-control.jpg",
+      "sha256": "24ddabddbcd3c259825282e565aaf7244c073cd58a222b670470a46ca13eb1b3",
+      "width": 1320,
+      "height": 2868,
+      "source": "es-02-approval.png",
+      "sourceSha256": "7d544aa5e9545c6b6011de28f0e4b5eacef0f63dd0d62bc01615b13e998edc44"
+    },
+    {
+      "file": "es/04-backup.jpg",
+      "sha256": "ba0fcea39db71e3d228a7b52e1f9b14a509b30f4e1831222b2e01df6218f92ad",
+      "width": 1320,
+      "height": 2868,
+      "source": "es-06-backup.png",
+      "sourceSha256": "b322a6d36fdf5be15e8c351c65232d48f7a585e187c7b19ee741876abbc61c58"
+    },
+    {
+      "file": "es/05-accounts.jpg",
+      "sha256": "074a743aecf7b2f139e02a00400c949eca699f0a26605a531dd4eda29ba5abdf",
+      "width": 1320,
+      "height": 2868,
+      "source": "es-05-accounts.png",
+      "sourceSha256": "e1b402a026b2da6782d8fb0838d1c6823dade57846ec2dc04c6e80903032078c"
+    },
+    {
+      "file": "es/06-find.jpg",
+      "sha256": "d4aa18fbffb763b9c23aeee01994a6c53a1b2d7d87736852cc9c31f2e65dc352",
+      "width": 1320,
+      "height": 2868,
+      "source": "es-04-codes-list.png",
+      "sourceSha256": "800e3bc4a4abc506bcccf4e780ed7751357cabd16c3c2496f28b3ccbef070256"
+    },
+    {
+      "file": "it/01-approvals.jpg",
+      "sha256": "2c5626d3d984aa6d893019b0b88e2c88508463a415c2aed35380a770c71ccb61",
+      "width": 1320,
+      "height": 2868,
+      "source": "it-01-requests.png",
+      "sourceSha256": "b9a02738a8a052810a774a3dbd3e7a83d7219d20304d990433a04fba7449540e"
+    },
+    {
+      "file": "it/02-codes.jpg",
+      "sha256": "4d7c04545cc573b13b221204165d557498b4292d0cdd57981a8d893968a29d49",
+      "width": 1320,
+      "height": 2868,
+      "source": "it-03-codes-grid.png",
+      "sourceSha256": "6b99e3f9d8a5c4de41cd394e0f2021f2a2de2e87b4552f7a216f22bfe4281c41"
+    },
+    {
+      "file": "it/03-control.jpg",
+      "sha256": "8111fa0f6f93410af9b6bcc15102bbee7b1f0da3c51082e089bdbc3e2f6c9bbc",
+      "width": 1320,
+      "height": 2868,
+      "source": "it-02-approval.png",
+      "sourceSha256": "690e75e0e1f8bf68cedd846468387e2051395b9066a48e6f057c54dc151da340"
+    },
+    {
+      "file": "it/04-backup.jpg",
+      "sha256": "010504cc9fdb195e3bb155d0a75effcd9a8cb537bd86be4cc38259fb1bf75b68",
+      "width": 1320,
+      "height": 2868,
+      "source": "it-06-backup.png",
+      "sourceSha256": "dcb30fc0c7263464b15ec58cfa587313bd759affad5d3f16bfa7862eb052ed22"
+    },
+    {
+      "file": "it/05-accounts.jpg",
+      "sha256": "d9d8ac8afba1745c6b84d0166047f019137cf8ba8c7d2f6e784d7a54eafc7e81",
+      "width": 1320,
+      "height": 2868,
+      "source": "it-05-accounts.png",
+      "sourceSha256": "43b42ebe08a9662388d919e98e00db92d5d885490724572c992af96ecf8f753e"
+    },
+    {
+      "file": "it/06-find.jpg",
+      "sha256": "528e1c74c1f86696fe70d3e704249f27fe02eb406e32cb1296681441dfaf1798",
+      "width": 1320,
+      "height": 2868,
+      "source": "it-04-codes-list.png",
+      "sourceSha256": "2156783c7a0bddd393140eb7e3bb73679466a7affdd4da918037269c691f382e"
+    },
+    {
+      "file": "nl/01-approvals.jpg",
+      "sha256": "bfc90404cc9963db5d4ffa7fddee34813ab1de7d3b33d8c5fca2a2f859ae3d2c",
+      "width": 1320,
+      "height": 2868,
+      "source": "nl-01-requests.png",
+      "sourceSha256": "36e697861c25cb152babbe953c133cb92f016cc558e04fe7a60290414e17291b"
+    },
+    {
+      "file": "nl/02-codes.jpg",
+      "sha256": "fa5b1c92721becea3ff4beacd1cdc6125a39fed30b55d74fb0fe54886d132b85",
+      "width": 1320,
+      "height": 2868,
+      "source": "nl-03-codes-grid.png",
+      "sourceSha256": "75eb2c1fd245d4b9e5771202f54430b85739d1984043e5ae5758f9ab21e87dab"
+    },
+    {
+      "file": "nl/03-control.jpg",
+      "sha256": "e715c7edd20c6ba6c406ce2e12c8ea93efe62d8ff6732a61f439e5212dc9e16f",
+      "width": 1320,
+      "height": 2868,
+      "source": "nl-02-approval.png",
+      "sourceSha256": "706ebe110accb84358c848a0b571675ae671493516c5a3135237ebbbbe6c866b"
+    },
+    {
+      "file": "nl/04-backup.jpg",
+      "sha256": "bb7723da7d8bf031a9e4cfe0d0671825428c6c73d67f1f7853d5a6cbde846c7a",
+      "width": 1320,
+      "height": 2868,
+      "source": "nl-06-backup.png",
+      "sourceSha256": "5c9e730cd56db7247d96b97d8b302fa03d614418726fb9aa9a70a6eecda380f0"
+    },
+    {
+      "file": "nl/05-accounts.jpg",
+      "sha256": "db4cb84bb7e202fdc5917cfce97bc98fe8a6a6a69518ee65946f6101fecbb0b1",
+      "width": 1320,
+      "height": 2868,
+      "source": "nl-05-accounts.png",
+      "sourceSha256": "c15c5912ab154a503ad5b274c875adec8b6d8328cb633b0498edb6705ff14be6"
+    },
+    {
+      "file": "nl/06-find.jpg",
+      "sha256": "e7e6a9ceb005bf7d1b8702e1e2fc3ea030ea45e43c5243f5685d5bbe1f439f4c",
+      "width": 1320,
+      "height": 2868,
+      "source": "nl-04-codes-list.png",
+      "sourceSha256": "7a3eb324a047abf621af4e8da88b64cbf9b5d92c553f266455bc133b91957118"
+    },
+    {
+      "file": "header.png",
+      "sha256": "799db4e50aa709a78090eb224bdb05ad524b8a42b8f81485b327198867ad8d75",
+      "width": 3840,
+      "height": 1646
+    },
+    {
+      "file": "search.jpg",
+      "sha256": "52ccabba8016d533114f5605a56f88ee81b4cc658b6123cb0cb9ec57a81d4e7d",
+      "width": 1920,
+      "height": 1280
+    }
+  ]
+}

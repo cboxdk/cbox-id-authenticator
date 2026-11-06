@@ -1,0 +1,38 @@
+{
+  "verifiedAt": "2026-11-06",
+  "appId": "6831374770",
+  "version": "1.0.0",
+  "build": "5",
+  "reviewState": "PREPARE_FOR_SUBMISSION",
+  "releaseType": "MANUAL",
+  "price": "FREE",
+  "territories": 175,
+  "macAvailability": false,
+  "visionProAvailability": false,
+  "ageRating": "4+",
+  "locales": [
+    "en-US",
+    "da",
+    "de-DE",
+    "sv",
+    "no",
+    "fr-FR",
+    "fi",
+    "es-ES",
+    "it",
+    "nl-NL"
+  ],
+  "screenshotsPerLocale": 6,
+  "headerPerLocale": 1,
+  "searchAssetPerLocale": 1,
+  "metadataReadBack": true,
+  "assetAssociationsReadBack": true,
+  "reviewContactSaved": true,
+  "reviewNotesSaved": "TOTP and backup steps; Cbox access explicitly pending",
+  "privacy": "Answers saved; owner confirmation required before publishing",
+  "blockers": [
+    "Owner confirmation of Apple privacy declaration",
+    "Owner authorization and provisioning of isolated review account plus repeatable self-service approval workflow"
+  ],
+  "submitted": false
+}
