@@ -1,0 +1,82 @@
+{
+  "en": [
+    ["Your sign-in.", "Your decision.", "See the request. Check the details.\nApprove when it’s you."],
+    ["Your codes.", "Close at hand.", "Verification codes for your services.\nEven when you’re offline."],
+    ["Know what", "you approve.", "Check the app, account and action\nbefore you grant access."],
+    ["New phone?", "Bring your codes.", "Encrypted backup with your own password.\nYou choose where it’s saved."],
+    ["More accounts.", "One clear view.", "Keep your Cbox ID accounts together\nand switch between them with ease."],
+    ["Find your code.", "Carry on.", "Choose a list or grid.\nSearch, then tap to copy."]
+  ],
+  "da": [
+    ["Dit login.", "Din beslutning.", "Se anmodningen. Tjek detaljerne.\nGodkend, når det er dig."],
+    ["Dine koder.", "Lige ved hånden.", "Tofaktorkoder til dine tjenester.\nOgså når du er offline."],
+    ["Se, hvad du", "godkender.", "Tjek app, konto og handling,\nfør du giver adgang."],
+    ["Ny telefon?", "Tag koderne med.", "Krypteret backup med din egen adgangskode.\nDu vælger, hvor den gemmes."],
+    ["Flere konti.", "Ét overblik.", "Saml dine Cbox ID-konti,\nog skift mellem dem uden besvær."],
+    ["Find koden.", "Kom videre.", "Vælg liste eller gitter.\nSøg, og kopiér med et tryk."]
+  ],
+  "de": [
+    ["Deine Anmeldung.", "Deine Entscheidung.", "Anfrage ansehen. Details prüfen.\nBestätigen, wenn du es bist."],
+    ["Deine Codes.", "Immer griffbereit.", "Bestätigungscodes für deine Dienste.\nAuch ohne Internet."],
+    ["Wissen, was du", "freigibst.", "Prüfe App, Konto und Aktion,\nbevor du Zugriff erlaubst."],
+    ["Neues Handy?", "Codes mitnehmen.", "Verschlüsseltes Backup mit deinem Passwort.\nDu wählst den Speicherort."],
+    ["Mehrere Konten.", "Alles im Blick.", "Deine Cbox ID-Konten an einem Ort.\nEinfach zwischen ihnen wechseln."],
+    ["Code finden.", "Weitermachen.", "Wähle Liste oder Raster.\nSuchen und mit einem Tippen kopieren."]
+  ],
+  "sv": [
+    ["Din inloggning.", "Ditt beslut.", "Se förfrågan. Kontrollera detaljerna.\nGodkänn när det är du."],
+    ["Dina koder.", "Nära till hands.", "Verifieringskoder för dina tjänster.\nÄven när du är offline."],
+    ["Se vad du", "godkänner.", "Kontrollera app, konto och åtgärd\ninnan du ger åtkomst."],
+    ["Ny telefon?", "Ta med koderna.", "Krypterad säkerhetskopia med ditt lösenord.\nDu väljer var den sparas."],
+    ["Flera konton.", "En tydlig överblick.", "Samla dina Cbox ID-konton\noch växla enkelt mellan dem."],
+    ["Hitta koden.", "Gå vidare.", "Välj lista eller rutnät.\nSök och kopiera med ett tryck."]
+  ],
+  "nb": [
+    ["Din innlogging.", "Din beslutning.", "Se forespørselen. Sjekk detaljene.\nGodkjenn når det er deg."],
+    ["Dine koder.", "Rett for hånden.", "Bekreftelseskoder for tjenestene dine.\nOgså når du er uten nett."],
+    ["Se hva du", "godkjenner.", "Sjekk app, konto og handling\nfør du gir tilgang."],
+    ["Ny telefon?", "Ta med kodene.", "Kryptert sikkerhetskopi med ditt eget passord.\nDu velger hvor den lagres."],
+    ["Flere kontoer.", "Én oversikt.", "Samle Cbox ID-kontoene dine\nog bytt enkelt mellom dem."],
+    ["Finn koden.", "Kom videre.", "Velg liste eller rutenett.\nSøk og kopier med ett trykk."]
+  ],
+  "fr": [
+    ["Votre connexion.", "Votre décision.", "Consultez la demande. Vérifiez les détails.\nApprouvez si c’est bien vous."],
+    ["Vos codes.", "À portée de main.", "Les codes de vos services.\nMême sans connexion."],
+    ["Sachez ce que", "vous approuvez.", "Vérifiez l’app, le compte et l’action\navant d’autoriser l’accès."],
+    ["Nouveau mobile ?", "Gardez vos codes.", "Sauvegarde chiffrée avec votre mot de passe.\nVous choisissez où l’enregistrer."],
+    ["Plusieurs comptes.", "Une vue claire.", "Réunissez vos comptes Cbox ID\net passez facilement de l’un à l’autre."],
+    ["Trouvez le code.", "Continuez.", "Choisissez une liste ou une grille.\nCherchez et touchez pour copier."]
+  ],
+  "fi": [
+    ["Kirjautumisesi.", "Sinun päätöksesi.", "Katso pyyntö. Tarkista tiedot.\nHyväksy, kun kyse on sinusta."],
+    ["Omat koodit.", "Aina käden ulottuvilla.", "Vahvistuskoodit palveluihisi.\nMyös ilman verkkoyhteyttä."],
+    ["Tiedä, mitä", "hyväksyt.", "Tarkista sovellus, tili ja toiminto\nennen kuin annat pääsyn."],
+    ["Uusi puhelin?", "Koodit mukaan.", "Salattu varmuuskopio omalla salasanallasi.\nValitset itse tallennuspaikan."],
+    ["Useita tilejä.", "Selkeä näkymä.", "Pidä Cbox ID -tilisi yhdessä\nja vaihda niiden välillä helposti."],
+    ["Löydä koodi.", "Jatka eteenpäin.", "Valitse lista tai ruudukko.\nHae ja kopioi napauttamalla."]
+  ],
+  "es": [
+    ["Tu inicio de sesión.", "Tu decisión.", "Revisa la solicitud y sus detalles.\nAprueba si eres tú."],
+    ["Tus códigos.", "Siempre a mano.", "Códigos de verificación para tus servicios.\nIncluso sin conexión."],
+    ["Sabe lo que", "apruebas.", "Revisa la app, la cuenta y la acción\nantes de dar acceso."],
+    ["¿Móvil nuevo?", "Llévate tus códigos.", "Copia cifrada con tu propia contraseña.\nTú eliges dónde guardarla."],
+    ["Varias cuentas.", "Una vista clara.", "Reúne tus cuentas de Cbox ID\ny cambia entre ellas fácilmente."],
+    ["Busca el código.", "Sigue adelante.", "Elige lista o cuadrícula.\nBusca y toca para copiar."]
+  ],
+  "it": [
+    ["Il tuo accesso.", "La tua decisione.", "Leggi la richiesta. Controlla i dettagli.\nApprova se sei tu."],
+    ["I tuoi codici.", "Sempre a portata.", "Codici di verifica per i tuoi servizi.\nAnche senza connessione."],
+    ["Sai cosa", "approvi.", "Controlla app, account e azione\nprima di consentire l’accesso."],
+    ["Nuovo telefono?", "Porta i tuoi codici.", "Backup cifrato con la tua password.\nScegli tu dove salvarlo."],
+    ["Più account.", "Una vista chiara.", "Riunisci i tuoi account Cbox ID\ne passa facilmente dall’uno all’altro."],
+    ["Trova il codice.", "Vai avanti.", "Scegli un elenco o una griglia.\nCerca e tocca per copiare."]
+  ],
+  "nl": [
+    ["Jouw aanmelding.", "Jouw beslissing.", "Bekijk het verzoek. Controleer de details.\nKeur goed als jij het bent."],
+    ["Jouw codes.", "Altijd bij de hand.", "Verificatiecodes voor je diensten.\nOok als je offline bent."],
+    ["Weet wat je", "goedkeurt.", "Controleer app, account en actie\nvoordat je toegang geeft."],
+    ["Nieuwe telefoon?", "Neem je codes mee.", "Versleutelde back-up met je eigen wachtwoord.\nJij kiest waar je die bewaart."],
+    ["Meer accounts.", "Eén overzicht.", "Houd je Cbox ID-accounts bij elkaar\nen wissel er makkelijk tussen."],
+    ["Vind je code.", "Ga verder.", "Kies een lijst of raster.\nZoek en tik om te kopiëren."]
+  ]
+}

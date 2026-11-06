@@ -1,0 +1,63 @@
+{
+  "verifiedAt": "2026-11-06",
+  "appId": "6831374770",
+  "version": "1.0.0",
+  "build": "5",
+  "reviewState": "READY_FOR_REVIEW",
+  "releaseType": "MANUAL",
+  "price": "FREE",
+  "territories": 175,
+  "macAvailability": false,
+  "visionProAvailability": false,
+  "ageRating": "4+",
+  "locales": [
+    "en-US",
+    "da",
+    "de-DE",
+    "sv",
+    "no",
+    "fr-FR",
+    "fi",
+    "es-ES",
+    "it",
+    "nl-NL"
+  ],
+  "screenshotsPerLocale": 6,
+  "headerPerLocale": 1,
+  "searchAssetPerLocale": 1,
+  "metadataReadBack": true,
+  "assetAssociationsReadBack": true,
+  "reviewContactSaved": true,
+  "reviewNotesSaved": "Cbox self-service approval, TOTP and encrypted backup; isolated credentials saved",
+  "privacy": "Published in App Store Connect after explicit owner confirmation; independently read back",
+  "blockers": [],
+  "submitted": false,
+  "reviewAccount": {
+    "host": "cbox.cboxid.com",
+    "workflow": "https://cbox.cboxid.com/authenticator/review",
+    "isolated": true,
+    "organizationMemberships": 0,
+    "administrativeRoles": 0,
+    "normalSignInVerified": true,
+    "enrollmentPageVerified": true,
+    "workflowDeployment": "Verified in production: 9da3d2b70a80f3e594efaff6c3895e15ca0f5dee",
+    "workflowValidation": {
+      "browserSignIn": true,
+      "publicPkceDpopEnrollment": true,
+      "browserCreatedRequests": true,
+      "apiApprovalAndDenial": true,
+      "resultsReadBackInBrowser": true,
+      "temporaryDeviceRevoked": true,
+      "revokedDeviceTokenHttpStatus": 403,
+      "activeTestDevices": 0
+    }
+  },
+  "appleRequiredFieldsValidated": true,
+  "reviewCredentialsSavedAndReadBack": true,
+  "publicPrivacyPageVerified": true,
+  "physicalPushAcceptance": {
+    "build": "5",
+    "message": "PUSH 7926",
+    "approvedAt": "2026-11-06T14:01:02Z"
+  }
+}

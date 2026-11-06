@@ -1,4 +1,4 @@
-# Cbox ID Authenticator
+# Cbox ID
 
 Native iPhone companion for Cbox ID: approve or deny sign-ins and agent actions,
 report unexpected requests, manage several connected accounts, and keep offline TOTP
@@ -11,26 +11,30 @@ Android is not release-ready: the security plugin currently supports iOS only.
 
 ## Current status
 
-The iOS implementation and matching Cbox ID API changes are ready for the physical
-phone test described in [IPHONE-TEST.md](IPHONE-TEST.md). Signed development build
-1.0.0 (14) is installed on an iPhone 16 Pro (iOS 27.0.1) over USB. The matching
-server API v2 is deployed, and the user has confirmed successful connection.
-The latest polish adds all ten Cbox ID languages (English, Danish, German, Swedish,
-Norwegian Bokmål, French, Finnish, Spanish, Italian and Dutch), native permission and
-lock copy, shorter help topics, language settings and consistent light/dark launch assets.
-The native cards, forms, countdowns and glass navigation from build 11 are preserved.
-230 PHP tests, Larastan, eleven Swift lifecycle scenarios and input-echo checks pass.
-Simulator flows cover all ten languages, large text, forms and multi-account presentation.
-First connection finishes without a second unlock or acknowledgment.
+Version **1.0.0 (5)** is available in TestFlight and selected in the App Store draft.
+Bifrost build **13898** uses `main` revision `ac0466a6acf26fa7bc809e3e62e21bdad7685a7a`.
+Firebase/APNs are configured. On 6 November 2026 the owner received test push
+**PUSH 7926**, opened it and approved it; the server recorded approval at 14:01:02 UTC.
+The temporary test client was removed after verification.
 
-Physical acceptance of Google/Face ID and TOTP/Files, Firebase/APNs configuration,
-TestFlight and App Store submission are still pending. The strict store check currently
-stops on the missing Firebase plist. No store upload or release tag has been made.
+The release revision passed 261 PHP tests / 10,318 assertions, PHPStan, Pint and
+plugin/dependency checks in GitHub CI. The signed IPA was inspected for its name
+(**Cbox ID**), bundle ID, build number, push configuration and the owner-approved
+authentication-only encryption exemption.
 
-- App branch: `sd/ios-release`, preserving the earlier multi-account work.
-- Server branch: `sd/authenticator-ios-api` in the separate Cbox ID worktree.
-- [Release analysis and remaining gates](IOS-RELEASE-PLAN.md).
-- [Store listing draft](STORE-LISTING.md).
+The App Store draft has ten localized listings and six polished screenshots per
+language. Review contact, age rating, free pricing, build selection and manual
+release are configured. Privacy is published following the owner's confirmation;
+an isolated reviewer account is provisioned, and its credentials and instructions
+are saved in App Store Connect. Apple has validated the required fields and shows
+**Ready for Review**. The self-service approval page is deployed and verified:
+ordinary reviewer sign-in, enrollment, browser-created requests, approval/denial via
+the public DPoP API, and device revocation. The temporary validation device is revoked.
+The app has **not** been submitted for review or publicly released.
+
+- [Release status and remaining gates](IOS-RELEASE-PLAN.md).
+- [Store metadata, artwork and reviewer steps](STORE-LISTING.md).
+- [Physical device test guide](IPHONE-TEST.md).
 
 ## Development and checks
 
