@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\FcmToken;
 use Native\Mobile\Facades\PushNotifications;
 
 /** The server consumes FCM tokens, never the SDK's raw APNs fallback. */
@@ -13,7 +14,7 @@ final readonly class DevicePush
 
     public function token(): ?string
     {
-        return $this->security->pushAvailable() ? PushNotifications::getToken() : null;
+        return $this->security->pushAvailable() ? FcmToken::accept(PushNotifications::getToken()) : null;
     }
 
     public function permission(): string

@@ -11,6 +11,7 @@ use App\NativeComponents\Licenses;
 use App\NativeComponents\OAuthCallback;
 use App\NativeComponents\Settings;
 use App\Services\ApiFailure;
+use App\Services\DevicePush;
 use App\Services\DeviceSecurity;
 use App\Services\EnrolmentFailed;
 use App\Services\HostDiscovery;
@@ -19,9 +20,48 @@ use App\Services\SupportedHost;
 use App\Services\TokenStore;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Native\Mobile\Events\PushNotification\TokenGenerated;
 use Native\Mobile\Testing\Native;
 
 beforeEach(fn () => Http::preventStrayRequests());
+
+it('rejects raw APNs tokens even when Firebase is enabled and preserves an existing FCM registration', function (): void {
+    fakeSecureStorage();
+    $account = anAccount();
+    $apns = str_repeat('a1', 32);
+    $fcm = 'test-installation:'.str_repeat('fcm-token-', 15);
+    Native::fakeBridge()
+        ->respondTo('AuthenticatorSecurity.State', ['pushAvailable' => true])
+        ->respondTo('PushNotification.GetToken', ['token' => $apns]);
+    Http::fake(['*/devices' => Http::response(['data' => ['id' => 'device-1']], 201)]);
+    $enrolment = app(AccountContext::class)->for($account)->enrolment;
+
+    expect($enrolment->register($fcm))->toBeTrue();
+    expect(app(DevicePush::class)->token())->toBeNull();
+    event(new TokenGenerated($apns));
+    $enrolment->syncTokenIfChanged($apns);
+    expect($enrolment->register($apns))->toBeFalse();
+    expect($enrolment->hasPushToken())->toBeTrue();
+    Http::assertSentCount(1);
+    Http::assertSent(fn ($request) => $request['push_token'] === $fcm);
+
+    event(new TokenGenerated($fcm.'-rotated'));
+    Http::assertSentCount(2);
+    Http::assertSent(fn ($request) => $request['push_token'] === $fcm.'-rotated');
+});
+
+it('enrols an existing Firebase-enabled handset without forwarding its legacy APNs cache', function (): void {
+    fakeSecureStorage();
+    $account = anAccount();
+    Native::fakeBridge()
+        ->respondTo('AuthenticatorSecurity.State', ['pushAvailable' => true])
+        ->respondTo('PushNotification.GetToken', ['token' => str_repeat('AB', 32)])
+        ->respondTo('PushNotification.CheckPermission', ['status' => 'granted']);
+    Http::fake(['*/devices' => Http::response(['data' => ['id' => 'device-1']], 201)]);
+
+    expect(app(AccountContext::class)->for($account)->enrolment->enrol('qr-code'))->toBeTrue();
+    Http::assertSent(fn ($request) => $request['push_token'] === null && $request['enrolment_token'] === 'qr-code');
+});
 
 it('enrols without Firebase and never passes an APNs fallback token to the FCM host', function (): void {
     fakeSecureStorage();

@@ -101,6 +101,10 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
             ->toContain('.accessibilityHint(Text(hint), isEnabled: !hint.isEmpty)')
             ->toContain('.accessibilityAddTraits(.isButton)');
         $first = File::get($path);
+        expect($first)->toContain('messaging.apnsToken = deviceToken')
+            ->toContain('messaging.token { token, error in')
+            ->toContain('if let token = messaging.fcmToken, !token.isEmpty')
+            ->not->toContain('UserDefaults.standard.set(tokenString, forKey: "push_notification_token")');
         $firstScanner = File::get($scanner);
         $firstInput = File::get($input);
         expect($firstInput)->toContain('echoes.acknowledge(newServerValue)')->toContain('echoes.sent(value)');

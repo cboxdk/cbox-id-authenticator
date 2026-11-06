@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Keep APNs registration separate from FCM tokens, fetch the FCM token after APNs
+  registration, and reject raw APNs tokens before device registration with the host.
 - Preserve the owner-approved authentication-only encryption exemption during signed
   IPA export; reject missing or changed declarations before uploading to Apple.
 - Pin the tested NativePHP commit during Bifrost dependency resolution and reject

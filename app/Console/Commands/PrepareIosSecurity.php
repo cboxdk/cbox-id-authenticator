@@ -256,6 +256,50 @@ RUBY;
         if (! is_string($swift)) {
             throw new RuntimeException('Could not read the generated Firebase bridge.');
         }
+        $tokenMarker = '// Cbox: APNs identifies the Apple device; only FCM tokens reach the server.';
+        if (! str_contains($swift, $tokenMarker)) {
+            $start = strpos($swift, '    @objc private func handleDidRegisterForRemoteNotifications(');
+            $end = strpos($swift, '    @objc private func handleDidFailToRegisterForRemoteNotifications(', $start ?: 0);
+            if ($start === false || $end === false) {
+                throw new RuntimeException('Review Firebase APNs registration before building.');
+            }
+            $registration = <<<'SWIFT'
+    // Cbox: APNs identifies the Apple device; only FCM tokens reach the server.
+    @objc private func handleDidRegisterForRemoteNotifications(_ notification: Notification) {
+        guard let deviceToken = notification.userInfo?["deviceToken"] as? Data,
+              FirebaseManager.shared.isConfigured else { return }
+        let messaging = Messaging.messaging()
+        messaging.delegate = self
+        messaging.apnsToken = deviceToken
+        // Fetch after APNs registration, without a timer or shared APNs/FCM cache.
+        messaging.token { token, error in
+            guard error == nil, let token = token, !token.isEmpty else { return }
+            DispatchQueue.main.async {
+                self.messaging(messaging, didReceiveRegistrationToken: token)
+            }
+        }
+    }
+
+SWIFT;
+            $swift = substr($swift, 0, $start).$registration.substr($swift, $end);
+            $start = strpos($swift, '            // Try to get the cached token from UserDefaults');
+            $end = strpos($swift, '            return BridgeResponse.success(data: ["token": NSNull()])', $start ?: 0);
+            if ($start === false || $end === false) {
+                throw new RuntimeException('Review Firebase token lookup before building.');
+            }
+            $lookup = <<<'SWIFT'
+            // Cbox: ignore legacy caches that may contain an APNs token.
+            if FirebaseManager.shared.isConfigured {
+                let messaging = Messaging.messaging()
+                messaging.delegate = PushNotificationDelegate.shared
+                if let token = messaging.fcmToken, !token.isEmpty {
+                    return BridgeResponse.success(data: ["token": token])
+                }
+            }
+
+SWIFT;
+            $swift = substr($swift, 0, $start).$lookup.substr($swift, $end);
+        }
         $marker = '// Cbox: notification data is a refresh hint, never a PHP class name.';
         if (! str_contains($swift, $marker)) {
             $start = strpos($swift, '    private func dispatchDataMessageEvent(');

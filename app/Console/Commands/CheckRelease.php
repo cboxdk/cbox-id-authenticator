@@ -43,6 +43,8 @@ final class CheckRelease extends Command
             $files = glob(rtrim($generated, '/').'/NativePHP/Bridge/Plugins/*/PushNotificationFunctions.swift') ?: [];
             $swift = count($files) === 1 ? file_get_contents($files[0]) : false;
             $check(is_string($swift) && str_contains($swift, '// Cbox: notification data is a refresh hint') && str_contains($swift, 'cboxNotificationURL(deepLink)')
+                && str_contains($swift, '// Cbox: APNs identifies the Apple device; only FCM tokens reach the server.')
+                && str_contains($swift, '// Cbox: ignore legacy caches that may contain an APNs token.')
                 && ! str_contains($swift, 'print(') && ! str_contains($swift, 'let event = userInfo["event"]'),
                 'Generated Firebase bridge has not passed authenticator hardening. Do not archive this project.');
             $security = glob(rtrim($generated, '/').'/NativePHP/Bridge/Plugins/*/AuthenticatorSecurityFunctions.swift') ?: [];
@@ -97,8 +99,8 @@ final class CheckRelease extends Command
                 $plist = File::get(rtrim($generated, '/').'/NativePHP/Info.plist');
                 $check(preg_match('/<key>CboxPushEnabled<\/key>\s*<'.($pushEnabled ? 'true' : 'false').'\s*\/>/', $plist) === 1,
                     'The generated push configuration does not match this release.');
-                $check(preg_match('/<key>ITSAppUsesNonExemptEncryption<\/key>\s*<true\s*\/>/', $plist) === 1,
-                    'Declare the bundled encryption before exporting.');
+                $check(preg_match('/<key>ITSAppUsesNonExemptEncryption<\/key>\s*<false\s*\/>/', $plist) === 1,
+                    'Declare the owner-approved authentication-only encryption exemption before exporting.');
                 if (! $pushEnabled) {
                     $entitlements = File::get(rtrim($generated, '/').'/NativePHP/NativePHP.entitlements');
                     $check(! str_contains($entitlements, 'aps-environment') && ! str_contains($plist, 'remote-notification'),

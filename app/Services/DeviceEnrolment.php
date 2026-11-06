@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Services\SecureVault as SecureStorage;
+use App\Support\FcmToken;
 use App\Support\InstallId;
 use Native\Mobile\Facades\Device;
 use Native\Mobile\Facades\System;
@@ -69,7 +70,8 @@ final class DeviceEnrolment
      */
     public function register(?string $pushToken): bool
     {
-        if (! is_string($pushToken) || $pushToken === '') {
+        $pushToken = FcmToken::accept($pushToken);
+        if ($pushToken === null) {
             return false;
         }
 
