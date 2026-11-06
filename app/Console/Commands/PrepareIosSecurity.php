@@ -256,6 +256,39 @@ RUBY;
         if (! is_string($swift)) {
             throw new RuntimeException('Could not read the generated Firebase bridge.');
         }
+        $resumeMarker = '// Cbox: resume authorized push registration on launch and foreground.';
+        if (! str_contains($swift, $resumeMarker)) {
+            $original = '    private func setupNotificationObservers() {';
+            if (substr_count($swift, $original) !== 1) {
+                throw new RuntimeException('Review Firebase push lifecycle before building.');
+            }
+            $resume = <<<'SWIFT'
+    // Cbox: resume authorized push registration on launch and foreground.
+    @objc func resumeRegistration() {
+        guard FirebaseManager.shared.isConfigured else { return }
+        Messaging.messaging().delegate = self
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            switch settings.authorizationStatus {
+            case .authorized, .provisional, .ephemeral:
+                DispatchQueue.main.async {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
+            default:
+                break // Only a deliberate user action asks for permission.
+            }
+        }
+    }
+
+    private func setupNotificationObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(resumeRegistration),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
+SWIFT;
+            $swift = str_replace($original, $resume, $swift);
+        }
         $tokenMarker = '// Cbox: APNs identifies the Apple device; only FCM tokens reach the server.';
         if (! str_contains($swift, $tokenMarker)) {
             $start = strpos($swift, '    @objc private func handleDidRegisterForRemoteNotifications(');
@@ -375,8 +408,17 @@ SWIFT;
             if (substr_count($source, $original) !== 1) {
                 throw new RuntimeException('Review Firebase initialization before building.');
             }
-            File::put($managers[0], str_replace($original, $original."\n".$guard, $source));
+            $source = str_replace($original, $original."\n".$guard, $source);
         }
+        $resume = '        PushNotificationDelegate.shared.resumeRegistration()';
+        if (! str_contains($source, $resume)) {
+            $original = '        isConfigured = true';
+            if (substr_count($source, $original) !== 1) {
+                throw new RuntimeException('Review Firebase initialization completion before building.');
+            }
+            $source = str_replace($original, $original."\n".$resume, $source);
+        }
+        File::put($managers[0], $source);
         foreach (['Info.plist', 'NativePHP.entitlements'] as $name) {
             $path = $root.'/NativePHP/'.$name;
             $document = new \DOMDocument;

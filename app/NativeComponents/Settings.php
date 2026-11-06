@@ -12,6 +12,7 @@ use Illuminate\View\View;
 use Native\Mobile\Attributes\On;
 use Native\Mobile\Edge\NativeComponent;
 use Native\Mobile\Events\Alert\ButtonPressed;
+use Native\Mobile\Events\PushNotification\TokenGenerated;
 use Native\Mobile\Facades\Browser;
 use Native\Mobile\Facades\Dialog;
 use Native\Mobile\Facades\System;
@@ -55,7 +56,19 @@ class Settings extends NativeComponent
 
     public function notificationSettings(): void
     {
+        if (app(DevicePush::class)->permission() === 'not_determined') {
+            $this->resync();
+
+            return;
+        }
         System::appSettings();
+    }
+
+    #[On(TokenGenerated::class)]
+    public function pushRegistered(): void
+    {
+        $this->permission = app(DevicePush::class)->permission();
+        $this->syncNotificationToken();
     }
 
     public function languageSettings(): void
@@ -136,12 +149,25 @@ class Settings extends NativeComponent
      */
     public function resync(): void
     {
-        $this->working = true;
+        $this->permission = app(DevicePush::class)->permission();
+        if ($this->permission === 'denied') {
+            System::appSettings();
 
-        if (app(DevicePush::class)->permission() === 'not_determined') {
-            app(DevicePush::class)->requestPermission();
+            return;
         }
+        app(DevicePush::class)->requestPermission();
+        $this->syncNotificationToken();
+    }
+
+    private function syncNotificationToken(): void
+    {
         $token = app(DevicePush::class)->token();
+        if ($token === null) {
+            $this->notice = 'Connecting notifications. This may take a moment.';
+
+            return;
+        }
+        $this->working = true;
         $failed = [];
 
         foreach (app(AccountContext::class)->all() as $services) {

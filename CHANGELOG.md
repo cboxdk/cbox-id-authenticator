@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Display the app as Cbox ID. Resume authorized push registration on launch and
+  return from Settings; request notification permission directly on first activation
+  and show registration progress while waiting for Firebase.
 - Keep APNs registration separate from FCM tokens, fetch the FCM token after APNs
   registration, and reject raw APNs tokens before device registration with the host.
 - Preserve the owner-approved authentication-only encryption exemption during signed

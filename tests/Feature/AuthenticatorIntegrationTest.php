@@ -25,6 +25,44 @@ use Native\Mobile\Testing\Native;
 
 beforeEach(fn () => Http::preventStrayRequests());
 
+it('asks for notification permission in the app and waits for the asynchronous registration', function (string $permission): void {
+    fakeSecureStorage();
+    anAccount();
+    Native::fakeBridge()
+        ->respondTo('PushNotification.CheckPermission', ['status' => $permission])
+        ->respondTo('PushNotification.GetToken', ['token' => null]);
+    Http::fake(['*/devices' => Http::response(['data' => ['id' => 'device-1']], 201)]);
+
+    $screen = Native::test(Settings::class);
+    if ($permission === 'not_determined') {
+        $screen->assertSee('Enable notifications')->call('notificationSettings');
+    } else {
+        $screen->call('resync');
+    }
+    $screen->assertSet('notice', 'Connecting notifications. This may take a moment.')
+        ->assertSet('working', false);
+    Native::fakeBridge()->assertCalled('PushNotification.RequestPermission');
+    Native::fakeBridge()->assertNotCalled('System.OpenAppSettings');
+    Http::assertNothingSent();
+
+    Native::fakeBridge()
+        ->respondTo('PushNotification.CheckPermission', ['status' => 'granted'])
+        ->respondTo('PushNotification.GetToken', ['token' => 'firebase-registration-token']);
+    $screen->emitNative(TokenGenerated::class, ['token' => 'firebase-registration-token'])
+        ->assertSet('notice', 'Notifications re-synced.')
+        ->assertSet('permission', 'granted');
+    Http::assertSent(fn ($request) => $request['push_token'] === 'firebase-registration-token');
+})->with(['not_determined', 'granted']);
+
+it('opens system settings only when notification permission has already been refused', function (): void {
+    fakeSecureStorage();
+    Native::fakeBridge()->respondTo('PushNotification.CheckPermission', ['status' => 'denied']);
+    Native::test(Settings::class)->call('notificationSettings')->call('resync');
+    Native::fakeBridge()->assertCalled('System.OpenAppSettings');
+    Native::fakeBridge()->assertNotCalled('PushNotification.RequestPermission');
+    Http::assertNothingSent();
+});
+
 it('rejects raw APNs tokens even when Firebase is enabled and preserves an existing FCM registration', function (): void {
     fakeSecureStorage();
     $account = anAccount();

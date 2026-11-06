@@ -45,6 +45,7 @@ final class CheckRelease extends Command
             $check(is_string($swift) && str_contains($swift, '// Cbox: notification data is a refresh hint') && str_contains($swift, 'cboxNotificationURL(deepLink)')
                 && str_contains($swift, '// Cbox: APNs identifies the Apple device; only FCM tokens reach the server.')
                 && str_contains($swift, '// Cbox: ignore legacy caches that may contain an APNs token.')
+                && str_contains($swift, '// Cbox: resume authorized push registration on launch and foreground.')
                 && ! str_contains($swift, 'print(') && ! str_contains($swift, 'let event = userInfo["event"]'),
                 'Generated Firebase bridge has not passed authenticator hardening. Do not archive this project.');
             $security = glob(rtrim($generated, '/').'/NativePHP/Bridge/Plugins/*/AuthenticatorSecurityFunctions.swift') ?: [];
@@ -52,7 +53,8 @@ final class CheckRelease extends Command
             $check(is_string($source) && str_contains($source, '// Cbox: source security prepared.'), 'The native security build guard has not passed.');
             $managers = glob(rtrim($generated, '/').'/NativePHP/Bridge/Plugins/*/FirebaseManager.swift') ?: [];
             $manager = count($managers) === 1 ? file_get_contents($managers[0]) : false;
-            $check(is_string($manager) && str_contains($manager, 'guard Bundle.main.object(forInfoDictionaryKey: "CboxPushEnabled") as? Bool == true else { return }'),
+            $check(is_string($manager) && str_contains($manager, 'guard Bundle.main.object(forInfoDictionaryKey: "CboxPushEnabled") as? Bool == true else { return }')
+                && str_contains($manager, 'PushNotificationDelegate.shared.resumeRegistration()'),
                 'Firebase must require the explicit release capability before initialization.');
             if (is_dir(rtrim($generated, '/').'/NativePHP')) {
                 foreach (File::allFiles(rtrim($generated, '/').'/NativePHP') as $file) {

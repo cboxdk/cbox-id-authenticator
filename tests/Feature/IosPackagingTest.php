@@ -85,7 +85,8 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
         expect(File::get($root.'/NativePHP/Info.plist'))->not->toContain('remote-notification')
             ->toContain("<key>CboxPushEnabled</key>\n    <false/>")
             ->toContain("<key>ITSAppUsesNonExemptEncryption</key>\n    <false/>");
-        expect(File::get(dirname($path).'/FirebaseManager.swift'))->toContain('as? Bool == true else { return }');
+        expect(File::get(dirname($path).'/FirebaseManager.swift'))->toContain('as? Bool == true else { return }')
+            ->toContain("isConfigured = true\n        PushNotificationDelegate.shared.resumeRegistration()");
         expect(File::get($root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift'))
             ->toContain('if !forceHide {')
             ->toContain('content.toolbar(.visible, for: .tabBar)')
@@ -102,6 +103,8 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
             ->toContain('.accessibilityAddTraits(.isButton)');
         $first = File::get($path);
         expect($first)->toContain('messaging.apnsToken = deviceToken')
+            ->toContain('name: UIApplication.didBecomeActiveNotification')
+            ->toContain('case .authorized, .provisional, .ephemeral:')
             ->toContain('messaging.token { token, error in')
             ->toContain('if let token = messaging.fcmToken, !token.isEmpty')
             ->not->toContain('UserDefaults.standard.set(tokenString, forKey: "push_notification_token")');

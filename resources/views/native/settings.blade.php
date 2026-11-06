@@ -49,8 +49,8 @@
                             </column>
                         </row>
                     @else
-                        <pressable class="w-full p-4" a11y-label="{{ __('Notification settings') }}" @press="notificationSettings">
-                            @include('native.partials.action-content', ['symbol' => 'bell', 'title' => __('Notification settings'), 'subtitle' => $permission === 'granted' ? __('On. You will be alerted when an app asks for approval.') : ($permission === 'denied' ? __('Off. Enable notifications in iPhone Settings.') : __('Not set up yet.'))])
+                        <pressable class="w-full p-4" a11y-label="{{ $permission === 'not_determined' ? __('Enable notifications') : __('Notification settings') }}" @press="notificationSettings">
+                            @include('native.partials.action-content', ['symbol' => 'bell', 'title' => $permission === 'not_determined' ? __('Enable notifications') : __('Notification settings'), 'subtitle' => $permission === 'granted' ? __('On. You will be alerted when an app asks for approval.') : ($permission === 'denied' ? __('Off. Enable notifications in iPhone Settings.') : __('Not set up yet.'))])
                         </pressable>
                         <column class="w-full px-4"><column class="w-full h-[1] bg-theme-outline/40"></column></column>
                         <pressable class="w-full p-4" a11y-label="{{ __('Re-sync notifications') }}" @press="resync">
