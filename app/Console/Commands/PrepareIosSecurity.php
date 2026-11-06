@@ -21,6 +21,9 @@ final class PrepareIosSecurity extends Command
         if ($this->option('platform') !== 'ios') {
             return self::SUCCESS;
         }
+        if ($this->callSilent('authenticator:dependencies', ['--installed' => true]) !== self::SUCCESS) {
+            throw new RuntimeException('The build installed unreviewed dependencies. Restore the tested Composer versions before packaging.');
+        }
         $root = $this->option('build-path');
         if (! is_string($root) || ! is_dir($root)) {
             throw new RuntimeException('The iOS build path does not exist.');

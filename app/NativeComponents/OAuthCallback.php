@@ -46,7 +46,7 @@ class OAuthCallback extends NativeComponent
      *
      * @return array<string, string>
      */
-    private function query(): array
+    private function callbackParameters(): array
     {
         $fromUri = DeepLinkQuery::parse($this->nativeRouter?->currentUri());
 
@@ -59,7 +59,7 @@ class OAuthCallback extends NativeComponent
 
     public function mount(): void
     {
-        $query = $this->query();
+        $query = $this->callbackParameters();
 
         $code = $query['code'] ?? '';
         $state = $query['state'] ?? '';

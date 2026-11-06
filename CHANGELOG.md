@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Pin the tested NativePHP commit during Bifrost dependency resolution and reject
+  installed dependency drift before native packaging. Avoid a callback helper name
+  collision with newer NativePHP routing APIs.
 - Prepare the first release without push: require explicit Firebase activation,
   omit push capabilities, and explain foreground approvals in all ten languages.
 - Pin native dependency locks for fresh Bifrost builds and fail the native security

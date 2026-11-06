@@ -9,6 +9,22 @@ use Illuminate\Support\Facades\Http;
 use Native\Mobile\Testing\Native;
 use Symfony\Component\Process\Process;
 
+it('rejects dependency drift introduced by a cloud build before preparing native sources', function (): void {
+    $path = resource_path('third-party.json');
+    $inventory = json_decode(File::get($path), true, 512, JSON_THROW_ON_ERROR);
+    foreach ($inventory['components'] as &$component) {
+        if ($component['name'] === 'nativephp/mobile') {
+            $component['reference'] = str_repeat('0', 40);
+        }
+    }
+    unset($component);
+    File::partialMock()->shouldReceive('get')->with($path)->andReturn(json_encode($inventory, JSON_THROW_ON_ERROR));
+
+    $this->artisan('authenticator:dependencies', ['--installed' => true])->assertFailed();
+    expect(fn () => $this->artisan('authenticator:prepare-ios', ['--platform' => 'ios'])->run())
+        ->toThrow(RuntimeException::class, 'unreviewed dependencies');
+});
+
 it('hardens the installed Firebase bridge reproducibly without changing vendor sources', function (): void {
     $root = sys_get_temp_dir().'/cbox-ios-'.bin2hex(random_bytes(8));
     $path = $root.'/NativePHP/Bridge/Plugins/Firebase/PushNotificationFunctions.swift';

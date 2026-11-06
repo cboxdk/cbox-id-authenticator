@@ -1,7 +1,7 @@
 {
     "format": "cbox-composer-inventory-v1",
     "scope": "Production Composer dependencies. Native Apple/Firebase/Swift packages must also be inventoried from the signed archive.",
-    "lock_sha256": "85bdee03ab57cc107b9e587af97d9f559940c2c9139f0075c3d013fbb774cba3",
+    "lock_sha256": "d694e525c53d7d04801e97007d6372e1eef2fd87e4aa0165da4fb2eaa52b7764",
     "components": [
         {
             "type": "library",

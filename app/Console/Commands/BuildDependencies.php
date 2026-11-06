@@ -4,18 +4,37 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use Composer\InstalledVersions;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use RuntimeException;
 
 final class BuildDependencies extends Command
 {
-    protected $signature = 'authenticator:dependencies {--check : Verify that the locked dependency inventory is current}';
+    protected $signature = 'authenticator:dependencies {--check : Verify that the locked dependency inventory is current} {--installed : Verify installed production packages against the reviewed inventory}';
 
     protected $description = 'Build the production Composer inventory and third-party notices used by the native app';
 
     public function handle(): int
     {
+        if ($this->option('installed')) {
+            $inventory = json_decode(File::get(resource_path('third-party.json')), true, 512, JSON_THROW_ON_ERROR);
+            foreach ($inventory['components'] as $component) {
+                $name = $component['name'];
+                if (! InstalledVersions::isInstalled($name)
+                    || InstalledVersions::getPrettyVersion($name) !== $component['version']
+                    || InstalledVersions::getReference($name) !== $component['reference']) {
+                    $this->components->error('Installed package differs from the reviewed dependency inventory: '.$name);
+
+                    return self::FAILURE;
+                }
+            }
+
+            $this->components->info('Installed production packages match the reviewed dependency inventory.');
+
+            return self::SUCCESS;
+        }
+
         $lock = json_decode(File::get(base_path('composer.lock')), true, 512, JSON_THROW_ON_ERROR);
         $components = [];
         foreach ($lock['packages'] as $package) {

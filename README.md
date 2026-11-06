@@ -50,6 +50,11 @@ php artisan authenticator:check
 `composer qa` runs the PHP suite, Larastan, plugin validation and the locked production
 dependency/license inventory check. After an intentional dependency update, regenerate
 that inventory with `php artisan authenticator:dependencies` and review the diff.
+The `reviewed-nativephp-runtime` Composer package repository freezes both the
+NativePHP source archive and its dependency metadata. Bifrost may resolve dependencies
+again when it encounters the local plugin repository. Update this package definition
+and the lock file together when qualifying a new runtime. Native preparation verifies
+installed production versions and commit references against the reviewed inventory.
 The native app exposes 97 Composer and 9 resolved iOS dependency notices under
 Privacy and help → Licenses. After an iOS dependency update, run
 `php artisan authenticator:ios-notices`, review the licenses, then verify them with
