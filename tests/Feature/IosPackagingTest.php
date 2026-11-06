@@ -4,10 +4,35 @@ declare(strict_types=1);
 
 use App\Events\PushReceived;
 use App\NativeComponents\Approvals;
+use App\Support\NativePackageCommand;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Process as Processes;
 use Native\Mobile\Testing\Native;
 use Symfony\Component\Process\Process;
+
+it('preserves the archived encryption declaration through the actual packaging command', function (): void {
+    $command = Artisan::all()['native:package'];
+    expect($command)->toBeInstanceOf(NativePackageCommand::class);
+    Processes::fake(['*' => Processes::result(output: "true\n")]);
+
+    $method = new ReflectionMethod($command, 'setExportCompliance');
+    expect($method->invoke($command, '/archive/Info.plist'))->toBeTrue();
+    Processes::assertRan(fn ($process) => $process->command === [
+        'plutil', '-extract', 'ITSAppUsesNonExemptEncryption', 'raw', '-o', '-', '/archive/Info.plist',
+    ]);
+    Processes::assertRanTimes(fn () => true, 1);
+});
+
+it('stops packaging when the archive has a missing or incorrect encryption declaration', function (string $output, int $exitCode): void {
+    Processes::fake(['*' => Processes::result(output: $output, exitCode: $exitCode)]);
+    $command = Artisan::all()['native:package'];
+    $method = new ReflectionMethod($command, 'setExportCompliance');
+
+    expect(fn () => $method->invoke($command, '/archive/Info.plist'))
+        ->toThrow(RuntimeException::class, 'must declare its encryption');
+})->with([['false', 0], ['', 1]]);
 
 it('rejects dependency drift introduced by a cloud build before preparing native sources', function (): void {
     $path = resource_path('third-party.json');

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Preserve the app's encryption declaration during signed IPA export; reject an
+  archive with a missing or incorrect declaration before uploading to Apple.
 - Pin the tested NativePHP commit during Bifrost dependency resolution and reject
   installed dependency drift before native packaging. Avoid a callback helper name
   collision with newer NativePHP routing APIs.

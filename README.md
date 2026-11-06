@@ -55,6 +55,9 @@ NativePHP source archive and its dependency metadata. Bifrost may resolve depend
 again when it encounters the local plugin repository. Update this package definition
 and the lock file together when qualifying a new runtime. Native preparation verifies
 installed production versions and commit references against the reviewed inventory.
+The app binds NativePHP's packaging command to preserve its encryption declaration
+after archiving. Export stops if that declaration is missing or false; the upstream
+default must not silently classify the app's bundled backup encryption as exempt.
 The native app exposes 97 Composer and 9 resolved iOS dependency notices under
 Privacy and help → Licenses. After an iOS dependency update, run
 `php artisan authenticator:ios-notices`, review the licenses, then verify them with

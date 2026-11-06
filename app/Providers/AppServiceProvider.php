@@ -10,7 +10,9 @@ use App\Accounts\LegacyAccountMigration;
 use App\Accounts\PendingSignIns;
 use App\Services\DeviceSecurity;
 use App\Services\ServerClock;
+use App\Support\NativePackageCommand;
 use Illuminate\Support\ServiceProvider;
+use Native\Mobile\Commands\PackageCommand;
 use Throwable;
 
 class AppServiceProvider extends ServiceProvider
@@ -35,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(PackageCommand::class, NativePackageCommand::class);
         $this->app->singleton(ServerClock::class);
         $this->app->singleton(AccountStore::class);
         $this->app->singleton(PendingSignIns::class);
