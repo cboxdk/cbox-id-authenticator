@@ -24,9 +24,11 @@ authentication-only encryption exemption.
 
 The App Store draft has ten localized listings and six polished screenshots per
 language. Review contact, age rating, free pricing, build selection and manual
-release are configured. Privacy publication awaits the owner's confirmation;
-a separate reviewer account and repeatable approval test flow still need to be
-provisioned. The app has **not** been submitted for review or publicly released.
+release are configured. Privacy is published following the owner's confirmation;
+an isolated reviewer account is provisioned, and its credentials and instructions
+are saved in App Store Connect. Apple has validated the required fields and shows
+**Ready for Review**. The self-service approval page awaits server PR121 deployment.
+The app has **not** been submitted for review or publicly released.
 
 - [Release status and remaining gates](IOS-RELEASE-PLAN.md).
 - [Store metadata, artwork and reviewer steps](STORE-LISTING.md).

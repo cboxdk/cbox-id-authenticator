@@ -3,7 +3,7 @@
   "appId": "6831374770",
   "version": "1.0.0",
   "build": "5",
-  "reviewState": "PREPARE_FOR_SUBMISSION",
+  "reviewState": "READY_FOR_REVIEW",
   "releaseType": "MANUAL",
   "price": "FREE",
   "territories": 175,
@@ -28,11 +28,22 @@
   "metadataReadBack": true,
   "assetAssociationsReadBack": true,
   "reviewContactSaved": true,
-  "reviewNotesSaved": "TOTP and backup steps; Cbox access explicitly pending",
-  "privacy": "Answers saved; owner confirmation required before publishing",
+  "reviewNotesSaved": "Cbox self-service approval, TOTP and encrypted backup; isolated credentials saved",
+  "privacy": "Published in App Store Connect after explicit owner confirmation; independently read back",
   "blockers": [
-    "Owner confirmation of Apple privacy declaration",
-    "Owner authorization and provisioning of isolated review account plus repeatable self-service approval workflow"
+    "Deploy and verify the self-service review approval page (cbox-id PR121)"
   ],
-  "submitted": false
+  "submitted": false,
+  "reviewAccount": {
+    "host": "cbox.cboxid.com",
+    "workflow": "https://cbox.cboxid.com/authenticator/review",
+    "isolated": true,
+    "organizationMemberships": 0,
+    "administrativeRoles": 0,
+    "normalSignInVerified": true,
+    "enrollmentPageVerified": true,
+    "workflowDeployment": "Pending server PR121"
+  },
+  "appleRequiredFieldsValidated": true,
+  "reviewCredentialsSavedAndReadBack": true
 }

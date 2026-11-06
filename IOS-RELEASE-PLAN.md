@@ -33,19 +33,19 @@ Ti sprog: en, da, de, sv, nb, fr, fi, es, it og nl. Metadata ligger i
 samme Cbox-farver og appikon. Reviewkontakt, Utilities, 4+, gratis pris og 175 lande er
 konfigureret. Mac- og Vision Pro-distribution er slået fra; frigivelse er manuel.
 
-Privacy-svarene er klargjort ud fra det signerede build og serverens faktiske behandling.
+Privacy-erklæringen er publiceret efter ejerens bekræftelse. Svarene bygger på det
+signerede build og serverens faktiske behandling.
 Ingen tracking. Firebase Messaging og GoogleDataTransport bidrager med teknisk
 SDK-diagnostik; denne indsamling må ikke skjules ved blot at beskrive appens egen manifestfil.
 
 ## Resterende før indsendelse
 
-1. Ejerens bekræftelse af Apples privacy-erklæring og derefter publicering af svarene.
-2. En isoleret reviewkonto uden intern Cbox-adgang samt en selvbetjent, gentagelig
-   måde at udløse en rigtig godkendelse. Kontoens login lægges kun i Apples reviewfelter.
-   En tom konto eller en engangs-QR erstatter ikke dette forløb.
-3. Ejerens beslutning om at indsende, når reviewforløbet er verificeret. Alle ti sprog
-   er genlæst med seks screenshots, en header og en søgegrafik. Ingen automatisk
-   indsendelse eller offentlig frigivelse.
+1. Deploy og verificér testsiden fra server-PR121. Den isolerede reviewkonto er oprettet,
+   har nul medlemskaber/roller og er testet med almindeligt login og frisk tilslutningskode.
+   Dens login og vejledning er gemt og genlæst hos Apple.
+2. Ejerens beslutning om at indsende. Apple har valideret de krævede felter og viser
+   **Ready for Review** med **Submit for Review** som sidste handling.
+   Versionen er ikke indsendt eller offentligt frigivet.
 
 ## Historisk implementeringsanalyse
 

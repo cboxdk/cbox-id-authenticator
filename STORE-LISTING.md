@@ -2,7 +2,7 @@
 
 App Store Connect **6831374770**, iOS **1.0.0 (5)**. Forberedt 6. november 2026.
 Ingen reviewindsendelse eller offentlig frigivelse. Se `IOS-RELEASE-PLAN.md` for de
-åbne godkendelser; dette dokument er ikke en erklæring om færdigt review.
+den resterende serverkontrol. Apple viser **Ready for Review** efter validering af alle krævede felter.
 
 ## Gemte felter
 
@@ -57,7 +57,7 @@ Den færdige pakke ligger lokalt i
 
 ## Privacy-grundlag
 
-Svarene er gemt hos Apple, men publicering afventer ejerens bekræftelse af erklæringen.
+Erklæringen er publiceret hos Apple efter ejerens udtrykkelige bekræftelse og genlæst i App Store Connect.
 Grundlaget er både serverens behandling og PrivacyInfo.xcprivacy i den signerede IPA:
 
 | Apple-datatype | Formål | Knyttet til bruger | Tracking |
@@ -77,10 +77,16 @@ TOTP-backup er brugerinitieret og krypteret; brugeren vælger selv destinationen
 
 ## Reviewer-forløb
 
-Cbox-godkendelser kræver en isoleret testkonto og et selvbetjent request-forløb, der endnu
-ikke er provisioneret. Ejerens private konto må ikke anvendes. Ingen adgangskoder eller
-client secrets må gemmes i repository eller dette dokument. En udløbende enrollment-QR
-må ikke bruges som permanent reviewadgang.
+En isoleret reviewkonto er provisioneret på cbox.cboxid.com med nul medlemskaber,
+rolletildelinger og operatorrettigheder. Almindeligt login og siden med en frisk
+tilslutningskode er verificeret i en separat browsersession. Kun denne kontos login
+er gemt i Apples reviewfelter. Ingen adgangskoder eller client secrets findes i
+repository eller dette dokument.
+
+Testforløbet er https://cbox.cboxid.com/authenticator/review (afventer deployment
+af server-PR121). Herfra åbner revieweren Betroede enheder, tilslutter sin telefon og
+sender en rigtig godkendelse til sig selv. Svaret kan genlæses på siden. Der udstedes
+ingen access tokens fra testen. En udløbende QR bruges ikke som permanent adgang.
 
 TOTP og backup kan testes uden Cbox-login:
 
