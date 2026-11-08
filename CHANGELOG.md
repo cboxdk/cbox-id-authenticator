@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Approval pushes break through Focus: with push enabled, the iOS build declares the
+  Time Sensitive Notifications entitlement, so the server's `interruption-level:
+  time-sensitive` is honoured. The release check refuses a push build without it. The
+  App ID needs the Time Sensitive Notifications capability before signing.
 - Display the app as Cbox ID. Resume authorized push registration on launch and
   return from Settings; request notification permission directly on first activation
   and show registration progress while waiting for Firebase.
