@@ -103,8 +103,12 @@ final class CheckRelease extends Command
                     'The generated push configuration does not match this release.');
                 $check(preg_match('/<key>ITSAppUsesNonExemptEncryption<\/key>\s*<false\s*\/>/', $plist) === 1,
                     'Declare the owner-approved authentication-only encryption exemption before exporting.');
+                $entitlements = File::get(rtrim($generated, '/').'/NativePHP/NativePHP.entitlements');
+                $check(str_contains($entitlements, 'com.apple.developer.usernotifications.time-sensitive') === $pushEnabled,
+                    $pushEnabled
+                        ? 'Push is enabled: approvals need the Time Sensitive Notifications entitlement (run authenticator:prepare-ios).'
+                        : 'Remove the Time Sensitive Notifications entitlement from the release without push.');
                 if (! $pushEnabled) {
-                    $entitlements = File::get(rtrim($generated, '/').'/NativePHP/NativePHP.entitlements');
                     $check(! str_contains($entitlements, 'aps-environment') && ! str_contains($plist, 'remote-notification'),
                         'Remove push entitlements and background modes from the release without push.');
                 }

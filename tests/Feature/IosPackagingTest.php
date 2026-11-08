@@ -81,7 +81,8 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
     File::copy(base_path('vendor/nativephp/mobile/resources/xcode/NativePHP/NativeRender/NativeRootTabsRenderer.swift'), $root.'/NativePHP/NativeRender/NativeRootTabsRenderer.swift');
     try {
         $this->artisan('authenticator:prepare-ios', ['--platform' => 'ios', '--build-path' => $root])->assertSuccessful();
-        expect(File::get($root.'/NativePHP/NativePHP.entitlements'))->not->toContain('aps-environment');
+        expect(File::get($root.'/NativePHP/NativePHP.entitlements'))->not->toContain('aps-environment')
+            ->not->toContain('usernotifications.time-sensitive');
         expect(File::get($root.'/NativePHP/Info.plist'))->not->toContain('remote-notification')
             ->toContain("<key>CboxPushEnabled</key>\n    <false/>")
             ->toContain("<key>ITSAppUsesNonExemptEncryption</key>\n    <false/>");
@@ -127,6 +128,12 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
         config(['authenticator.push_enabled' => true]);
         $this->artisan('authenticator:prepare-ios', ['--platform' => 'ios', '--build-path' => $root])->assertSuccessful();
         expect(File::get($root.'/NativePHP/Info.plist'))->toContain("<key>CboxPushEnabled</key>\n    <true/>");
+        // Approvals must break through a Focus: interruption-level time-sensitive only
+        // counts when the app holds this entitlement. Prepared twice, declared once.
+        expect(substr_count(File::get($root.'/NativePHP/NativePHP.entitlements'),
+            "<key>com.apple.developer.usernotifications.time-sensitive</key>\n    <true/>"))->toBe(1);
+        $this->artisan('authenticator:prepare-ios', ['--platform' => 'ios', '--build-path' => $root])->assertSuccessful();
+        expect(substr_count(File::get($root.'/NativePHP/NativePHP.entitlements'), 'usernotifications.time-sensitive'))->toBe(1);
         File::put(dirname($path).'/FirebaseManager.swift', 'class FirebaseManager {}');
         $this->artisan('authenticator:check', ['--generated' => $root])->assertFailed();
     } finally {

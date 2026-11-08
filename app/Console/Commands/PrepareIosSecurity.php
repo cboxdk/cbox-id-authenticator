@@ -394,6 +394,8 @@ SWIFT;
         return self::SUCCESS;
     }
 
+    private const TIME_SENSITIVE = 'com.apple.developer.usernotifications.time-sensitive';
+
     private function prepareReleaseCapabilities(string $root): void
     {
         $enabled = config('authenticator.push_enabled') === true;
@@ -434,7 +436,7 @@ SWIFT;
                 throw new RuntimeException('Invalid release property list: '.$name);
             }
             $remove = $name === 'Info.plist'
-                ? ['CboxPushEnabled', 'ITSAppUsesNonExemptEncryption'] : [];
+                ? ['CboxPushEnabled', 'ITSAppUsesNonExemptEncryption'] : [self::TIME_SENSITIVE];
             if (! $enabled) {
                 $remove[] = 'aps-environment';
                 // This app has no background feature other than remote notifications.
@@ -448,6 +450,14 @@ SWIFT;
                     }
                     $dict->removeChild($node);
                 }
+            }
+            if ($name !== 'Info.plist' && $enabled) {
+                // Approval pushes ask for interruption-level time-sensitive. Without this
+                // entitlement iOS ignores that and a Focus mode files the approval silently
+                // in the notification centre, where it expires unseen. The App ID must have
+                // the Time Sensitive Notifications capability for the profile to sign it.
+                $dict->appendChild($document->createElement('key', self::TIME_SENSITIVE));
+                $dict->appendChild($document->createElement('true'));
             }
             if ($name === 'Info.plist') {
                 // Owner-approved authentication-only exemption, including backups

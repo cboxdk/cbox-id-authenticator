@@ -20,6 +20,15 @@ OTA slået fra og den versionerede native hardening-hook. Firebase-plist og sign
 credentials administreres uden for repository. Native kode genereres gennem Bifrost;
 ret ikke den genererede Xcode-kode manuelt.
 
+**Tidsfølsomme notifikationer (8. november).** Godkendelses-pushes sendes med
+`interruption-level: time-sensitive`, men iOS respekterer det kun, når appen har
+entitlement'en `com.apple.developer.usernotifications.time-sensitive`. Uden den lagde en
+aktiv Fokus godkendelsen stille i notifikationscentret. `authenticator:prepare-ios`
+tilføjer den nu, når push er slået til, og `authenticator:check` afviser et build uden.
+Før næste build: slå **Time Sensitive Notifications** til på App ID
+`com.cboxid.authenticator` i Apple Developer, og forny provisioning-profilen, så
+signeringen accepterer entitlement'en.
+
 Ejeren har 6. november godkendt autentifikationsundtagelsen ved eksportdeklarationen.
 Den omfatter loginbeviser, TOTP-hemmeligheder og deres krypterede backup. Revurdér ved
 nye funktioner til generel datakryptering. Den tidligere plan om en udgave uden push
