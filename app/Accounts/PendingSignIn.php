@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Accounts;
 
+use App\Services\ApiBase;
+
 /**
  * A sign-in that has left for the browser and not yet come back.
  *
@@ -27,6 +29,7 @@ final readonly class PendingSignIn
         public int $createdAt,
         public ?string $enrolmentToken = null,
         public ?string $expectedSubject = null,
+        public ?string $apiBase = null,
     ) {}
 
     /**
@@ -43,6 +46,7 @@ final readonly class PendingSignIn
             'created_at' => $this->createdAt,
             'enrolment_token' => $this->enrolmentToken,
             'expected_subject' => $this->expectedSubject,
+            'api_base' => $this->apiBase,
         ];
     }
 
@@ -66,6 +70,7 @@ final readonly class PendingSignIn
             is_numeric($row['created_at'] ?? null) ? (int) $row['created_at'] : 0,
             is_string($row['enrolment_token'] ?? null) ? $row['enrolment_token'] : null,
             is_string($row['expected_subject'] ?? null) ? $row['expected_subject'] : null,
+            ApiBase::fromAdvertised($row['api_base'] ?? null, $row['issuer']),
         );
     }
 }

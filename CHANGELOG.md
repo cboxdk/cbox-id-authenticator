@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Cbox ID v3 API host: an account connected to a host that advertises `api_base` in
+  `/.well-known/cbox-authenticator` calls `https://api.cboxid.com/v1` (`/me/approvals`,
+  `/me/authenticator`, `/devices`) and reads its list and object shapes. Accounts
+  connected before, or to a host without `api_base`, keep calling `{issuer}/api/v1`.
+  Prefixed public ids (`apr_…`, `dvc_…`) are accepted, in push links too.
 - Approval pushes break through Focus: with push enabled, the iOS build declares the
   Time Sensitive Notifications entitlement, so the server's `interruption-level:
   time-sensitive` is honoured. The release check refuses a push build without it. The

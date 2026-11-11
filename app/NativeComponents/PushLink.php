@@ -20,7 +20,7 @@ class PushLink extends NativeComponent
         $install = (string) $this->param('install');
         $request = DeepLinkQuery::cleanParam((string) $this->param('id'));
         $security = $this->param('id') === null;
-        if (preg_match('/^[0-9A-HJKMNP-TV-Z]{26}$/i', $install) === 1 && ($security || preg_match('/^[0-9A-HJKMNP-TV-Z]{26}$/i', $request) === 1)) {
+        if (preg_match('/^[0-9A-HJKMNP-TV-Z]{26}$/i', $install) === 1 && ($security || preg_match('/^(?:[a-z]{1,16}_)?[0-9A-HJKMNP-TV-Z]{26}$/i', $request) === 1)) {
             foreach (app(AccountContext::class)->all() as $services) {
                 if (hash_equals($services->installId->get(), $install)) {
                     $this->replace($security ? '/account/'.$services->account->id : '/approvals/'.$services->account->id.'/'.$request);

@@ -53,9 +53,12 @@ final class HostDiscovery
             throw new EnrolmentFailed('Your Cbox ID host needs an update before this app can connect. Contact your administrator.');
         }
 
+        $issuer = rtrim($body['issuer'], '/');
+
         return new DiscoveredHost(
-            rtrim($body['issuer'], '/'),
+            $issuer,
             $body['client_id'],
+            ApiBase::fromAdvertised($body['api_base'] ?? null, $issuer),
         );
     }
 
