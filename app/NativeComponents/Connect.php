@@ -215,7 +215,7 @@ class Connect extends NativeComponent
             }
 
             $pending = app(AccountContext::class)
-                ->beginSignIn($host->issuer, $host->clientId, $code->token, $existing?->subject);
+                ->beginSignIn($host->issuer, $host->clientId, $code->token, $existing?->subject, $host->advertisedApiBase);
             $this->pendingState = $pending->state;
             $this->browserId = bin2hex(random_bytes(16));
 

@@ -117,7 +117,7 @@ class OAuthCallback extends NativeComponent
             $services->enrolment->enrol($pending->enrolmentToken);
             $label = $identity['label'];
             $context->store()->put(new Account(
-                $pending->accountId, $pending->issuer, Account::labelFor($pending->issuer, $label), $identity['subject'],
+                $pending->accountId, $pending->issuer, Account::labelFor($pending->issuer, $label), $identity['subject'], $pending->apiBase,
             ));
             foreach ($duplicates as $old) {
                 $previous = $context->for($old);

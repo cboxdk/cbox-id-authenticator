@@ -19,6 +19,13 @@ use Illuminate\Support\Facades\Http;
  * The base URL comes from the account rather than from a stored "current issuer".
  * With several accounts connected there is no such thing as the current issuer, and a
  * single slot holding one would have sent one tenant's DPoP-bound token to another.
+ *
+ * TWO BASES, ONE SET OF CALLERS. An account whose host advertised `api_base` (Cbox ID v3)
+ * talks to the API host's `/v1`: approvals live under `/me/approvals`, `/authenticator/me`
+ * is `/me/authenticator`, a resource comes back as the object itself and a list as
+ * `{object: "list", data, has_more, next_cursor}`. Every other account keeps calling
+ * `{issuer}/api/v1` exactly as before. The `/v1` answers are folded back into the
+ * `{data, meta}` envelope here, so nothing above this class knows which base it spoke to.
  */
 final class CboxApi
 {
@@ -80,7 +87,7 @@ final class CboxApi
     public function queuePending(Pool $pool): void
     {
         $token = $this->oauth->freshAccessToken();
-        $url = $this->base().'/approvals';
+        $url = $this->base().$this->path('/approvals');
         $pool->as($this->account->id)->withHeaders($this->proof->headers('GET', $url, $token))
             ->acceptJson()->withoutRedirecting()->connectTimeout(4)->timeout(8)->get($url);
     }
@@ -100,7 +107,7 @@ final class CboxApi
         }
         $body = $response->json();
 
-        return $this->pendingPages(is_array($body) ? $body : []);
+        return $this->pendingPages($this->envelope(is_array($body) ? $body : []));
     }
 
     /** @return list<array<string, mixed>> */
@@ -126,11 +133,16 @@ final class CboxApi
                 return $rows;
             }
             $cursor = $page['meta']['next_cursor'] ?? null;
-            if (! is_string($cursor) || preg_match('/^[0-9A-HJKMNP-TV-Z]{26}$/i', $cursor) !== 1 || isset($seen[$cursor])) {
+            // A public id (`apr_01J…`) carries the same ULID; the handler pages by the ULID.
+            if (! is_string($cursor) || preg_match('/^(?:[a-z]{1,16}_)?([0-9A-HJKMNP-TV-Z]{26})$/i', $cursor, $match) !== 1 || isset($seen[$cursor])) {
                 throw new ApiFailure(502);
             }
             $seen[$cursor] = true;
-            $page = $this->json('GET', '/approvals?cursor='.rawurlencode($cursor));
+            // `/v1` names the cursor `after`; the handler behind both bases reads `cursor`.
+            $query = $this->usesApiHost()
+                ? '?after='.rawurlencode($cursor).'&cursor='.rawurlencode($match[1])
+                : '?cursor='.rawurlencode($cursor);
+            $page = $this->json('GET', '/approvals'.$query);
         }
 
         // Never present a truncated inbox as complete or follow an unbounded server loop.
@@ -209,7 +221,53 @@ final class CboxApi
 
         $decoded = $response->json();
 
-        return is_array($decoded) ? $decoded : [];
+        return $this->envelope(is_array($decoded) ? $decoded : []);
+    }
+
+    /**
+     * A `/v1` answer in the `{data, meta}` envelope the rest of the app reads.
+     *
+     * @param  array<string, mixed>  $body
+     * @return array<string, mixed>
+     */
+    private function envelope(array $body): array
+    {
+        if (! $this->usesApiHost() || ! is_string($body['object'] ?? null)) {
+            return $body;
+        }
+
+        if ($body['object'] === 'list') {
+            return [
+                'data' => $body['data'] ?? [],
+                'meta' => [
+                    'has_more' => ($body['has_more'] ?? false) === true,
+                    'next_cursor' => $body['next_cursor'] ?? null,
+                ],
+            ];
+        }
+
+        return ['data' => $body];
+    }
+
+    /**
+     * The path on this account's base, given the path as `/api/v1` names it.
+     */
+    private function path(string $path): string
+    {
+        if (! $this->usesApiHost()) {
+            return $path;
+        }
+
+        return match (true) {
+            $path === '/authenticator/me' => '/me/authenticator',
+            $path === '/approvals' || str_starts_with($path, '/approvals/') || str_starts_with($path, '/approvals?') => '/me'.$path,
+            default => $path,
+        };
+    }
+
+    private function usesApiHost(): bool
+    {
+        return $this->account->apiBase !== null;
     }
 
     /**
@@ -218,7 +276,7 @@ final class CboxApi
     private function request(string $method, string $path, array $body = []): Response
     {
         $token = $this->oauth->freshAccessToken();
-        $url = $this->base().$path;
+        $url = $this->base().$this->path($path);
 
         $response = Http::withHeaders($this->proof->headers($method, $url, $token))
             ->withoutRedirecting()->connectTimeout(5)->acceptJson()
@@ -247,6 +305,6 @@ final class CboxApi
 
     private function base(): string
     {
-        return rtrim($this->account->issuer, '/').'/api/v1';
+        return $this->account->apiBase ?? ApiBase::legacy($this->account->issuer);
     }
 }

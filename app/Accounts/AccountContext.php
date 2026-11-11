@@ -75,7 +75,7 @@ final class AccountContext
      * nothing to show the user, and an index entry with no refresh token would render as
      * a signed-out account they never created.
      */
-    public function beginSignIn(string $issuer, string $clientId, ?string $enrolmentToken = null, ?string $expectedSubject = null): PendingSignIn
+    public function beginSignIn(string $issuer, string $clientId, ?string $enrolmentToken = null, ?string $expectedSubject = null, ?string $apiBase = null): PendingSignIn
     {
         $this->sweepAbandoned();
 
@@ -85,6 +85,7 @@ final class AccountContext
             $this->store->newId(),
             $issuer,
             Account::labelFor($issuer),
+            apiBase: $apiBase,
         );
 
         // Writes the client id under the reserved namespace, and generates the DPoP key
@@ -100,6 +101,7 @@ final class AccountContext
             time(),
             $enrolmentToken,
             $expectedSubject,
+            $apiBase,
         );
 
         $this->pending->put($pending);
@@ -123,6 +125,7 @@ final class AccountContext
             $pending->accountId,
             $pending->issuer,
             Account::labelFor($pending->issuer),
+            apiBase: $pending->apiBase,
         ));
     }
 

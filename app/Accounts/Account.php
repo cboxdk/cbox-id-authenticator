@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Accounts;
 
+use App\Services\ApiBase;
+
 /**
  * One Cbox ID account this handset is connected to.
  *
@@ -26,6 +28,12 @@ final readonly class Account
         public string $issuer,
         public string $label,
         public ?string $subject = null,
+        /**
+         * Where this account's devices and approvals API lives when the host advertised
+         * one (`api_base`). Null — every account connected before Cbox ID v3 — keeps
+         * calling `{issuer}/api/v1` exactly as before.
+         */
+        public ?string $apiBase = null,
     ) {}
 
     /**
@@ -56,16 +64,23 @@ final readonly class Account
     }
 
     /**
-     * @return array{id: string, issuer: string, label: string, subject: string|null}
+     * @return array{id: string, issuer: string, label: string, subject: string|null, api_base?: string}
      */
     public function toArray(): array
     {
-        return [
+        $row = [
             'id' => $this->id,
             'issuer' => $this->issuer,
             'label' => $this->label,
             'subject' => $this->subject,
         ];
+
+        // Written only when there is one, so an existing account's stored row is unchanged.
+        if ($this->apiBase !== null) {
+            $row['api_base'] = $this->apiBase;
+        }
+
+        return $row;
     }
 
     /**
@@ -87,6 +102,9 @@ final readonly class Account
             ? $row['label']
             : self::labelFor($issuer, $subject);
 
-        return new self($id, $issuer, $label, $subject);
+        // Re-checked on read: the value decides where a token is sent.
+        $apiBase = ApiBase::fromAdvertised($row['api_base'] ?? null, $issuer);
+
+        return new self($id, $issuer, $label, $subject, $apiBase);
     }
 }
