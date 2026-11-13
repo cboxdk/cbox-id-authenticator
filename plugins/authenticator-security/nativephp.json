@@ -30,6 +30,15 @@
             "ios": "AuthenticatorBrowserFunctions.Open"
         }
     ],
+    "components": [
+        {
+            "type": "slide_confirm",
+            "element": "Cbox\\AuthenticatorSecurity\\Elements\\SlideToConfirm",
+            "blade": "Cbox\\AuthenticatorSecurity\\Components\\SlideToConfirm",
+            "ios_renderer": "CboxSlideToConfirmRenderer",
+            "self_closing": true
+        }
+    ],
     "ios": {
         "min_version": "18.2",
         "init_function": "CboxAuthenticatorSecurityInit"

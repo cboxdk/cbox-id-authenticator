@@ -134,6 +134,13 @@ it('hardens the installed Firebase bridge reproducibly without changing vendor s
             "<key>com.apple.developer.usernotifications.time-sensitive</key>\n    <true/>"))->toBe(1);
         $this->artisan('authenticator:prepare-ios', ['--platform' => 'ios', '--build-path' => $root])->assertSuccessful();
         expect(substr_count(File::get($root.'/NativePHP/NativePHP.entitlements'), 'usernotifications.time-sensitive'))->toBe(1);
+        // "Open Cbox ID app" on a phone's sign-in page: the Universal Link hosts, declared
+        // once however often the build is prepared, and never NativePHP's sample domain.
+        $entitlements = File::get($root.'/NativePHP/NativePHP.entitlements');
+        expect(substr_count($entitlements, 'com.apple.developer.associated-domains'))->toBe(1)
+            ->and($entitlements)->toContain('<string>applinks:login.cboxid.com</string>')
+            ->toContain('<string>applinks:app.cboxid.com</string>')
+            ->not->toContain('nativephp.com');
         File::put(dirname($path).'/FirebaseManager.swift', 'class FirebaseManager {}');
         $this->artisan('authenticator:check', ['--generated' => $root])->assertFailed();
     } finally {
