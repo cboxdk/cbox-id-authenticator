@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+- Open an approval straight from a phone's sign-in page: the app claims the Universal
+  Link `https://{login.cboxid.com,app.cboxid.com}/authenticator/approve/{id}` (Associated
+  Domains, `AUTHENTICATOR_UNIVERSAL_LINK_DOMAINS`) and the same path by the app's scheme.
+  The link names a request and no account; each account on the phone is asked over its
+  own session, and a request from someone else's sign-in finds nothing. The App ID needs
+  the Associated Domains capability before signing.
+- Slide to approve. Approving is a drag to the end of a track (a new native
+  `<slide-confirm>` control in the security plugin, with haptics); releasing early
+  approves nothing, and Face ID or the passcode still follows. VoiceOver users activate it
+  with a double-tap. Deny is a smaller button that asks once more and offers "This wasn't
+  me" beside it.
+- The approval screen says what and where: "Sign in to Cbox Billing?", the comparison
+  code at the top, and the city, browser, website, request time and an expiry countdown
+  when the host sends them (`kind`, `origin`). An older host's browser step-up is still
+  read from its binding message.
+- After approving from the sign-in page link, the screen says to go back to the browser
+  with ◀ in the top-left corner; the page there continues by itself.
+
 - Cbox ID v3 API host: an account connected to a host that advertises `api_base` in
   `/.well-known/cbox-authenticator` calls `https://api.cboxid.com/v1` (`/me/approvals`,
   `/me/authenticator`, `/devices`) and reads its list and object shapes. Accounts

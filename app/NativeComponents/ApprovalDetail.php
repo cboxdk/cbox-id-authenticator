@@ -38,6 +38,18 @@ class ApprovalDetail extends NativeComponent
 
     public ?string $biometricAttempt = null;
 
+    /** Bumped to send the slide's thumb back to the start (a cancelled Face ID, an error). */
+    public int $slideReset = 0;
+
+    /** Deny asks once more, so a stray tap beside the slider cannot decline either. */
+    public bool $confirmingDeny = false;
+
+    /**
+     * Opened from the sign-in page's "Open Cbox ID app" link, on this same phone. After
+     * approving, the person goes back to that browser; see {@see self::render()}.
+     */
+    public bool $fromLink = false;
+
     private ?string $attemptRequest = null;
 
     private ?int $attemptGeneration = null;
@@ -46,6 +58,7 @@ class ApprovalDetail extends NativeComponent
 
     public function mount(): void
     {
+        $this->fromLink = $this->param('via') === 'link';
         $this->load();
     }
 
@@ -135,6 +148,33 @@ class ApprovalDetail extends NativeComponent
         }
     }
 
+    /**
+     * The slider reached the end. The same path as a tap on Approve used to take: device
+     * authentication still follows, and nothing is sent until it succeeds.
+     */
+    public function slid(bool $completed = true): void
+    {
+        $this->confirmingDeny = false;
+        if ($completed) {
+            $this->approve();
+        }
+        if ($this->biometricAttempt === null && $this->outcome === null && ! $this->working) {
+            $this->slideReset++;
+        }
+    }
+
+    public function askDeny(): void
+    {
+        if ($this->actionable()) {
+            $this->confirmingDeny = true;
+        }
+    }
+
+    public function keepRequest(): void
+    {
+        $this->confirmingDeny = false;
+    }
+
     #[On(Completed::class)]
     public function biometricCompleted(bool $success, ?string $id = null): void
     {
@@ -144,6 +184,7 @@ class ApprovalDetail extends NativeComponent
 
         if (! $success) {
             $this->cancelAuthentication();
+            $this->slideReset++;
             $this->error = 'Authentication cancelled. No approval was sent.';
 
             return;
@@ -172,6 +213,7 @@ class ApprovalDetail extends NativeComponent
         $this->cancelAuthentication(); // Consume before any network call; an event cannot approve twice.
 
         if ($generation === null || $generation !== $currentGeneration) {
+            $this->slideReset++;
             $this->error = 'Authentication expired when the app was locked. Try again.';
 
             return;
@@ -194,12 +236,14 @@ class ApprovalDetail extends NativeComponent
 
     public function deny(): void
     {
+        $this->confirmingDeny = false;
         $this->cancelAuthentication();
         $this->decide(false);
     }
 
     public function wasNotMe(): void
     {
+        $this->confirmingDeny = false;
         $this->cancelAuthentication();
         $this->decide(false, 'not_me');
     }
@@ -246,6 +290,7 @@ class ApprovalDetail extends NativeComponent
                 $this->error = $e instanceof ApiFailure ? $e->getMessage()
                     : 'Could not confirm the result. Refresh before trying again.';
             }
+            $this->slideReset++;
         } finally {
             $this->working = false;
         }
@@ -274,6 +319,50 @@ class ApprovalDetail extends NativeComponent
             $this->error = $e instanceof ApiFailure ? $e->getMessage()
                 : 'Could not reach your Cbox ID host. Check your connection and try again.';
         }
+    }
+
+    /**
+     * What the screen says about the request, from the server's answer only.
+     *
+     * `kind` and `origin` are newer fields; an older host sends neither, and the browser
+     * step-up's binding message ("Confirm sign-in · host · 123456") still says which it is.
+     * The comparison code is lifted out so it can be the largest thing on the screen.
+     *
+     * @return array{kind: string, app: string, code: ?string, message: ?string, host: ?string, location: ?string, device: ?string, requested: ?int}
+     */
+    #[Computed]
+    public function details(): array
+    {
+        $approval = $this->approval ?? [];
+        $message = is_string($approval['binding_message'] ?? null) && $approval['binding_message'] !== '' ? $approval['binding_message'] : null;
+        $origin = is_array($approval['origin'] ?? null) ? $approval['origin'] : [];
+        $text = static fn (mixed $value): ?string => is_string($value) && trim($value) !== '' ? mb_substr(trim($value), 0, 120) : null;
+
+        $kind = $text($approval['kind'] ?? null);
+        $code = null;
+        $host = $text($origin['host'] ?? null);
+        if ($message !== null && preg_match('/^(Confirm sign-in|Confirm security access) · (.{1,210}) · (\d{6})$/u', $message, $parts) === 1) {
+            $kind ??= $parts[1] === 'Confirm sign-in' ? 'sign_in' : 'step_up';
+            $host ??= $parts[2];
+            $code = $parts[3];
+            $message = null;
+        }
+        $kind ??= ($approval['purpose'] ?? null) === 'action' ? 'action' : 'authentication';
+
+        $place = array_values(array_filter([$text($origin['city'] ?? null), $text($origin['country'] ?? null)]));
+        $requested = is_string($approval['requested_at'] ?? null) ? strtotime($approval['requested_at']) : false;
+
+        return [
+            'kind' => in_array($kind, ['sign_in', 'step_up', 'action', 'authentication'], true) ? $kind : 'authentication',
+            // For a sign-in, the app being signed in to; the requesting client is Cbox ID's own.
+            'app' => $text($origin['app'] ?? null) ?? $text($approval['client_name'] ?? null) ?? __('An application'),
+            'code' => $code,
+            'message' => $message,
+            'host' => $host,
+            'location' => $place === [] ? null : implode(', ', $place),
+            'device' => $text($origin['device'] ?? null),
+            'requested' => $requested === false ? null : max(0, app(ServerClock::class)->now() - $requested),
+        ];
     }
 
     public function render(): View
