@@ -7,6 +7,7 @@ use App\NativeComponents\About;
 use App\NativeComponents\AccountDetail;
 use App\NativeComponents\AddCode;
 use App\NativeComponents\ApprovalDetail;
+use App\NativeComponents\ApprovalLink;
 use App\NativeComponents\Approvals;
 use App\NativeComponents\CodeBackup;
 use App\NativeComponents\CodeDetail;
@@ -97,12 +98,21 @@ Route::nativeGroup(AppLayout::class, function (): void {
 
     // The account is in the path because an approval id is unique only within its own host.
     Route::native('/approvals/{account}/{id}', ApprovalDetail::class);
+    // Opened from the sign-in page on this phone: the screen ends by sending the person back.
+    Route::native('/approvals/{account}/{id}/{via}', ApprovalDetail::class);
 
     Route::native('/settings', Settings::class);
     // Shared flows stay in the tab that opened them, including its back stack.
     Route::native('/settings/backup', CodeBackup::class);
     Route::native('/settings/connect', Connect::class);
 });
+
+/*
+ * The Universal Link (`https://login.cboxid.com/authenticator/approve/{id}`, claimed through
+ * Associated Domains) and the same path by this app's scheme, which the link's fallback
+ * page offers. A universal link hands the router its path only; the host is dropped.
+ */
+Route::native('/authenticator/approve/{id}', ApprovalLink::class);
 
 // Version 2 push route: installation maps locally to exactly one account.
 Route::native('/request/{install}/{id}', PushLink::class);

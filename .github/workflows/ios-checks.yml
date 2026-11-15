@@ -49,7 +49,32 @@ jobs:
               var isConfigured = false
           }
           SWIFT
-          xcrun swiftc -typecheck -D CBOX_AUTHENTICATOR_SOURCE_CHECK -target arm64-apple-ios18.2-simulator -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" /tmp/BridgeFunction.swift plugins/authenticator-security/resources/ios/*.swift
+          # Native UI renderer API, as in nativephp/mobile and nativephp/mobile-ui at the locked revisions.
+          cat > /tmp/NativeUI.swift <<'SWIFT'
+          import SwiftUI
+          final class GenericProps {
+              func getString(_ key: String, default defaultValue: String = "") -> String { defaultValue }
+              func getInt(_ key: String, default defaultValue: Int = 0) -> Int { defaultValue }
+              func getBool(_ key: String, default defaultValue: Bool = false) -> Bool { defaultValue }
+              func getCallbackId(_ key: String) -> Int { 0 }
+          }
+          final class NativeUINode {
+              let id = 0
+              let props = GenericProps()
+          }
+          struct NativeUITokens {
+              let primary: Color
+              let onPrimary: Color
+          }
+          final class NativeUITheme: ObservableObject {
+              static let shared = NativeUITheme()
+              func resolve(for scheme: ColorScheme) -> NativeUITokens { NativeUITokens(primary: .blue, onPrimary: .white) }
+          }
+          final class NativeElementBridge {
+              static func sendToggleChangeEvent(_ callbackId: Int, nodeId: Int, value: Bool) {}
+          }
+          SWIFT
+          xcrun swiftc -typecheck -D CBOX_AUTHENTICATOR_SOURCE_CHECK -target arm64-apple-ios18.2-simulator -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" /tmp/BridgeFunction.swift /tmp/NativeUI.swift plugins/authenticator-security/resources/ios/*.swift
           plutil -lint plugins/authenticator-security/resources/ios/PrivacyInfo.xcprivacy
       - name: Test authentication lifecycle transitions
         run: |

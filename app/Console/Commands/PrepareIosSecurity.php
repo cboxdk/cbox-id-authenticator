@@ -396,6 +396,8 @@ SWIFT;
 
     private const TIME_SENSITIVE = 'com.apple.developer.usernotifications.time-sensitive';
 
+    private const ASSOCIATED_DOMAINS = 'com.apple.developer.associated-domains';
+
     private function prepareReleaseCapabilities(string $root): void
     {
         $enabled = config('authenticator.push_enabled') === true;
@@ -436,7 +438,7 @@ SWIFT;
                 throw new RuntimeException('Invalid release property list: '.$name);
             }
             $remove = $name === 'Info.plist'
-                ? ['CboxPushEnabled', 'ITSAppUsesNonExemptEncryption'] : [self::TIME_SENSITIVE];
+                ? ['CboxPushEnabled', 'ITSAppUsesNonExemptEncryption'] : [self::TIME_SENSITIVE, self::ASSOCIATED_DOMAINS];
             if (! $enabled) {
                 $remove[] = 'aps-environment';
                 // This app has no background feature other than remote notifications.
@@ -449,6 +451,21 @@ SWIFT;
                         $dict->removeChild($value);
                     }
                     $dict->removeChild($node);
+                }
+            }
+            if ($name !== 'Info.plist') {
+                // Universal Links: "Open Cbox ID app" on a phone's sign-in page opens the
+                // approval here. Replaced wholesale, so NativePHP's single deeplink_host
+                // (or its sample applinks:nativephp.com) never ships.
+                $domains = array_values(array_filter((array) config('authenticator.universal_link_domains', []),
+                    static fn (mixed $host): bool => is_string($host) && preg_match('/^(\*\.)?([a-z0-9-]+\.)+[a-z]{2,}$/', $host) === 1));
+                if ($domains !== []) {
+                    $dict->appendChild($document->createElement('key', self::ASSOCIATED_DOMAINS));
+                    $array = $document->createElement('array');
+                    foreach ($domains as $host) {
+                        $array->appendChild($document->createElement('string', 'applinks:'.$host));
+                    }
+                    $dict->appendChild($array);
                 }
             }
             if ($name !== 'Info.plist' && $enabled) {
