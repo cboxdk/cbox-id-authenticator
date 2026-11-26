@@ -328,7 +328,7 @@ class ApprovalDetail extends NativeComponent
      * step-up's binding message ("Confirm sign-in · host · 123456") still says which it is.
      * The comparison code is lifted out so it can be the largest thing on the screen.
      *
-     * @return array{kind: string, app: string, code: ?string, message: ?string, host: ?string, location: ?string, device: ?string, requested: ?int}
+     * @return array{kind: string, app: string, code: ?string, message: ?string, host: ?string, location: ?string, device: ?string, requested: ?int, organizationId: ?string, organizationName: ?string}
      */
     #[Computed]
     public function details(): array
@@ -362,6 +362,9 @@ class ApprovalDetail extends NativeComponent
             'location' => $place === [] ? null : implode(', ', $place),
             'device' => $text($origin['device'] ?? null),
             'requested' => $requested === false ? null : max(0, app(ServerClock::class)->now() - $requested),
+            // Only the server's request binding, never an account's ambient organization.
+            'organizationId' => $text($approval['organization_id'] ?? null),
+            'organizationName' => $text($approval['organization_name'] ?? null),
         ];
     }
 
