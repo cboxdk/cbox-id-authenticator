@@ -35,6 +35,23 @@ it('renders the decision screen for a live request', function (): void {
         ->assertSee('alice');
 });
 
+it('shows the organization from the approval, including its id when its name is unavailable', function (?string $name): void {
+    fakeSecureStorage();
+    anAccount();
+    $organization = '01j9zq3k4m5n6p7q8r9s0t1v2w';
+    Http::fake(['*/api/v1/approvals/*' => Http::response(['data' => [
+        'id' => '01APPROVAL', 'client_name' => 'Infra',
+        'binding_message' => 'Delete sandbox B', 'expires_at' => gmdate('c', time() + 120),
+        'organization_id' => $organization, 'organization_name' => $name,
+    ]])]);
+
+    $screen = Native::test(ApprovalDetail::class, ['account' => '01ACC', 'id' => '01APPROVAL'])
+        ->assertSee('Organization')->assertSee($organization)->assertSee('Delete sandbox B');
+    if ($name !== null) {
+        $screen->assertSee($name);
+    }
+})->with(['Sandbox B', null]);
+
 it('strips a query string the router left on the approval id', function (): void {
     // A notification deep link carries ?iss=…, and `[^/]+` does not stop at a `?`.
     // Asking the server for `01APPROVAL?iss=…` matches nothing, so a live request

@@ -106,6 +106,16 @@
                     <text class="text-base text-theme-destructive">{{ __("This request has no comparison message. Only approve if you just started this sign-in and recognize the application.") }}</text>
                 @endif
 
+                @if ($d['organizationId'] !== null)
+                    <column class="w-full gap-2 p-4 rounded-2xl bg-theme-surface border border-theme-outline/50">
+                        <text class="text-sm text-theme-on-surface-variant">{{ __('Organization') }}</text>
+                        @if ($d['organizationName'] !== null)
+                            <text class="text-base font-semibold text-theme-on-background">{{ $d['organizationName'] }}</text>
+                        @endif
+                        <text class="text-xs font-mono text-theme-on-surface-variant">{{ $d['organizationId'] }}</text>
+                    </column>
+                @endif
+
                 {{-- Where it comes from, as far as the server knows it. --}}
                 <column class="w-full gap-3 p-4 rounded-2xl bg-theme-surface border border-theme-outline/50">
                     @if ($d['kind'] !== 'sign_in' && $d['kind'] !== 'step_up')
