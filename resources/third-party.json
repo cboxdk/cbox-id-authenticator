@@ -1,7 +1,7 @@
 {
     "format": "cbox-composer-inventory-v1",
     "scope": "Production Composer dependencies. Native Apple/Firebase/Swift packages must also be inventoried from the signed archive.",
-    "lock_sha256": "d694e525c53d7d04801e97007d6372e1eef2fd87e4aa0165da4fb2eaa52b7764",
+    "lock_sha256": "476f370556b0890359af1821768385cdb151c5707d87c48762c7a1b847d86a49",
     "components": [
         {
             "type": "library",
@@ -720,8 +720,8 @@
         {
             "type": "library",
             "name": "symfony/http-foundation",
-            "version": "v8.1.11",
-            "reference": "30fa3efe6e736b0d06f5331cc6abe813582c0a26",
+            "version": "v8.1.12",
+            "reference": "8061f6d6b6ec8fc5075b5f39c8ddca83110da9c6",
             "licenses": [
                 "MIT"
             ],
@@ -730,8 +730,8 @@
         {
             "type": "library",
             "name": "symfony/http-kernel",
-            "version": "v8.1.11",
-            "reference": "460658504e26a2794aa614b4fbe6cf9bac2076fe",
+            "version": "v8.1.12",
+            "reference": "cd6146b67375122b050c25cfb1a49b6fe6fc4adb",
             "licenses": [
                 "MIT"
             ],
@@ -740,8 +740,8 @@
         {
             "type": "library",
             "name": "symfony/mailer",
-            "version": "v8.1.2",
-            "reference": "221c7f326ace1ac2baee8331d829d5b7f04f4d53",
+            "version": "v8.1.12",
+            "reference": "535515ab0bdc7efbfb7161fe23c6bf7434e26b93",
             "licenses": [
                 "MIT"
             ],
@@ -870,8 +870,8 @@
         {
             "type": "library",
             "name": "symfony/routing",
-            "version": "v8.1.11",
-            "reference": "f3fefc6cad3748d538be970ca81b71f06d7aa8b3",
+            "version": "v8.1.12",
+            "reference": "55df7515cdd7769113e46dbeba7942c1ccab8590",
             "licenses": [
                 "MIT"
             ],
